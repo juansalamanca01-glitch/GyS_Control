@@ -3,6 +3,29 @@
 Todos los cambios de código del proyecto se documentan aquí, del más reciente al más antiguo.
 Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1" remiten a `docs/auditoria-inicial.md`.
 
+## 2026-10-12
+
+### Fase 4, grupo 3: imágenes del foro (O-13, O-5 puntos 1 y 2)
+
+**Qué se cambió:**
+- `backend/foro/imagenes.py` (nuevo): `preparar_imagen(archivo)` revisa y limpia cada imagen antes de guardarla.
+  - Rechaza (400) un archivo que supera `FORO_MAX_TAMANO_IMAGEN`, cuya extensión no sea `.jpg`, `.jpeg`, `.png`, `.gif` o `.webp`, o cuyo formato real, según Pillow, no sea JPEG, PNG, GIF o WEBP. Un `ataque.html` que también es un PNG válido ya no se acepta (**O-13**). Tampoco un SVG ni un BMP.
+  - Vuelve a codificar la imagen con Pillow. Se pierde todo lo agregado después de la imagen (por ejemplo, HTML) y los metadatos EXIF (fecha, equipo, ubicación) (**O-5**, punto 2). Antes se aplica la orientación del EXIF, para que las fotos de celular no queden giradas. Los GIF y WEBP animados conservan sus cuadros. Los JPEG se guardan con calidad 90.
+  - La extensión guardada es la del formato real: un JPEG llamado `.png` se guarda como `.jpg`.
+- `backend/foro/models.py`: `ruta_imagen_publicacion` usa un nombre aleatorio (`uuid4`) con la extensión, sin el nombre original: `foro/publicaciones/<id>/<uuid>.<ext>` (**O-5**, punto 1). Sin migración, porque la función es la misma.
+- `backend/foro/views.py`: `subir_imagenes` usa `preparar_imagen()` en lugar de su propia revisión. Sigue revisando todos los archivos antes de guardar ninguno.
+- `backend/foro/admin.py`: `ImagenPublicacionForm` en el `ImagenInline`, para que las imágenes subidas en `/admin/` pasen por la misma revisión y limpieza. Lo aprobó el usuario junto con el resto.
+- `frontend/src/pages/ForoPage.jsx`: el selector de archivos ofrece solo `.jpg,.jpeg,.png,.gif,.webp` (`EXTENSIONES_IMAGEN`), y la revisión previa a publicar rechaza las demás extensiones con "no es una imagen permitida. Use JPG, PNG, GIF o WEBP".
+- Pruebas nuevas:
+  - `SeguridadImagenesForoTests` (11, `backend/foro/tests.py`). Antes del arreglo fallaban 9; las del SVG y el GIF animado ya pasaban y quedan para que no se rompan;
+  - `AdminImagenesForoTests` (3): el inline usa el formulario, un BMP se rechaza y se guarda una copia limpia con nombre aleatorio;
+  - 2 en `ForoPage.test.jsx`: los formatos no permitidos no se publican y el `accept` del selector.
+- **Pruebas:** 12 de la raíz, 299 del backend y 136 del frontend, todas en verde; `npm run check` sin errores ni avisos.
+- **Documentación:** `README.md` (estructura, endpoint de imágenes, características y seguridad), `CLAUDE.md` (imágenes del foro), `docs/auditoria-owasp.md` (estado de O-13 y O-5), el plan y `docs/progreso.md`.
+- **No incluido:** las imágenes ya guardadas conservan su nombre y su EXIF (hoy solo hay datos de prueba). El punto 4 de O-13 (cabeceras de `/media/`) va con O-6 en el grupo 6, y servir las imágenes con sesión (O-5, punto 3), en el grupo 8.
+
+**Por qué:** la auditoría OWASP comprobó que el foro guardaba el archivo con el nombre y la extensión que enviaba el usuario. Un PNG válido con HTML al final, llamado `ataque.html`, quedaba servido como página web en el origen de la app (XSS almacenado que podía leer los tokens). Además, la dirección de cada imagen era fácil de adivinar y las fotos conservaban su EXIF.
+
 ## 2026-10-11
 
 ### Fase 4, grupo 2: límites del login (O-16, O-17)

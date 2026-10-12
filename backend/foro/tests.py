@@ -73,6 +73,183 @@ class SubidaImagenesForoTests(APITestCase):
         self.assertEqual(ImagenPublicacion.objects.count(), 1)
 
 
+def imagen_en_bytes(formato, tamano=(4, 4), **opciones):
+    """Imagen pequeña de un color en el formato pedido (PNG, JPEG, GIF, WEBP)."""
+    buffer = io.BytesIO()
+    Image.new('RGB', tamano, (200, 30, 30)).save(buffer, format=formato, **opciones)
+    return buffer.getvalue()
+
+
+@override_settings(MEDIA_ROOT=CARPETA_MEDIA_PRUEBAS)
+class SeguridadImagenesForoTests(APITestCase):
+    """
+    Hallazgos O-13 y O-5 (puntos 1 y 2) de docs/auditoria-owasp.md: el archivo se
+    guardaba con el nombre y la extensión que mandaba el usuario, así que un PNG
+    válido con HTML al final y nombre «ataque.html» quedaba servido como página web
+    (XSS almacenado). Además, la ruta era previsible y la imagen conservaba EXIF.
+    """
+
+    PATRON_NOMBRE = r'^foro/publicaciones/{}/[0-9a-f]{{32}}\.{}$'
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(CARPETA_MEDIA_PRUEBAS, ignore_errors=True)
+        super().tearDownClass()
+
+    def setUp(self):
+        self.patologo = Usuario.objects.create_user(
+            username='patologo_imagenes',
+            password='ClaveSegura-2026',
+            rol=Usuario.Rol.PATOLOGO,
+        )
+        self.publicacion = Publicacion.objects.create(autor=self.patologo, titulo='Caso', contenido='Texto')
+        self.url = f'/api/foro/publicaciones/{self.publicacion.id}/imagenes/'
+        self.client.force_authenticate(self.patologo)
+
+    def subir(self, nombre, contenido, tipo='image/png'):
+        archivo = SimpleUploadedFile(nombre, contenido, content_type=tipo)
+        return self.client.post(self.url, {'imagenes': [archivo]}, format='multipart')
+
+    def guardada(self):
+        imagen = ImagenPublicacion.objects.get()
+        with imagen.imagen.open('rb') as archivo:
+            return imagen.imagen.name, archivo.read()
+
+    def test_rechaza_html_que_tambien_es_un_png_valido(self):
+        poliglota = imagen_en_bytes('PNG') + b'<html><script>alert(document.domain)</script></html>'
+        respuesta = self.subir('ataque.html', poliglota)
+        self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('ataque.html', respuesta.data['detail'])
+        self.assertEqual(ImagenPublicacion.objects.count(), 0)
+
+    def test_rechaza_extensiones_que_no_son_de_imagen(self):
+        for nombre in ['foto.svg', 'foto.php', 'foto.png.html', 'foto']:
+            with self.subTest(nombre=nombre):
+                respuesta = self.subir(nombre, imagen_en_bytes('PNG'))
+                self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(ImagenPublicacion.objects.count(), 0)
+
+    def test_rechaza_svg(self):
+        svg = b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'
+        respuesta = self.subir('dibujo.svg', svg, tipo='image/svg+xml')
+        self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(ImagenPublicacion.objects.count(), 0)
+
+    def test_rechaza_formatos_de_imagen_no_permitidos(self):
+        # Pillow abre un BMP, pero no está en la lista de formatos permitidos.
+        respuesta = self.subir('foto.bmp', imagen_en_bytes('BMP'), tipo='image/bmp')
+        self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(ImagenPublicacion.objects.count(), 0)
+
+    def test_quita_el_contenido_agregado_al_final_de_la_imagen(self):
+        poliglota = imagen_en_bytes('PNG') + b'<html><script>alert(document.domain)</script></html>'
+        respuesta = self.subir('foto.png', poliglota)
+        self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED)
+        _, contenido = self.guardada()
+        self.assertNotIn(b'<script', contenido)
+        Image.open(io.BytesIO(contenido)).verify()
+
+    def test_guarda_con_nombre_aleatorio_y_la_extension_del_formato_real(self):
+        respuesta = self.subir('IMG_0001.png', imagen_en_bytes('PNG'))
+        self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED)
+        nombre, _ = self.guardada()
+        self.assertRegex(nombre, self.PATRON_NOMBRE.format(self.publicacion.id, 'png'))
+        self.assertNotIn('IMG_0001', respuesta.data[0]['imagen'])
+
+    def test_la_extension_sale_del_formato_y_no_del_nombre(self):
+        # Un JPEG con nombre .png se acepta (pasa con fotos renombradas), pero se guarda como .jpg.
+        respuesta = self.subir('foto.png', imagen_en_bytes('JPEG'), tipo='image/png')
+        self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED)
+        nombre, contenido = self.guardada()
+        self.assertRegex(nombre, self.PATRON_NOMBRE.format(self.publicacion.id, 'jpg'))
+        self.assertEqual(Image.open(io.BytesIO(contenido)).format, 'JPEG')
+
+    def test_quita_los_metadatos_exif(self):
+        exif = Image.Exif()
+        exif[0x010F] = 'Fabricante de prueba'  # Make
+        exif[0x0132] = '2026:10:12 10:00:00'  # DateTime
+        respuesta = self.subir('foto.jpg', imagen_en_bytes('JPEG', exif=exif), tipo='image/jpeg')
+        self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED)
+        _, contenido = self.guardada()
+        self.assertNotIn(b'Fabricante de prueba', contenido)
+        self.assertEqual(len(Image.open(io.BytesIO(contenido)).getexif()), 0)
+
+    def test_respeta_la_orientacion_de_la_foto_al_quitar_el_exif(self):
+        # Orientación 6 = girada 90°: sin aplicarla, la foto saldría acostada al quitar el EXIF.
+        exif = Image.Exif()
+        exif[0x0112] = 6
+        respuesta = self.subir('foto.jpg', imagen_en_bytes('JPEG', tamano=(8, 4), exif=exif), tipo='image/jpeg')
+        self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED)
+        _, contenido = self.guardada()
+        self.assertEqual(Image.open(io.BytesIO(contenido)).size, (4, 8))
+
+    def test_conserva_la_animacion_de_un_gif(self):
+        cuadros = [Image.new('RGB', (4, 4), color) for color in [(255, 0, 0), (0, 255, 0), (0, 0, 255)]]
+        buffer = io.BytesIO()
+        cuadros[0].save(buffer, format='GIF', save_all=True, append_images=cuadros[1:], duration=100, loop=0)
+        respuesta = self.subir('animada.gif', buffer.getvalue(), tipo='image/gif')
+        self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED)
+        nombre, contenido = self.guardada()
+        self.assertTrue(nombre.endswith('.gif'))
+        self.assertEqual(Image.open(io.BytesIO(contenido)).n_frames, 3)
+
+    def test_acepta_los_formatos_permitidos(self):
+        for formato, nombre, extension in [
+            ('PNG', 'a.png', 'png'),
+            ('JPEG', 'b.jpeg', 'jpg'),
+            ('GIF', 'c.gif', 'gif'),
+            ('WEBP', 'd.webp', 'webp'),
+        ]:
+            with self.subTest(formato=formato):
+                respuesta = self.subir(nombre, imagen_en_bytes(formato))
+                self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED, respuesta.data)
+                imagen = ImagenPublicacion.objects.latest('id')
+                self.assertTrue(imagen.imagen.name.endswith(f'.{extension}'))
+
+
+@override_settings(MEDIA_ROOT=CARPETA_MEDIA_PRUEBAS)
+class AdminImagenesForoTests(APITestCase):
+    """En /admin/, las imágenes del foro pasan por la misma revisión y limpieza que en la API (O-13, O-5)."""
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(CARPETA_MEDIA_PRUEBAS, ignore_errors=True)
+        super().tearDownClass()
+
+    def setUp(self):
+        autor = Usuario.objects.create_user(username='autor_admin_foro', password='ClaveSegura-2026')
+        self.publicacion = Publicacion.objects.create(autor=autor, titulo='Caso', contenido='Texto')
+
+    def formulario(self, nombre, contenido):
+        from .admin import ImagenPublicacionForm
+
+        archivo = SimpleUploadedFile(nombre, contenido, content_type='image/png')
+        return ImagenPublicacionForm(data={'publicacion': self.publicacion.id}, files={'imagen': archivo})
+
+    def test_el_inline_usa_el_formulario_que_limpia(self):
+        from .admin import ImagenInline, ImagenPublicacionForm
+
+        self.assertIs(ImagenInline.form, ImagenPublicacionForm)
+
+    def test_rechaza_formatos_no_permitidos(self):
+        formulario = self.formulario('foto.bmp', imagen_en_bytes('BMP'))
+        self.assertFalse(formulario.is_valid())
+        self.assertIn('imagen', formulario.errors)
+
+    def test_guarda_una_copia_limpia_con_nombre_aleatorio(self):
+        exif = Image.Exif()
+        exif[0x010F] = 'Fabricante de prueba'
+        poliglota = imagen_en_bytes('JPEG', exif=exif) + b'<script>alert(1)</script>'
+        formulario = self.formulario('IMG_0001.jpeg', poliglota)
+        self.assertTrue(formulario.is_valid(), formulario.errors)
+        imagen = formulario.save()
+        self.assertRegex(imagen.imagen.name, rf'^foro/publicaciones/{self.publicacion.id}/[0-9a-f]{{32}}\.jpg$')
+        with imagen.imagen.open('rb') as archivo:
+            contenido = archivo.read()
+        self.assertNotIn(b'<script', contenido)
+        self.assertNotIn(b'Fabricante de prueba', contenido)
+
+
 class LimitePorDefectoTests(APITestCase):
     def test_el_limite_por_defecto_es_10_mb(self):
         from django.conf import settings

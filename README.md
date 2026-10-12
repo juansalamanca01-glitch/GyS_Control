@@ -58,7 +58,7 @@
 - **Catálogos de EPS y servicios**: se administran en la pantalla Catálogos. Lo que ya no se usa se desactiva en lugar de borrarse.
 - **Búsqueda y filtros**: por número de petición, nombre o documento del paciente, número de orden externa, patología o tipo de muestra, rango de fechas y estado. Resultados paginados de 20 en 20.
 - **Panel de inicio**: totales de informes (todos, borradores y finalizados) y los 10 más recientes.
-- **Foro de patólogos**: publicaciones por temas (los patólogos y administradores pueden crear temas nuevos), con hasta 6 imágenes (máximo 10 MB cada una) y comentarios. Un administrador puede fijar publicaciones importantes.
+- **Foro de patólogos**: publicaciones por temas (los patólogos y administradores pueden crear temas nuevos), con hasta 6 imágenes (JPG, PNG, GIF o WEBP; máximo 10 MB cada una) y comentarios. Un administrador puede fijar publicaciones importantes.
 - **Perfil de usuario**: edición de datos personales y cambio de contraseña. El registro médico se ve en solo lectura, y un patólogo sin registro ve un aviso de que no podrá finalizar informes.
 
 ---
@@ -183,6 +183,7 @@ patologia-app/
 │   │   └── tests.py
 │   ├── foro/
 │   │   ├── models.py          # TemaForo, Publicacion, ImagenPublicacion, Comentario
+│   │   ├── imagenes.py        # Revisión y limpieza de las imágenes subidas (formatos, EXIF, nombre)
 │   │   ├── serializers.py
 │   │   ├── views.py / urls.py # Endpoints /api/foro/
 │   │   └── tests.py
@@ -555,7 +556,7 @@ Adendas (etapa 8 del informe v2):
 | GET / PUT / PATCH / DELETE | `/api/foro/temas/{id}/` | Ver, editar o borrar un tema | Igual |
 | GET / POST | `/api/foro/publicaciones/` | Listar (`?tema=`, `?search=`) o crear publicaciones | Leer: todos · Crear: patólogo/admin (máx. 10/min) |
 | GET / PUT / PATCH / DELETE | `/api/foro/publicaciones/{id}/` | Ver (con imágenes y comentarios), editar o borrar. `fijado` solo lo cambia un admin | Autor / Admin |
-| POST | `/api/foro/publicaciones/{id}/imagenes/` | Subir imágenes (campo `imagenes`, multipart). Máx. 6 por publicación y 10 MB cada una; deben ser imágenes reales | Autor / Admin |
+| POST | `/api/foro/publicaciones/{id}/imagenes/` | Subir imágenes (campo `imagenes`, multipart). Máx. 6 por publicación y 10 MB cada una; solo JPG, PNG, GIF o WEBP reales. Se guardan con un nombre aleatorio y sin metadatos EXIF | Autor / Admin |
 | DELETE | `/api/foro/imagenes/{id}/` | Borrar una imagen | Autor de la publicación / Admin |
 | GET / POST | `/api/foro/comentarios/` | Listar (`?publicacion=`) o crear comentarios (máx. 3000 caracteres) | Leer: todos · Crear: patólogo/admin (máx. 20/min) |
 | GET / PUT / PATCH / DELETE | `/api/foro/comentarios/{id}/` | Editar o borrar un comentario. No se puede mover a otra publicación | Autor / Admin |
@@ -612,7 +613,7 @@ graph TD
 - **Configuración segura por defecto**: sin `SECRET_KEY` la app no arranca, y `DEBUG` es `False` si no se define. Con `DEBUG=False` se activan HTTPS, cookies seguras y HSTS, y CORS solo acepta los orígenes de `CORS_ALLOWED_ORIGINS`.
 - **PDF**: el texto escrito por el usuario se escapa, así que no puede romper ni alterar el documento. El nombre del archivo solo lleva el número de petición, nunca datos del paciente. El PDF de un borrador solo lo descargan su autor o un administrador, con marca de agua "BORRADOR".
 - **Integridad del informe**: un informe finalizado no se modifica (se corrige con adendas firmadas) y conserva los datos del paciente, la EPS, el servicio, la firma y el encabezado del laboratorio tal como estaban al finalizar (D-10, D-15).
-- **Imágenes del foro**: se comprueban el tamaño y que sean imágenes reales.
+- **Imágenes del foro**: se comprueban el tamaño, la extensión y el formato real (solo JPG, PNG, GIF y WEBP). Cada imagen se vuelve a codificar antes de guardarla, lo que quita los metadatos EXIF (fecha, equipo, ubicación) y cualquier contenido agregado, y se guarda con un nombre aleatorio. Igual en `/admin/`. Las direcciones de `/media/` no piden sesión: no subas imágenes con datos de pacientes.
 - **Datos de pacientes**: son datos de salud, que la Ley 1581 de 2012 considera sensibles. Solo los ven usuarios con sesión y se guardan solo los que aparecen en el informe. La [política de privacidad](frontend/src/pages/PoliticaPrivacidadPage.jsx) de la aplicación (`/politica-privacidad`) lo explica. Antes de un uso real haría falta una revisión legal.
 
 Para publicar la app en un servidor:

@@ -6,12 +6,16 @@ import client, { LISTA_COMPLETA, resultados } from '../api/client';
 // Debe coincidir con FORO_MAX_TAMANO_IMAGEN de backend/config/settings.py.
 const MAX_TAMANO_IMAGEN_MB = 10;
 
+// Deben coincidir con EXTENSIONES_PERMITIDAS de backend/foro/imagenes.py (hallazgo O-13).
+const EXTENSIONES_IMAGEN = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+
 // Revisa las imágenes antes de publicar (auditoría I-6). La validación de verdad
 // la hace el backend; esto evita crear la publicación si una imagen será rechazada.
 function errorEnImagenes(archivos) {
   for (const archivo of archivos) {
-    if (!archivo.type.startsWith('image/')) {
-      return `«${archivo.name}» no es una imagen.`;
+    const nombre = archivo.name.toLowerCase();
+    if (!EXTENSIONES_IMAGEN.some((extension) => nombre.endsWith(extension))) {
+      return `«${archivo.name}» no es una imagen permitida. Use JPG, PNG, GIF o WEBP.`;
     }
     if (archivo.size > MAX_TAMANO_IMAGEN_MB * 1024 * 1024) {
       return `«${archivo.name}» supera el tamaño máximo de ${MAX_TAMANO_IMAGEN_MB} MB.`;
@@ -282,7 +286,7 @@ export default function ForoPage() {
                 <label>Imágenes (opcional, máx. 6)</label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept={EXTENSIONES_IMAGEN.join(',')}
                   multiple
                   onChange={(e) => setArchivos(Array.from(e.target.files).slice(0, 6))}
                 />

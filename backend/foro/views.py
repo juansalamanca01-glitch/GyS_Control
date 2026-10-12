@@ -1,5 +1,3 @@
-from django import forms
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count
@@ -11,6 +9,7 @@ from rest_framework.throttling import ScopedRateThrottle
 
 from accounts.permissions import EsAutorOAdminOSoloLectura, EsPatologoOAdmin
 
+from .imagenes import preparar_imagen
 from .models import Comentario, ImagenPublicacion, Publicacion, TemaForo
 from .serializers import (
     ComentarioSerializer,
@@ -101,28 +100,16 @@ class PublicacionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Se revisan TODOS los archivos antes de guardar ninguno (auditoría I-6).
-        limite = settings.FORO_MAX_TAMANO_IMAGEN
-        for archivo in archivos:
-            if archivo.size > limite:
-                return Response(
-                    {'detail': f'«{archivo.name}» supera el tamaño máximo de {limite / (1024 * 1024):g} MB.'},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            try:
-                # Abre el archivo con Pillow: rechaza lo que no sea una imagen real,
-                # aunque tenga extensión .png (por ejemplo, un HTML disfrazado).
-                forms.ImageField().to_python(archivo)
-            except ValidationError:
-                return Response(
-                    {'detail': f'«{archivo.name}» no es una imagen válida.'},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        # Se revisan y limpian TODOS los archivos antes de guardar ninguno (auditoría I-6):
+        # tamaño, extensión y formato real permitidos, y una copia sin metadatos ni
+        # contenido agregado (hallazgos O-13 y O-5 de docs/auditoria-owasp.md).
+        try:
+            limpias = [preparar_imagen(archivo) for archivo in archivos]
+        except ValidationError as error:
+            return Response({'detail': error.messages[0]}, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
-            creadas = [
-                ImagenPublicacion.objects.create(publicacion=publicacion, imagen=archivo) for archivo in archivos
-            ]
+            creadas = [ImagenPublicacion.objects.create(publicacion=publicacion, imagen=limpia) for limpia in limpias]
 
         serializer = ImagenPublicacionSerializer(creadas, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)

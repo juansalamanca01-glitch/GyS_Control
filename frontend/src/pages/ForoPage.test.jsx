@@ -63,6 +63,35 @@ describe('ForoPage: imágenes de una nueva publicación', () => {
     expect(client.post).not.toHaveBeenCalled();
   });
 
+  // Hallazgo O-13 de docs/auditoria-owasp.md: solo JPG, PNG, GIF y WEBP, como en el backend.
+  it('no publica nada si la imagen no es de un formato permitido', async () => {
+    for (const [nombre, tipo] of [
+      ['dibujo.svg', 'image/svg+xml'],
+      ['foto.bmp', 'image/bmp'],
+      ['ataque.html', 'text/html'],
+    ]) {
+      const { container, unmount } = render(
+        <MemoryRouter>
+          <ForoPage />
+        </MemoryRouter>,
+      );
+      await abrirFormularioYPublicar(container, [archivo(nombre, tipo, 1000)]);
+      expect(await screen.findByText(/no es una imagen permitida/i)).toBeInTheDocument();
+      unmount();
+    }
+    expect(client.post).not.toHaveBeenCalled();
+  });
+
+  it('el selector de archivos solo ofrece los formatos permitidos', async () => {
+    const { container } = render(
+      <MemoryRouter>
+        <ForoPage />
+      </MemoryRouter>,
+    );
+    fireEvent.click(await screen.findByRole('button', { name: /Nueva publicación/i }));
+    expect(container.querySelector('input[type="file"]').getAttribute('accept')).toBe('.jpg,.jpeg,.png,.gif,.webp');
+  });
+
   it('si el backend rechaza las imágenes, cierra el formulario para no duplicar la publicación', async () => {
     client.post
       .mockResolvedValueOnce({ data: { id: 7 } })

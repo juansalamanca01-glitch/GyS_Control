@@ -1,9 +1,19 @@
+import os
+import uuid
+
 from django.conf import settings
 from django.db import models
 
 
 def ruta_imagen_publicacion(instance, filename):
-    return f'foro/publicaciones/{instance.publicacion_id}/{filename}'
+    """
+    Ruta de una imagen del foro: un nombre aleatorio con la extensión del archivo.
+
+    No se usa el nombre original, para que la dirección no se pueda adivinar ni lleve
+    datos del equipo del usuario (hallazgos O-5 y O-13 de docs/auditoria-owasp.md).
+    """
+    extension = os.path.splitext(filename)[1].lower()
+    return f'foro/publicaciones/{instance.publicacion_id}/{uuid.uuid4().hex}{extension}'
 
 
 class TemaForo(models.Model):
