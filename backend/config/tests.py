@@ -115,3 +115,34 @@ class NumProxiesTests(SimpleTestCase):
     def test_num_proxies_se_lee_del_entorno(self):
         settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests', 'NUM_PROXIES': '1'})
         self.assertEqual(settings.REST_FRAMEWORK['NUM_PROXIES'], 1)
+
+
+class RegistrosTests(SimpleTestCase):
+    """
+    Hallazgo O-21 de docs/auditoria-owasp.md: sin LOGGING, con DEBUG=False los errores 500
+    iban a `mail_admins` con ADMINS vacío, es decir, a ningún lado. Ahora van a la consola
+    (la recoge el servidor), igual que los registros de seguridad, sin depender de DEBUG.
+    """
+
+    def manejadores(self, settings, logger):
+        configuracion = settings.LOGGING
+        nombres = configuracion['loggers'][logger]['handlers']
+        return [configuracion['handlers'][nombre] for nombre in nombres]
+
+    def test_los_errores_500_van_a_la_consola_con_debug_false(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests'})
+        self.assertFalse(settings.DEBUG)
+        manejadores = self.manejadores(settings, 'django.request')
+        self.assertTrue(any(m['class'] == 'logging.StreamHandler' for m in manejadores))
+        # Sin el filtro require_debug_true, que los dejaría fuera en producción.
+        self.assertTrue(all('require_debug_true' not in m.get('filters', []) for m in manejadores))
+
+    def test_el_registro_de_seguridad_va_a_la_consola(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests'})
+        manejadores = self.manejadores(settings, 'seguridad')
+        self.assertTrue(any(m['class'] == 'logging.StreamHandler' for m in manejadores))
+        self.assertEqual(settings.LOGGING['loggers']['seguridad']['level'], 'INFO')
+
+    def test_el_nivel_se_lee_del_entorno(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests', 'LOG_LEVEL': 'WARNING'})
+        self.assertEqual(settings.LOGGING['loggers']['seguridad']['level'], 'WARNING')

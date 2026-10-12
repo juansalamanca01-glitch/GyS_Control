@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 
 from accounts.permissions import EsAutorOAdminOSoloLectura, EsPatologoOAdmin
 from config.catalogos import filtrar_por_activo
+from config.filtros import parametro_entero, parametro_fecha
 from pacientes.models import Sexo, TipoDocumento
 
 from .models import Categoria, Informe, Patologia, Plantilla, Servicio, firma_de
@@ -25,7 +26,7 @@ from .serializers import (
     PlantillaSerializer,
     ServicioSerializer,
 )
-from .utils import generar_descripcion_macroscopica, generar_pdf_informe
+from .utils import generar_pdf_informe
 
 
 class CategoriaViewSet(viewsets.ModelViewSet):
@@ -59,7 +60,7 @@ class PatologiaViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        categoria_id = self.request.query_params.get('categoria')
+        categoria_id = parametro_entero(self.request, 'categoria')
         if categoria_id:
             qs = qs.filter(categoria_id=categoria_id)
         # ?activa=true / ?activa=false (decisión D-4): "Nuevo informe" pide solo las activas.
@@ -96,7 +97,7 @@ class PlantillaViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        patologia_id = self.request.query_params.get('patologia')
+        patologia_id = parametro_entero(self.request, 'patologia')
         if patologia_id:
             qs = qs.filter(patologia_id=patologia_id)
         return qs
@@ -213,11 +214,12 @@ class InformeViewSet(viewsets.ModelViewSet):
                 | Q(paciente__apellidos__icontains=palabra)
             )
 
-        fecha_desde = params.get('fecha_desde')
+        # Fechas e ids se comprueban antes de filtrar: un valor no válido responde 400 (O-22).
+        fecha_desde = parametro_fecha(self.request, 'fecha_desde')
         if fecha_desde:
             qs = qs.filter(fecha__gte=fecha_desde)
 
-        fecha_hasta = params.get('fecha_hasta')
+        fecha_hasta = parametro_fecha(self.request, 'fecha_hasta')
         if fecha_hasta:
             qs = qs.filter(fecha__lte=fecha_hasta)
 
@@ -225,29 +227,19 @@ class InformeViewSet(viewsets.ModelViewSet):
         if estado:
             qs = qs.filter(estado=estado)
 
-        patologia_id = params.get('patologia')
+        patologia_id = parametro_entero(self.request, 'patologia')
         if patologia_id:
             qs = qs.filter(patologia_id=patologia_id)
 
-        paciente_id = params.get('paciente')
+        paciente_id = parametro_entero(self.request, 'paciente')
         if paciente_id:
             qs = qs.filter(paciente_id=paciente_id)
 
         return qs
 
     def perform_create(self, serializer):
-        informe = serializer.save(autor=self.request.user)
-        # Genera la descripción macroscópica
-        texto = generar_descripcion_macroscopica(informe.patologia, informe.datos_ingresados)
-        informe.texto_generado = texto
-        informe.save(update_fields=['texto_generado'])
-
-    def perform_update(self, serializer):
-        informe = serializer.save()
-        # Vuelve a generar la descripción al editar
-        texto = generar_descripcion_macroscopica(informe.patologia, informe.datos_ingresados)
-        informe.texto_generado = texto
-        informe.save(update_fields=['texto_generado'])
+        # La descripción macroscópica la genera InformeSerializer, en la misma transacción (O-23).
+        serializer.save(autor=self.request.user)
 
     @action(detail=False, methods=['get'], url_path='estadisticas')
     def estadisticas(self, request):

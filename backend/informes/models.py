@@ -1,11 +1,37 @@
 from datetime import date
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError, models, transaction
 from django.db.models import F
 from django.utils import timezone
 
 from pacientes.models import edad_en_texto
+
+# Límites de Informe.datos_ingresados (hallazgo O-23 de docs/auditoria-owasp.md). Las
+# plantillas tienen pocos campos y valores cortos; estos topes dejan mucho margen.
+MAX_CAMPOS_DATOS_INGRESADOS = 100
+MAX_LARGO_VALOR_DATOS_INGRESADOS = 5000
+
+
+def validar_datos_ingresados(valor):
+    """
+    Los datos del formulario dinámico deben ser un objeto {campo: valor}, con cada valor
+    texto, número, booleano o nulo. Antes se aceptaba cualquier JSON (una lista, un número…)
+    y el informe fallaba con un error 500 después de guardarse (O-23). Lo aplican la API
+    (DRF copia los validadores del modelo) y /admin/.
+    """
+    if not isinstance(valor, dict):
+        raise ValidationError('Debe ser un objeto con los campos del formulario.')
+    if len(valor) > MAX_CAMPOS_DATOS_INGRESADOS:
+        raise ValidationError(f'Admite como máximo {MAX_CAMPOS_DATOS_INGRESADOS} campos.')
+    for campo, dato in valor.items():
+        if dato is not None and not isinstance(dato, (str, int, float, bool)):
+            raise ValidationError(f'El campo «{campo}» debe ser un texto, un número o sí/no.')
+        if isinstance(dato, str) and len(dato) > MAX_LARGO_VALOR_DATOS_INGRESADOS:
+            raise ValidationError(
+                f'El campo «{campo}» admite como máximo {MAX_LARGO_VALOR_DATOS_INGRESADOS} caracteres.'
+            )
 
 
 class Categoria(models.Model):
@@ -246,6 +272,9 @@ class Informe(models.Model):
     tipo_muestra = models.CharField(max_length=200, blank=True, verbose_name='Tipo de muestra')
     datos_ingresados = models.JSONField(
         default=dict,
+        # blank=True: un informe sin datos ({}) también se guarda en /admin/.
+        blank=True,
+        validators=[validar_datos_ingresados],
         verbose_name='Datos ingresados',
         help_text='JSON con los valores del formulario dinámico.',
     )

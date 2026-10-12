@@ -351,3 +351,29 @@ class TemasInicialesTests(APITestCase):
         from .models import TemaForo
 
         self.assertEqual(TemaForo.objects.count(), 4)
+
+
+class FiltrosNoValidosForoTests(APITestCase):
+    """Hallazgo O-22 de docs/auditoria-owasp.md: ?tema= y ?publicacion= no válidos respondían 500."""
+
+    def setUp(self):
+        self.auditor = Usuario.objects.create_user(
+            username='auditor_filtros_foro', password='ClaveSegura-2026', rol=Usuario.Rol.AUDITOR
+        )
+        self.client.force_authenticate(self.auditor)
+
+    def test_valores_no_validos_responden_400(self):
+        for url, parametro in [
+            ('/api/foro/publicaciones/?tema=abc', 'tema'),
+            ('/api/foro/comentarios/?publicacion=abc', 'publicacion'),
+            ('/api/foro/comentarios/?publicacion=1.5', 'publicacion'),
+        ]:
+            with self.subTest(url=url):
+                respuesta = self.client.get(url)
+                self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn(parametro, respuesta.data)
+
+    def test_valores_validos_siguen_filtrando(self):
+        for url in ['/api/foro/publicaciones/?tema=1', '/api/foro/comentarios/?publicacion=1']:
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, status.HTTP_200_OK)

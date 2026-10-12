@@ -13,7 +13,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** `C:\Users\salam\Desktop\patolab-app-actualizado\patologia-app`.
 - **Plan vigente:** `docs/plan-calidad-y-diseno.md`, aprobado el 2026-10-08. Cada fase va en su propia rama desde `main`.
-- **Rama de trabajo:** `fase-4-imagenes-foro` (fase 4, grupo 3), creada el 2026-10-12.
+- **Rama de trabajo:** `fase-4-errores-registros` (fase 4, grupo 5), creada el 2026-10-12. El grupo 3 ya está en `main`.
 - **Estado:**
   - Están terminados y en `main`:
     - la auditoría inicial (salvo I-9c);
@@ -29,7 +29,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
   5. Antes del commit, si el cambio toca código, ejecutar `npm run check` y todas las pruebas (raíz, backend y frontend). Si algo falla, no se hace el commit hasta corregirlo. Si el commit solo cambia documentación, no hace falta ejecutar las pruebas (regla 7 de `CLAUDE.md`).
   6. Hacer el commit.
   7. Hacer `git push` de la rama de trabajo después de cada commit, como respaldo. El usuario lo autorizó el 2026-10-03. Unir la rama a `main` requiere preguntar aparte.
-- **Pruebas:** 12 de la raíz (`npm test`, comprobaciones de `npm run dev` y de `npm run check`), 299 del backend (`cd backend` y luego `python manage.py test`; con SQLite usan el archivo `backend/test_db.sqlite3`) y 136 del frontend (`cd frontend` y luego `npm test`). Todas pasan.
+- **Pruebas:** 12 de la raíz (`npm test`, comprobaciones de `npm run dev` y de `npm run check`), 318 del backend (`cd backend` y luego `python manage.py test`; con SQLite usan el archivo `backend/test_db.sqlite3`) y 136 del frontend (`cd frontend` y luego `npm test`). Todas pasan.
 
 ## Hecho
 
@@ -103,6 +103,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 | O-1, O-3, O-4 / D-14 | Fase 4, grupo 1: `estado` de solo lectura en la API y en `/admin/` (solo `finalizar` lo cambia); en `/admin/`, un finalizado no se modifica ni se borra (tampoco en lote) y sus diagnósticos son de solo lectura. 16 pruebas nuevas | commit "fix(seguridad): integridad del informe (fase 4, grupo 1)" |
 | O-16, O-17 | Fase 4, grupo 2: el login y el registro vuelven a tener límite de intentos (`throttle_scope` en la vista, sin perder los globales; se borra `accounts/throttles.py`) y `NUM_PROXIES` (0 por defecto) impide saltarlos con `X-Forwarded-For`. 6 pruebas nuevas | commit "fix(seguridad): límites del login (fase 4, grupo 2)" |
 | O-13, O-5 (1 y 2) | Fase 4, grupo 3: solo se aceptan JPG, PNG, GIF y WEBP (extensión y formato real); cada imagen se vuelve a codificar (sin EXIF ni contenido agregado, con su orientación y animación) y se guarda con un nombre aleatorio; igual en `/admin/`. `foro/imagenes.py` nuevo; 16 pruebas nuevas (14 del backend, 2 del frontend) | commit "fix(seguridad): imágenes del foro (fase 4, grupo 3)" |
+| O-22, O-23, O-21 | Fase 4, grupo 5: filtros de la URL con 400 en vez de 500 (`config/filtros.py`); `datos_ingresados` validado en el modelo (objeto, valores simples, límites) y `{}` se guarda en `/admin/` (migración 0013); `texto_generado` en la misma transacción; `LOGGING` y registro de logins (logger `seguridad`, `LOG_LEVEL`). 19 pruebas nuevas | commit "fix(seguridad): errores y registros (fase 4, grupo 5)" |
 
 ## Siguiente paso
 
@@ -110,8 +111,8 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 2. **Fase 4, una rama por grupo** (tabla en la fase 4 del plan). El 2026-10-11 y el 2026-10-12, en orden:
    1. grupo 1, integridad del informe (O-1, O-3, O-4/D-14): **hecho** y unido a `main` el 2026-10-11;
    2. grupo 2, límites del login (O-16, O-17), **hecho** y unido a `main` el 2026-10-11;
-   3. grupo 3, imágenes del foro (O-13, O-5 puntos 1 y 2), rama `fase-4-imagenes-foro`: **hecho** el 2026-10-12 (también en `/admin/`, aprobado por el usuario). Falta preguntar si se une a `main`;
-   4. grupo 5, errores y registros (O-22, O-23, O-21). Incluye, junto con O-23 porque es el mismo campo, el problema de `/admin/` con `datos_ingresados` vacío: un informe con `{}` no se guarda ahí ("Este campo es requerido"). Lo encontramos el 2026-10-11 al escribir las pruebas del grupo 1. Antes de aplicarlo, se explica al usuario la forma de arreglarlo, coherente con O-23.
+   3. grupo 3, imágenes del foro (O-13, O-5 puntos 1 y 2), rama `fase-4-imagenes-foro`: **hecho** y unido a `main` el 2026-10-12 (también en `/admin/`, aprobado por el usuario);
+   4. grupo 5, errores y registros (O-22, O-23, O-21), rama `fase-4-errores-registros`: **hecho** el 2026-10-12. El tamaño máximo de los textos largos queda para el grupo 8 (decisión del usuario). Incluye el problema de `/admin/` con `datos_ingresados` vacío, ya resuelto (`blank=True` y el mismo validador de O-23). Falta preguntar si se une a `main`.
 3. **Martes 2026-10-13: fase nueva de Cypress**, que el usuario presenta el viernes 2026-10-16. Empieza ese día aunque la fase 4 no haya terminado; su contenido se define entonces.
 4. **Después del 2026-10-16:** grupos 4 (Django 5.2), 6 (cuentas y sesiones, D-16) y 7 (concurrencia) de la fase 4; luego las fases 5 a 8.
 4. **Para arrancar la aplicación:** `npm run dev` en la raíz y abrir http://localhost:5173. Se detiene con Ctrl + C (en Windows, responder `S` si pregunta "¿Desea terminar el trabajo por lotes?").
@@ -188,6 +189,7 @@ Vienen de la hoja de ruta del README y de la propuesta v2. Ninguna está pedida:
 - firma digital criptográfica;
 - integración HL7/FHIR;
 - contenedores Docker;
+- en `/admin/`, regenerar `texto_generado` al guardar un borrador (hoy solo lo hace la API; ya pasaba antes). Lo anotamos en el grupo 5 de la fase 4 (2026-10-12);
 - estado **"Anulado"** para un informe finalizado por error. Hoy se deja constancia con una adenda, porque un finalizado no se modifica ni se borra (D-3, D-14). Lo anotó el usuario el 2026-10-08.
 
 La etapa 10 de la propuesta (imagen de la firma) no aparece en la hoja de ruta del README; se agrega allí en la fase 8.
@@ -212,5 +214,5 @@ Quedan dos:
 
 ## Pendiente de respuesta del usuario
 
-- Unir `fase-4-imagenes-foro` (grupo 3) a `main` y empezar el grupo 5 (2026-10-12).
+- Unir `fase-4-errores-registros` (grupo 5) a `main` (2026-10-12).
 - Las preguntas de la fase 3 se respondieron el 2026-10-11. La de los borradores ajenos queda para el patólogo y el profesor (sección "Pendientes", punto 2).

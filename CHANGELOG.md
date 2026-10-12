@@ -5,6 +5,27 @@ Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1
 
 ## 2026-10-12
 
+### Fase 4, grupo 5: errores y registros (O-22, O-23, O-21)
+
+**Qué se cambió:**
+- `backend/config/filtros.py` (nuevo): `parametro_entero()` y `parametro_fecha()` leen un filtro de la URL y responden 400 con un mensaje en español (`{"patologia": "Debe ser un número entero positivo."}`) si no es válido. Un valor vacío cuenta como sin filtro.
+  - Se usan en `?categoria=` (patologías), `?patologia=` (plantillas), `?fecha_desde=`, `?fecha_hasta=`, `?patologia=` y `?paciente=` (informes y estadísticas), `?tema=` y `?publicacion=` (foro). Antes respondían 500 con un texto, una fecha imposible o un número demasiado grande (**O-22**).
+- `backend/informes/models.py`: `validar_datos_ingresados` en `Informe.datos_ingresados`. Debe ser un objeto con textos, números, booleanos o nulos, de máximo 100 campos y 5000 caracteres por valor. Como está en el modelo, DRF lo aplica en la API y Django en `/admin/` (**O-23**). El campo pasa a `blank=True`: en `/admin/`, un informe con `{}` ya se puede guardar.
+- `backend/informes/migrations/0013_datos_ingresados_validados.py`: solo cambia la definición del campo; no toca datos.
+- `backend/informes/serializers.py` y `views.py`: `texto_generado` se genera en `InformeSerializer.create` y `update` (`_generar_texto`), dentro de la misma transacción que el informe y sus diagnósticos. Antes se generaba en `perform_create` y `perform_update`, después de guardar: si fallaba, quedaba un informe a medias con su número de petición gastado (**O-23**).
+- Registros (**O-21**):
+  - `backend/config/settings.py`: `LOGGING` manda a la consola los errores 500 (`django.request`) y el logger `seguridad`, también con `DEBUG=False`. Antes, con `DEBUG=False` y `ADMINS` vacío, no iban a ningún lado. `LOG_LEVEL` (`INFO` por defecto) se lee de `backend/.env`; `.env.example` lo explica.
+  - `backend/accounts/signals.py` (nuevo) y `accounts/apps.py` (nuevo, conecta las señales): registran los logins fallidos (aviso) y los correctos de `/admin/`, con el usuario y la IP (como los límites, respetando `NUM_PROXIES`). El usuario se recorta y va en una sola línea, para que no se puedan inventar líneas en el registro.
+  - `backend/accounts/views.py`: `CustomTokenView.post` registra los logins correctos de la API, porque SimpleJWT no emite `user_logged_in`.
+  - Nunca se registran contraseñas, tokens ni datos de pacientes.
+  - `backend/config/test_runner.py`: silencia la salida a la consola durante las pruebas; `assertLogs()` sigue funcionando.
+- Pruebas nuevas (19): `FiltrosNoValidosTests` (2), `DatosIngresadosTests` (6) y `AdminDatosIngresadosTests` (2) en `informes/tests.py`; `FiltrosNoValidosForoTests` (2) en `foro/tests.py`; `RegistroDeAccesosTests` (4) en `accounts/tests.py`; `RegistrosTests` (3) en `config/tests.py`. Antes del arreglo fallaban 14 de las 17 primeras (las otras 3 son de control); las 2 últimas de `RegistroDeAccesosTests` se agregaron con el arreglo.
+- **Pruebas:** 12 de la raíz, 318 del backend y 136 del frontend, todas en verde; `npm run check` sin errores ni avisos.
+- **Documentación:** `README.md` (estructura, filtros y `datos_ingresados` en la API, seguridad, publicación), `CLAUDE.md`, `docs/auditoria-owasp.md`, el plan y `docs/progreso.md`.
+- **No incluido, por decisión del usuario:** el tamaño máximo de los textos largos (microscópica, comentarios, diagnósticos, adendas, foro) queda para el grupo 8. Que `/admin/` no regenere `texto_generado` al guardar (ya pasaba antes) queda anotado en los pendientes.
+
+**Por qué:** la auditoría OWASP comprobó que cualquier usuario con sesión podía provocar errores 500 con un filtro mal escrito, que un `datos_ingresados` que no era un objeto dejaba un informe guardado a medias, y que con `DEBUG=False` ni esos errores ni los logins fallidos quedaban registrados.
+
 ### Fase 4, grupo 3: imágenes del foro (O-13, O-5 puntos 1 y 2)
 
 **Qué se cambió:**

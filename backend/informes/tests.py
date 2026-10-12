@@ -2766,7 +2766,6 @@ class AdminInformeFinalizadoTests(TestCase):
             autor=self.autor,
             paciente=self.paciente,
             descripcion_microscopica='Texto original.',
-            # En /admin/, un JSON vacío ({}) cuenta como campo sin llenar y el formulario no se guarda.
             datos_ingresados={'peso': '12 g'},
         )
         Diagnostico.objects.create(informe=informe, orden=1, descripcion='Diagnóstico original')
@@ -2892,3 +2891,166 @@ class AdminInformeFinalizadoTests(TestCase):
         informe = self.crear_informe(finalizado=False)
         self.borrar_en_lote(informe)
         self.assertFalse(Informe.objects.filter(id=informe.id).exists())
+
+
+class FiltrosNoValidosTests(APITestCase):
+    """
+    Hallazgo O-22 de docs/auditoria-owasp.md: un filtro con un valor que no es un número
+    o una fecha llegaba sin revisar a filter() y respondía 500. Debe responder 400 con
+    un mensaje en español. Solo datos ficticios.
+    """
+
+    def setUp(self):
+        self.patologo = Usuario.objects.create_user(
+            username='patologo_filtros',
+            password='ClaveSegura-2026',
+            rol=Usuario.Rol.PATOLOGO,
+        )
+        self.client.force_authenticate(self.patologo)
+        self.patologia = Patologia.objects.create(nombre='Patología filtros')
+        self.paciente = paciente_ficticio()
+        self.informe = Informe.objects.create(patologia=self.patologia, autor=self.patologo, paciente=self.paciente)
+
+    def test_valores_no_validos_responden_400(self):
+        for url, parametro in [
+            ('/api/informes/?fecha_desde=abc', 'fecha_desde'),
+            ('/api/informes/?fecha_hasta=2026-13-45', 'fecha_hasta'),
+            ('/api/informes/?patologia=abc', 'patologia'),
+            ('/api/informes/?paciente=abc', 'paciente'),
+            ('/api/informes/?paciente=99999999999999999999999', 'paciente'),
+            ('/api/informes/?patologia=-3', 'patologia'),
+            ('/api/informes/estadisticas/?fecha_hasta=2026-13-45', 'fecha_hasta'),
+            ('/api/informes/estadisticas/?patologia=abc', 'patologia'),
+            ('/api/patologias/?categoria=abc', 'categoria'),
+            ('/api/plantillas/?patologia=abc', 'patologia'),
+        ]:
+            with self.subTest(url=url):
+                respuesta = self.client.get(url)
+                self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn(parametro, respuesta.data)
+
+    def test_valores_validos_siguen_filtrando(self):
+        hoy = timezone.localdate().isoformat()
+        for url, total in [
+            (f'/api/informes/?patologia={self.patologia.id}', 1),
+            (f'/api/informes/?patologia={self.patologia.id + 1}', 0),
+            (f'/api/informes/?paciente={self.paciente.id}', 1),
+            (f'/api/informes/?fecha_desde={hoy}&fecha_hasta={hoy}', 1),
+            ('/api/informes/?fecha_desde=2000-01-01&fecha_hasta=2000-01-02', 0),
+            ('/api/informes/?patologia=', 1),
+        ]:
+            with self.subTest(url=url):
+                respuesta = self.client.get(url)
+                self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+                self.assertEqual(respuesta.data['count'], total)
+
+
+class DatosIngresadosTests(APITestCase):
+    """
+    Hallazgo O-23 de docs/auditoria-owasp.md: `datos_ingresados` aceptaba cualquier JSON.
+    Con una lista, el informe se guardaba (gastando un número de petición, D-7) y después
+    fallaba al generar la descripción: 500 y un informe con datos no válidos.
+    Solo datos ficticios.
+    """
+
+    URL = '/api/informes/'
+
+    def setUp(self):
+        self.patologo = Usuario.objects.create_user(
+            username='patologo_datos',
+            password='ClaveSegura-2026',
+            rol=Usuario.Rol.PATOLOGO,
+        )
+        self.client.force_authenticate(self.patologo)
+        self.patologia = Patologia.objects.create(nombre='Patología datos')
+        self.paciente = paciente_ficticio()
+
+    def crear(self, datos):
+        cuerpo = {'patologia': self.patologia.id, 'paciente': self.paciente.id, 'datos_ingresados': datos}
+        return self.client.post(self.URL, cuerpo, format='json')
+
+    def test_rechaza_datos_que_no_son_un_objeto(self):
+        for datos in [[1, 2], 5, 'texto', True]:
+            with self.subTest(datos=datos):
+                respuesta = self.crear(datos)
+                self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn('datos_ingresados', respuesta.data)
+        self.assertEqual(Informe.objects.count(), 0)
+
+    def test_rechaza_valores_anidados(self):
+        for datos in [{'peso': {'valor': 12}}, {'peso': [12, 13]}]:
+            with self.subTest(datos=datos):
+                respuesta = self.crear(datos)
+                self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn('datos_ingresados', respuesta.data)
+        self.assertEqual(Informe.objects.count(), 0)
+
+    def test_rechaza_demasiados_campos_o_textos_muy_largos(self):
+        from .models import MAX_CAMPOS_DATOS_INGRESADOS, MAX_LARGO_VALOR_DATOS_INGRESADOS
+
+        muchos = {f'campo_{n}': 'x' for n in range(MAX_CAMPOS_DATOS_INGRESADOS + 1)}
+        largo = {'observaciones': 'x' * (MAX_LARGO_VALOR_DATOS_INGRESADOS + 1)}
+        for datos in [muchos, largo]:
+            respuesta = self.crear(datos)
+            self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Informe.objects.count(), 0)
+
+    def test_acepta_textos_numeros_booleanos_y_nulos(self):
+        respuesta = self.crear({'peso': 12.5, 'localizacion': 'Antebrazo', 'necrosis': False, 'color': None})
+        self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED, respuesta.data)
+        self.assertIn('El peso registrado es de 12.5 gramos.', respuesta.data['texto_generado'])
+
+    def test_un_patch_con_una_lista_no_cambia_el_informe(self):
+        informe_id = self.crear({'peso': '12'}).data['id']
+        respuesta = self.client.patch(f'{self.URL}{informe_id}/', {'datos_ingresados': [1, 2]}, format='json')
+        self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Informe.objects.get(id=informe_id).datos_ingresados, {'peso': '12'})
+
+    def test_si_falla_la_descripcion_no_queda_el_informe_guardado(self):
+        # El texto se genera en la misma transacción que el guardado: si falla, no queda nada.
+        with mock.patch('informes.serializers.generar_descripcion_macroscopica', side_effect=RuntimeError):
+            with self.assertRaises(RuntimeError):
+                self.crear({'peso': '12'})
+        self.assertEqual(Informe.objects.count(), 0)
+
+
+class AdminDatosIngresadosTests(TestCase):
+    """
+    En /admin/, un informe con `datos_ingresados = {}` no se podía guardar ("Este campo es
+    requerido"), aunque la API lo acepta. Y un valor que no es un objeto debe rechazarse
+    también ahí (O-23). Solo datos ficticios.
+    """
+
+    def setUp(self):
+        superusuario = Usuario.objects.create_superuser(
+            username='super_admin_datos', password='ClaveSegura-2026', rol=Usuario.Rol.ADMIN
+        )
+        self.client.force_login(superusuario)
+        self.autor = Usuario.objects.create_user(
+            username='patologo_admin_datos', password='ClaveSegura-2026', rol=Usuario.Rol.PATOLOGO
+        )
+        self.informe = Informe.objects.create(
+            patologia=Patologia.objects.create(nombre='Patología admin datos'),
+            autor=self.autor,
+            paciente=paciente_ficticio(),
+            datos_ingresados={},
+        )
+        self.ficha = f'/admin/informes/informe/{self.informe.id}/change/'
+
+    def guardar(self, **cambios):
+        datos = datos_formulario_admin(self.client.get(self.ficha))
+        datos.update(cambios)
+        return self.client.post(self.ficha, datos)
+
+    def test_se_guarda_con_datos_vacios(self):
+        respuesta = self.guardar(datos_ingresados='{}', comentarios='Guardado desde admin')
+        self.assertEqual(respuesta.status_code, 302)
+        self.informe.refresh_from_db()
+        self.assertEqual(self.informe.comentarios, 'Guardado desde admin')
+
+    def test_rechaza_datos_que_no_son_un_objeto(self):
+        respuesta = self.guardar(datos_ingresados='[1, 2]')
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertIn('datos_ingresados', respuesta.context['adminform'].form.errors)
+        self.informe.refresh_from_db()
+        self.assertEqual(self.informe.datos_ingresados, {})

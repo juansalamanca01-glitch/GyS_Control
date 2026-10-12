@@ -7,6 +7,7 @@ from rest_framework import serializers
 from config.catalogos import NombreCatalogoMixin
 
 from .models import Adenda, Categoria, Diagnostico, Informe, Patologia, Plantilla, Servicio
+from .utils import generar_descripcion_macroscopica
 
 MAX_DIAGNOSTICOS = 20
 # Letra, dos cifras y, opcionalmente, un punto con uno o dos caracteres: C44, C44.3, M80.90.
@@ -256,11 +257,14 @@ class InformeSerializer(serializers.ModelSerializer):
         return data
 
     # El informe y sus diagnósticos se guardan juntos: si algo falla, no queda ninguno a medias.
+    # La descripción macroscópica también se genera ahí: antes se generaba después de
+    # guardar, y si fallaba quedaba un informe a medias con su número gastado (O-23).
     def create(self, validated_data):
         diagnosticos = validated_data.pop('diagnosticos', [])
         with transaction.atomic():
             informe = super().create(validated_data)
             self._guardar_diagnosticos(informe, diagnosticos)
+            self._generar_texto(informe)
         return informe
 
     def update(self, instance, validated_data):
@@ -269,7 +273,13 @@ class InformeSerializer(serializers.ModelSerializer):
             informe = super().update(instance, validated_data)
             if diagnosticos is not None:
                 self._guardar_diagnosticos(informe, diagnosticos)
+            self._generar_texto(informe)
         return informe
+
+    def _generar_texto(self, informe):
+        """Redacta de nuevo la descripción macroscópica con los datos guardados."""
+        informe.texto_generado = generar_descripcion_macroscopica(informe.patologia, informe.datos_ingresados)
+        informe.save(update_fields=['texto_generado'])
 
     def _guardar_diagnosticos(self, informe, diagnosticos):
         """Reemplaza los diagnósticos del informe; el orden es el de la lista (1, 2, 3...)."""

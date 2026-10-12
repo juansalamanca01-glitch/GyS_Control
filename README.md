@@ -159,13 +159,15 @@ patologia-app/
 │   │   ├── models.py          # Modelo Usuario con rol (admin, patologo, auditor)
 │   │   ├── permissions.py     # Permisos: EsAdmin, EsPatologoOAdmin, EsPatologoOAdminYSoloAdminBorra, EsAutorOAdminOSoloLectura
 │   │   ├── serializers.py     # Perfil, registro y cambio de contraseña (con validadores)
+│   │   ├── signals.py         # Registro de los inicios de sesión (logger "seguridad")
 │   │   ├── views.py / urls.py # Endpoints /api/auth/
 │   │   └── tests.py
 │   ├── config/
-│   │   ├── settings.py        # Configuración (lee el .env), JWT, CORS, límites de peticiones
+│   │   ├── settings.py        # Configuración (lee el .env), JWT, CORS, límites de peticiones, registros
 │   │   ├── urls.py            # Rutas principales
 │   │   ├── paginacion.py      # Paginación (20 por página, ?page_size= hasta 1000)
 │   │   ├── catalogos.py       # Piezas comunes de los catálogos de EPS y servicios
+│   │   ├── filtros.py         # Lectura de los filtros de la URL (id y fecha; 400 si no son válidos)
 │   │   ├── test_runner.py     # Ejecutor de pruebas (sin límites de peticiones acumulados)
 │   │   └── tests.py           # Pruebas de la configuración (SECRET_KEY y DEBUG)
 │   ├── informes/
@@ -512,8 +514,8 @@ Las EPS y los servicios se desactivan en lugar de borrarse (decisión D-4), para
 
 | Método | Endpoint | Descripción | Acceso |
 |---|---|---|---|
-| GET | `/api/informes/` | Listar informes, con `paciente_nombre`, `paciente_documento` y `tipo_estudio`. Filtros: `q` (número de petición, orden externa, patología, tipo de muestra, nombre o documento del paciente; cada palabra debe aparecer en alguno), `fecha_desde`, `fecha_hasta`, `estado`, `patologia`, `paciente` | Todos |
-| POST | `/api/informes/` | Crear un informe y generar su descripción macroscópica. `paciente` (id) es obligatorio. El backend asigna `numero_peticion` (no se envía ni se puede cambiar). Si falta un campo obligatorio de la plantilla → 400 | Patólogo / Admin |
+| GET | `/api/informes/` | Listar informes, con `paciente_nombre`, `paciente_documento` y `tipo_estudio`. Filtros: `q` (número de petición, orden externa, patología, tipo de muestra, nombre o documento del paciente; cada palabra debe aparecer en alguno), `fecha_desde`, `fecha_hasta` (AAAA-MM-DD), `estado`, `patologia`, `paciente` (ids). Una fecha o un id no válidos → 400 | Todos |
+| POST | `/api/informes/` | Crear un informe y generar su descripción macroscópica. `paciente` (id) es obligatorio. El backend asigna `numero_peticion` (no se envía ni se puede cambiar). `datos_ingresados` debe ser un objeto `{campo: valor}` con textos, números, booleanos o nulos (máx. 100 campos y 5000 caracteres por valor). Si falta un campo obligatorio de la plantilla → 400 | Patólogo / Admin |
 | GET | `/api/informes/estadisticas/` | Totales `{total, borradores, finalizados}`. Acepta los mismos filtros que el listado | Todos |
 | GET | `/api/informes/{id}/` | Ver un informe completo | Todos |
 | PUT / PATCH | `/api/informes/{id}/` | Editar un borrador (si está finalizado → 400) | Autor / Admin |
@@ -614,11 +616,13 @@ graph TD
 - **PDF**: el texto escrito por el usuario se escapa, así que no puede romper ni alterar el documento. El nombre del archivo solo lleva el número de petición, nunca datos del paciente. El PDF de un borrador solo lo descargan su autor o un administrador, con marca de agua "BORRADOR".
 - **Integridad del informe**: un informe finalizado no se modifica (se corrige con adendas firmadas) y conserva los datos del paciente, la EPS, el servicio, la firma y el encabezado del laboratorio tal como estaban al finalizar (D-10, D-15).
 - **Imágenes del foro**: se comprueban el tamaño, la extensión y el formato real (solo JPG, PNG, GIF y WEBP). Cada imagen se vuelve a codificar antes de guardarla, lo que quita los metadatos EXIF (fecha, equipo, ubicación) y cualquier contenido agregado, y se guarda con un nombre aleatorio. Igual en `/admin/`. Las direcciones de `/media/` no piden sesión: no subas imágenes con datos de pacientes.
+- **Errores y registros**: un filtro o unos datos con un formato no válido responden 400, no 500, y un informe nunca queda guardado a medias. Los errores 500 y los inicios de sesión (correctos y fallidos, con el usuario y la IP) se registran en la consola del servidor, también con `DEBUG=False`. Nunca se registran contraseñas, tokens ni datos de pacientes. El nivel se ajusta con `LOG_LEVEL` en `backend/.env`.
 - **Datos de pacientes**: son datos de salud, que la Ley 1581 de 2012 considera sensibles. Solo los ven usuarios con sesión y se guardan solo los que aparecen en el informe. La [política de privacidad](frontend/src/pages/PoliticaPrivacidadPage.jsx) de la aplicación (`/politica-privacidad`) lo explica. Antes de un uso real haría falta una revisión legal.
 
 Para publicar la app en un servidor:
 - Define una `SECRET_KEY` propia, `DEBUG=False`, `ALLOWED_HOSTS` y `CORS_ALLOWED_ORIGINS`.
 - Define `NUM_PROXIES` en `backend/.env`: `0` (por defecto) si Django recibe las peticiones directamente, `1` detrás de un Nginx que agrega la IP real en `X-Forwarded-For`. Con `0` detrás de un proxy, todos los usuarios compartirían la IP del proxy y los límites de login los bloquearían a todos a la vez.
+- Guarda la salida de la consola de Django (los registros), por ejemplo con systemd o Docker, y revisa los avisos de "Inicio de sesión fallido".
 - Configura en el servidor web un límite de tamaño de petición (por ejemplo, `client_max_body_size 60m;` en Nginx).
 - Sirve la carpeta `media/`, porque Django solo la sirve en modo desarrollo.
 - La búsqueda de pacientes (`?q=`) envía el nombre o el documento en la dirección de la petición. Configura los registros del servidor web para que no guarden esos parámetros, o protégelos como datos sensibles.

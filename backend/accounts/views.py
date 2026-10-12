@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .permissions import EsAdmin
 from .serializers import CambiarPasswordSerializer, RegistroSerializer, UsuarioSerializer
+from .signals import registrar_login_correcto
 
 Usuario = get_user_model()
 
@@ -37,6 +38,14 @@ class CustomTokenView(TokenObtainPairView):
     serializer_class = CustomTokenSerializer
     throttle_classes = [AnonRateThrottle, ScopedRateThrottle]
     throttle_scope = 'login'
+
+    def post(self, request, *args, **kwargs):
+        respuesta = super().post(request, *args, **kwargs)
+        # SimpleJWT no emite user_logged_in: el login correcto se registra aquí (O-21).
+        # Los fallidos los registra la señal user_login_failed (accounts/signals.py).
+        if respuesta.status_code == 200:
+            registrar_login_correcto(request, request.data.get('username'))
+        return respuesta
 
 
 # ── Registro de usuarios (solo admin) ────────────────────────────────────

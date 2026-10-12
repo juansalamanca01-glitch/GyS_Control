@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
 from accounts.permissions import EsAutorOAdminOSoloLectura, EsPatologoOAdmin
+from config.filtros import parametro_entero
 
 from .imagenes import preparar_imagen
 from .models import Comentario, ImagenPublicacion, Publicacion, TemaForo
@@ -71,7 +72,7 @@ class PublicacionViewSet(viewsets.ModelViewSet):
                 )
                 .order_by('-fijado', '-fecha_creacion')
             )  # annotate ignora Meta.ordering
-        tema_id = self.request.query_params.get('tema')
+        tema_id = parametro_entero(self.request, 'tema')
         if tema_id:
             qs = qs.filter(tema_id=tema_id)
         return qs
@@ -146,7 +147,7 @@ class ComentarioViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        publicacion_id = self.request.query_params.get('publicacion')
+        publicacion_id = parametro_entero(self.request, 'publicacion')
         if publicacion_id:
             qs = qs.filter(publicacion_id=publicacion_id)
         return qs

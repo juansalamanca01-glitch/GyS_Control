@@ -426,3 +426,54 @@ class LimitesLoginTests(APITestCase):
         for _ in range(5):
             self.assertEqual(self.client.post(self.REGISTRO, {}).status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(self.client.post(self.REGISTRO, {}).status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+
+
+class RegistroDeAccesosTests(APITestCase):
+    """
+    Hallazgo O-21 de docs/auditoria-owasp.md: los intentos de inicio de sesión no quedaban
+    registrados. Se registran en el logger `seguridad` con el usuario y la IP, nunca con la
+    contraseña ni con los tokens.
+    """
+
+    LOGIN = '/api/auth/login/'
+
+    def setUp(self):
+        Usuario.objects.create_user(username='patologo_registro', password='ClaveSegura-2026')
+
+    def login(self, contrasena):
+        datos = {'username': 'patologo_registro', 'password': contrasena}
+        return self.client.post(self.LOGIN, datos, REMOTE_ADDR='192.0.2.30')
+
+    def test_un_login_fallido_queda_registrado_sin_la_contrasena(self):
+        with self.assertLogs('seguridad', level='WARNING') as registros:
+            self.assertEqual(self.login('Incorrecta-Secreta-1').status_code, status.HTTP_401_UNAUTHORIZED)
+        texto = '\n'.join(registros.output)
+        self.assertIn('patologo_registro', texto)
+        self.assertIn('192.0.2.30', texto)
+        self.assertNotIn('Incorrecta-Secreta-1', texto)
+
+    def test_un_login_correcto_queda_registrado_sin_los_tokens(self):
+        with self.assertLogs('seguridad', level='INFO') as registros:
+            respuesta = self.login('ClaveSegura-2026')
+        self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+        texto = '\n'.join(registros.output)
+        self.assertIn('patologo_registro', texto)
+        self.assertIn('192.0.2.30', texto)
+        self.assertNotIn('ClaveSegura-2026', texto)
+        self.assertNotIn(respuesta.data['access'], texto)
+        self.assertNotIn(respuesta.data['refresh'], texto)
+
+    def test_un_usuario_con_saltos_de_linea_no_agrega_lineas_al_registro(self):
+        datos = {'username': 'falso\nInicio de sesión correcto: usuario=admin', 'password': 'x'}
+        with self.assertLogs('seguridad', level='WARNING') as registros:
+            self.client.post(self.LOGIN, datos)
+        self.assertEqual(len(registros.records), 1)
+        self.assertNotIn('\n', registros.records[0].getMessage())
+
+    def test_el_login_de_admin_tambien_queda_registrado(self):
+        Usuario.objects.create_superuser(username='super_registro', password='ClaveSegura-2026')
+        with self.assertLogs('seguridad', level='INFO') as registros:
+            self.client.post(
+                '/admin/login/', {'username': 'super_registro', 'password': 'ClaveSegura-2026', 'next': '/admin/'}
+            )
+        self.assertIn('super_registro', '\n'.join(registros.output))

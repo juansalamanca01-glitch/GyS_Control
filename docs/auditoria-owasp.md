@@ -628,10 +628,10 @@ La decide el usuario. Esta es una propuesta, de lo más urgente y pequeño a lo 
 | O-1, O-3, O-4 | **Corregidos el 2026-10-11** (fase 4, grupo 1, rama `fase-4-integridad-informe`). Pruebas: `EstadoSoloLecturaTests` (3) y `AdminInformeFinalizadoTests` (13) |
 | O-16, O-17 | **Corregidos el 2026-10-11** (fase 4, grupo 2, rama `fase-4-limites-login`). Pruebas: `LimitesLoginTests` (4) y `NumProxiesTests` (2) |
 | O-13 (puntos 1 a 3), O-5 (puntos 1 y 2) | **Corregidos el 2026-10-12** (fase 4, grupo 3, rama `fase-4-imagenes-foro`). Pruebas: `SeguridadImagenesForoTests` (11) y `AdminImagenesForoTests` (3) en el backend, y 2 en `ForoPage.test.jsx`. También cubre `/admin/`. El punto 4 de O-13 (cabeceras de `/media/`) va con O-6 en el grupo 6, y el punto 3 de O-5, en el grupo 8 |
-| O-22, O-23, O-21 | Fase 4, grupo 5. Con O-23 va también un problema que no es de seguridad: en `/admin/`, un informe con `datos_ingresados = {}` no se puede guardar |
+| O-22, O-23, O-21 | **Corregidos el 2026-10-12** (fase 4, grupo 5, rama `fase-4-errores-registros`), junto con `/admin/` y `datos_ingresados = {}`. Pruebas: `FiltrosNoValidosTests` (2), `DatosIngresadosTests` (6) y `AdminDatosIngresadosTests` (2) en `informes`, `FiltrosNoValidosForoTests` (2), `RegistroDeAccesosTests` (4) y `RegistrosTests` (3). El tamaño máximo de los textos largos (otro punto de A10) queda para el grupo 8, por decisión del usuario |
 | O-9, O-10 | Fase 4, grupo 4 (después del 2026-10-16) |
 | O-2 (opción A), O-19 (punto 1: 30 minutos), O-6, O-7 | Fase 4, grupo 6 (después del 2026-10-16) |
 | O-14 | Fase 4, grupo 7 (después del 2026-10-16) |
-| O-20, O-15, O-5 (punto 3), O-18 (servidor web), O-8, O-11, O-12, O-19 (punto 3: cookie `HttpOnly`) | Antes de producción (grupo 8) |
+| O-20, O-15, O-5 (punto 3), O-18 (servidor web), O-8, O-11, O-12, O-19 (punto 3: cookie `HttpOnly`), tamaño máximo de los textos largos (A10) | Antes de producción (grupo 8) |
 
 Al corregir cada hallazgo, se anota aquí su fecha y su commit.

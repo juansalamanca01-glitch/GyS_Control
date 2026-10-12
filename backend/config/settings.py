@@ -202,6 +202,30 @@ LABORATORIO_NOMBRE = config('LABORATORIO_NOMBRE', default='PathoLab — Laborato
 LABORATORIO_DIRECCION = config('LABORATORIO_DIRECCION', default='Santiago de Cali, Colombia')
 LABORATORIO_TELEFONO = config('LABORATORIO_TELEFONO', default='')
 
+# ---------- Registros (logging) ----------
+# Hallazgo O-21 de docs/auditoria-owasp.md. Sin LOGGING, con DEBUG=False Django mandaba
+# los errores 500 a mail_admins y, con ADMINS vacío, no quedaban en ningún lado. Todo va
+# a la consola, que recoge el servidor (systemd, Docker…), con o sin DEBUG:
+# - django.request: solo los errores 500 (los 4xx son errores del cliente);
+# - seguridad: inicios de sesión correctos (INFO) y fallidos (WARNING), con el usuario y
+#   la IP (accounts/signals.py). Nunca se registran contraseñas, tokens ni datos de pacientes.
+# LOG_LEVEL (backend/.env) es el nivel del registro de seguridad.
+LOG_LEVEL = config('LOG_LEVEL', default='INFO').upper()
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {'format': '{asctime} {levelname} {name}: {message}', 'style': '{'},
+    },
+    'handlers': {
+        'consola': {'class': 'logging.StreamHandler', 'formatter': 'simple'},
+    },
+    'loggers': {
+        'django.request': {'handlers': ['consola'], 'level': 'ERROR', 'propagate': False},
+        'seguridad': {'handlers': ['consola'], 'level': LOG_LEVEL, 'propagate': False},
+    },
+}
+
 # ---------- i18n ----------
 LANGUAGE_CODE = 'es'
 TIME_ZONE = 'America/Bogota'
