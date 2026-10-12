@@ -303,10 +303,10 @@ Las categorías de la edición 2025:
 
 | Orden | Grupo | Hallazgos | Rama | Cuándo |
 |---|---|---|---|---|
-| 1 | 1. Integridad del informe | O-1, O-3, O-4 (D-14) | `fase-4-integridad-informe` | **Hecho** el 2026-10-11 |
-| 2 | 2. Login | O-16, O-17 | `fase-4-limites-login` | 2026-10-11 y 12 |
+| 1 | 1. Integridad del informe | O-1, O-3, O-4 (D-14) | `fase-4-integridad-informe` | **Hecho** y unido a `main` el 2026-10-11 |
+| 2 | 2. Login | O-16, O-17 | `fase-4-limites-login` | **Hecho** el 2026-10-11 |
 | 3 | 3. Imágenes del foro | O-13 y los puntos 1 y 2 de O-5 | `fase-4-imagenes-foro` | 2026-10-11 y 12 |
-| 4 | 5. Errores y registros | O-22, O-23, O-21 | `fase-4-errores-registros` | 2026-10-11 y 12 |
+| 4 | 5. Errores y registros | O-22, O-23, O-21 y `/admin/` con `datos_ingresados` vacío (mismo campo que O-23) | `fase-4-errores-registros` | 2026-10-11 y 12 |
 | 5 | 4. Django 5.2 LTS | O-9, O-10 | por definir | después del 2026-10-16 |
 | 6 | 6. Cuentas y sesiones | O-2 (solo `is_active`), O-19 (token de acceso de 30 minutos), O-6, O-7 | por definir | después del 2026-10-16 |
 | 7 | 7. Concurrencia | O-14 | por definir | después del 2026-10-16 |

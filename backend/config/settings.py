@@ -131,6 +131,10 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
     ],
+    # Cuántos proxies hay delante de Django (hallazgo O-17). Con 0, los límites usan la IP
+    # de la conexión y no la cabecera X-Forwarded-For, que el cliente puede inventar.
+    # Detrás de un Nginx que agrega la IP real, NUM_PROXIES=1 en el .env.
+    'NUM_PROXIES': config('NUM_PROXIES', default=0, cast=int),
     'DEFAULT_THROTTLE_RATES': {
         'anon': '30/minute',
         'user': '120/minute',

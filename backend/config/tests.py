@@ -99,3 +99,19 @@ class EncabezadoLaboratorioTests(SimpleTestCase):
                 spec.loader.exec_module(settings)
         self.assertEqual(settings.LABORATORIO_NOMBRE, 'Laboratorio Ficticio — Anatomía Patológica')
         self.assertEqual(settings.LABORATORIO_DIRECCION, 'Carrera Ficticia 1 # 2-3, Bogotá')
+
+
+class NumProxiesTests(SimpleTestCase):
+    """
+    Hallazgo O-17 de docs/auditoria-owasp.md: NUM_PROXIES dice cuántos proxies hay
+    delante de Django. Sin definir vale 0: DRF usa la IP de la conexión y no la
+    cabecera X-Forwarded-For, que el cliente puede inventar.
+    """
+
+    def test_num_proxies_vale_0_si_no_se_define(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests'})
+        self.assertEqual(settings.REST_FRAMEWORK['NUM_PROXIES'], 0)
+
+    def test_num_proxies_se_lee_del_entorno(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests', 'NUM_PROXIES': '1'})
+        self.assertEqual(settings.REST_FRAMEWORK['NUM_PROXIES'], 1)

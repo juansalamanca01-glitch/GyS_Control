@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle, ScopedRateThrottle, UserRateThrottle
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -10,7 +11,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .permissions import EsAdmin
 from .serializers import CambiarPasswordSerializer, RegistroSerializer, UsuarioSerializer
-from .throttles import LoginRateThrottle, RegistroRateThrottle
 
 Usuario = get_user_model()
 
@@ -30,16 +30,21 @@ class CustomTokenSerializer(TokenObtainPairSerializer):
         return data
 
 
+# ScopedRateThrottle toma el límite del atributo throttle_scope de la vista: sin él no
+# limita nada (hallazgo O-16). throttle_classes reemplaza los límites globales, por eso
+# se repite aquí el de anónimos o usuarios.
 class CustomTokenView(TokenObtainPairView):
     serializer_class = CustomTokenSerializer
-    throttle_classes = [LoginRateThrottle]
+    throttle_classes = [AnonRateThrottle, ScopedRateThrottle]
+    throttle_scope = 'login'
 
 
 # ── Registro de usuarios (solo admin) ────────────────────────────────────
 class RegistroView(generics.CreateAPIView):
     serializer_class = RegistroSerializer
     permission_classes = [EsAdmin]
-    throttle_classes = [RegistroRateThrottle]
+    throttle_classes = [UserRateThrottle, ScopedRateThrottle]
+    throttle_scope = 'registro'
 
 
 # ── Perfil ──────────────────────────────────────────────────────

@@ -1,5 +1,7 @@
 from django import forms
-from django.test import TestCase
+from django.conf import settings
+from django.core.cache import cache
+from django.test import TestCase, override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -369,3 +371,58 @@ class AdminUsuariosTests(TestCase):
             self.assertIn(campo, formulario.fields)
         # El hash se muestra en solo lectura; la contraseña se cambia con el formulario de Django.
         self.assertNotIsInstance(formulario.fields['password'].widget, forms.TextInput)
+
+
+# Las pruebas usan DummyCache (config/test_runner.py), que no cuenta nada: estas sí
+# necesitan una caché real para que los límites de peticiones se acumulen.
+CACHE_REAL = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'limites-login'}}
+
+
+# NUM_PROXIES=0 explícito: así la prueba de X-Forwarded-For no depende del .env local.
+@override_settings(CACHES=CACHE_REAL, REST_FRAMEWORK={**settings.REST_FRAMEWORK, 'NUM_PROXIES': 0})
+class LimitesLoginTests(APITestCase):
+    """
+    Hallazgos O-16 y O-17 de docs/auditoria-owasp.md:
+    - O-16: el login (10/min) y el registro (5/min) no tenían ningún límite, porque
+      ScopedRateThrottle toma el scope de la vista (throttle_scope) y las vistas no lo
+      definían;
+    - O-17: sin NUM_PROXIES, DRF identifica al cliente anónimo por la cabecera
+      X-Forwarded-For, que el cliente puede cambiar en cada intento.
+    """
+
+    LOGIN = '/api/auth/login/'
+    REGISTRO = '/api/auth/registro/'
+
+    def setUp(self):
+        cache.clear()
+        Usuario.objects.create_user(username='patologo_limites', password='ClaveSegura-2026')
+
+    def intentar_login(self, **cabeceras):
+        datos = {'username': 'patologo_limites', 'password': 'incorrecta'}
+        return self.client.post(self.LOGIN, datos, REMOTE_ADDR='192.0.2.10', **cabeceras)
+
+    def test_el_login_responde_429_despues_de_10_intentos(self):
+        for _ in range(10):
+            self.assertEqual(self.intentar_login().status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(self.intentar_login().status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+
+    def test_el_limite_del_login_no_impide_entrar_desde_otra_ip(self):
+        for _ in range(10):
+            self.intentar_login()
+        datos = {'username': 'patologo_limites', 'password': 'ClaveSegura-2026'}
+        respuesta = self.client.post(self.LOGIN, datos, REMOTE_ADDR='192.0.2.20')
+        self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+
+    def test_cambiar_x_forwarded_for_no_reinicia_la_cuenta(self):
+        for numero in range(10):
+            self.intentar_login(HTTP_X_FORWARDED_FOR=f'203.0.113.{numero}')
+        respuesta = self.intentar_login(HTTP_X_FORWARDED_FOR='203.0.113.99')
+        self.assertEqual(respuesta.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+
+    def test_el_registro_responde_429_despues_de_5_peticiones(self):
+        admin = Usuario.objects.create_user(username='admin_limites', password='ClaveSegura-2026', rol='admin')
+        self.client.force_authenticate(admin)
+        # Los datos no importan: el límite se revisa antes de validar.
+        for _ in range(5):
+            self.assertEqual(self.client.post(self.REGISTRO, {}).status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self.client.post(self.REGISTRO, {}).status_code, status.HTTP_429_TOO_MANY_REQUESTS)

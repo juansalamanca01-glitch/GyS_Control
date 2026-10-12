@@ -13,7 +13,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** `C:\Users\salam\Desktop\patolab-app-actualizado\patologia-app`.
 - **Plan vigente:** `docs/plan-calidad-y-diseno.md`, aprobado el 2026-10-08. Cada fase va en su propia rama desde `main`.
-- **Rama de trabajo:** `fase-4-integridad-informe` (grupo 1 de la fase 4), desde `main`.
+- **Rama de trabajo:** `fase-4-limites-login` (grupo 2 de la fase 4), desde `main`.
 - **Estado:**
   - Están terminados y en `main`:
     - la auditoría inicial (salvo I-9c);
@@ -29,7 +29,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
   5. Antes del commit, si el cambio toca código, ejecutar `npm run check` y todas las pruebas (raíz, backend y frontend). Si algo falla, no se hace el commit hasta corregirlo. Si el commit solo cambia documentación, no hace falta ejecutar las pruebas (regla 7 de `CLAUDE.md`).
   6. Hacer el commit.
   7. Hacer `git push` de la rama de trabajo después de cada commit, como respaldo. El usuario lo autorizó el 2026-10-03. Unir la rama a `main` requiere preguntar aparte.
-- **Pruebas:** 12 de la raíz (`npm test`, comprobaciones de `npm run dev` y de `npm run check`), 279 del backend (`cd backend` y luego `python manage.py test`; con SQLite usan el archivo `backend/test_db.sqlite3`) y 134 del frontend (`cd frontend` y luego `npm test`). Todas pasan.
+- **Pruebas:** 12 de la raíz (`npm test`, comprobaciones de `npm run dev` y de `npm run check`), 285 del backend (`cd backend` y luego `python manage.py test`; con SQLite usan el archivo `backend/test_db.sqlite3`) y 134 del frontend (`cd frontend` y luego `npm test`). Todas pasan.
 
 ## Hecho
 
@@ -101,15 +101,16 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 | — | Regla 7 de `CLAUDE.md`: antes de cada commit que toque código, `npm run check` y todas las pruebas; si algo falla, no hay commit. En los de solo documentación no hace falta ejecutar las pruebas | `19c02fb` |
 | — | Fase 3 del plan: informe `docs/auditoria-owasp.md` (OWASP Top 10:2025, dependencias de npm y Python), con 23 hallazgos `O-1` a `O-23` (5 altos, 13 medios, 5 bajos; 6 comprobados). Sin cambios de código. Falta que el usuario elija las correcciones | commit "docs: auditoría OWASP Top 10:2025 (fase 3)" |
 | O-1, O-3, O-4 / D-14 | Fase 4, grupo 1: `estado` de solo lectura en la API y en `/admin/` (solo `finalizar` lo cambia); en `/admin/`, un finalizado no se modifica ni se borra (tampoco en lote) y sus diagnósticos son de solo lectura. 16 pruebas nuevas | commit "fix(seguridad): integridad del informe (fase 4, grupo 1)" |
+| O-16, O-17 | Fase 4, grupo 2: el login y el registro vuelven a tener límite de intentos (`throttle_scope` en la vista, sin perder los globales; se borra `accounts/throttles.py`) y `NUM_PROXIES` (0 por defecto) impide saltarlos con `X-Forwarded-For`. 6 pruebas nuevas | commit "fix(seguridad): límites del login (fase 4, grupo 2)" |
 
 ## Siguiente paso
 
 1. **Fase 3 terminada** y unida a `main` el 2026-10-11. El usuario respondió el informe el mismo día (`docs/auditoria-owasp.md`, "Respuestas del usuario").
 2. **Fase 4, una rama por grupo** (tabla en la fase 4 del plan). El 2026-10-11 y el 2026-10-12, en orden:
-   1. grupo 1, integridad del informe (O-1, O-3, O-4/D-14), rama `fase-4-integridad-informe`: **hecho**; falta preguntar al usuario si se une a `main`;
-   2. grupo 2, límites del login (O-16, O-17), rama `fase-4-limites-login`: **siguiente**;
+   1. grupo 1, integridad del informe (O-1, O-3, O-4/D-14): **hecho** y unido a `main` el 2026-10-11;
+   2. grupo 2, límites del login (O-16, O-17), rama `fase-4-limites-login`: **hecho**; falta preguntar al usuario si se une a `main`;
    3. grupo 3, imágenes del foro (O-13, O-5 puntos 1 y 2);
-   4. grupo 5, errores y registros (O-22, O-23, O-21).
+   4. grupo 5, errores y registros (O-22, O-23, O-21). Incluye, junto con O-23 porque es el mismo campo, el problema de `/admin/` con `datos_ingresados` vacío: un informe con `{}` no se guarda ahí ("Este campo es requerido"). Lo encontramos el 2026-10-11 al escribir las pruebas del grupo 1. Antes de aplicarlo, se explica al usuario la forma de arreglarlo, coherente con O-23.
 3. **Martes 2026-10-13: fase nueva de Cypress**, que el usuario presenta el viernes 2026-10-16. Empieza ese día aunque la fase 4 no haya terminado; su contenido se define entonces.
 4. **Después del 2026-10-16:** grupos 4 (Django 5.2), 6 (cuentas y sesiones, D-16) y 7 (concurrencia) de la fase 4; luego las fases 5 a 8.
 4. **Para arrancar la aplicación:** `npm run dev` en la raíz y abrir http://localhost:5173. Se detiene con Ctrl + C (en Windows, responder `S` si pregunta "¿Desea terminar el trabajo por lotes?").
@@ -178,8 +179,6 @@ Además, de la auditoría OWASP (grupo 8, `docs/auditoria-owasp.md`):
 
 ### 4. Ideas futuras, sin fase en el plan
 
-- **`/admin/` y `datos_ingresados` vacío** (encontrado el 2026-10-11 al escribir las pruebas del grupo 1): un informe con `datos_ingresados = {}` no se puede guardar en `/admin/` ("Este campo es requerido"), porque el formulario cuenta el JSON vacío como campo sin llenar. No es de seguridad. Se arreglaría con `blank=True` en el campo (con su migración) o con un formulario propio en `InformeAdmin`. Falta que el usuario decida si se corrige.
-
 Vienen de la hoja de ruta del README y de la propuesta v2. Ninguna está pedida:
 - plantillas microscópicas e IHQ;
 - catálogo CIE-10 y CIE-O con autocompletado (propuesta v2, 3.6);
@@ -212,5 +211,5 @@ Quedan dos:
 
 ## Pendiente de respuesta del usuario
 
-- Unir `fase-4-integridad-informe` (grupo 1, terminado) a `main` y seguir con el grupo 2: se pregunta antes al usuario.
+- Unir `fase-4-limites-login` (grupo 2, terminado) a `main` y seguir con el grupo 3: se pregunta antes al usuario.
 - Las preguntas de la fase 3 se respondieron el 2026-10-11. La de los borradores ajenos queda para el patólogo y el profesor (sección "Pendientes", punto 2).

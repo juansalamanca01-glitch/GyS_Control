@@ -395,6 +395,8 @@ El login (`/api/auth/login/`), la renovación y el cierre de sesión, el login d
 
 ### O-16. El login y el registro no tienen límite de intentos (Alta, comprobado)
 
+> **Estado: corregido el 2026-10-11** (fase 4, grupo 2). `CustomTokenView` y `RegistroView` definen `throttle_scope` y conservan el límite global; se borró `accounts/throttles.py`. Prueba: `LimitesLoginTests`.
+
 - **Dónde:** `backend/accounts/views.py:33-42` (`CustomTokenView` y `RegistroView`) y `backend/accounts/throttles.py`.
 - **Qué pasa:**
   - `LoginRateThrottle` y `RegistroRateThrottle` heredan de `ScopedRateThrottle` y definen `scope = 'login'`. Pero `ScopedRateThrottle.allow_request()` **sobrescribe** `self.scope` con el atributo `throttle_scope` de la **vista** (`rest_framework/throttling.py`, `scope_attr = 'throttle_scope'`). Si la vista no lo tiene, deja pasar todas las peticiones.
@@ -413,6 +415,8 @@ El login (`/api/auth/login/`), la renovación y el cierre de sesión, el login d
   - Con O-17 y O-18.
 
 ### O-17. Los límites se saltan cambiando la cabecera `X-Forwarded-For` (Media, deducido del código de DRF)
+
+> **Estado: corregido el 2026-10-11** (fase 4, grupo 2). `NUM_PROXIES` se lee de `backend/.env` y vale 0 por defecto. Pruebas: `LimitesLoginTests.test_cambiar_x_forwarded_for_no_reinicia_la_cuenta` y `NumProxiesTests`.
 
 - **Dónde:** `REST_FRAMEWORK` en `backend/config/settings.py:122-142`, que no define `NUM_PROXIES`; `rest_framework/throttling.py`, `BaseThrottle.get_ident()`.
 - **Qué pasa:** sin `NUM_PROXIES`, DRF identifica al cliente anónimo por la cabecera `X-Forwarded-For` completa, si existe, en lugar de por `REMOTE_ADDR`. El cliente puede poner cualquier valor en esa cabecera: con uno distinto en cada petición, cada intento cuenta como una "IP" nueva y nunca llega al límite.
@@ -622,9 +626,9 @@ La decide el usuario. Esta es una propuesta, de lo más urgente y pequeño a lo 
 | Hallazgo | Estado |
 |---|---|
 | O-1, O-3, O-4 | **Corregidos el 2026-10-11** (fase 4, grupo 1, rama `fase-4-integridad-informe`). Pruebas: `EstadoSoloLecturaTests` (3) y `AdminInformeFinalizadoTests` (13) |
-| O-16, O-17 | Fase 4, grupo 2 |
+| O-16, O-17 | **Corregidos el 2026-10-11** (fase 4, grupo 2, rama `fase-4-limites-login`). Pruebas: `LimitesLoginTests` (4) y `NumProxiesTests` (2) |
 | O-13, O-5 (puntos 1 y 2) | Fase 4, grupo 3 |
-| O-22, O-23, O-21 | Fase 4, grupo 5 |
+| O-22, O-23, O-21 | Fase 4, grupo 5. Con O-23 va también un problema que no es de seguridad: en `/admin/`, un informe con `datos_ingresados = {}` no se puede guardar |
 | O-9, O-10 | Fase 4, grupo 4 (después del 2026-10-16) |
 | O-2 (opción A), O-19 (punto 1: 30 minutos), O-6, O-7 | Fase 4, grupo 6 (después del 2026-10-16) |
 | O-14 | Fase 4, grupo 7 (después del 2026-10-16) |

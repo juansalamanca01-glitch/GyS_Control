@@ -5,6 +5,28 @@ Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1
 
 ## 2026-10-11
 
+### Fase 4, grupo 2: límites del login (O-16, O-17)
+
+**Qué se cambió:**
+- `backend/accounts/views.py`:
+  - `CustomTokenView` define `throttle_scope = 'login'` y usa `AnonRateThrottle` y `ScopedRateThrottle`. El login vuelve a tener su límite de 10 intentos por minuto y el general de 30 por minuto para anónimos.
+  - `RegistroView`, lo mismo con `'registro'` (5 por minuto) y `UserRateThrottle`.
+  - Antes, `ScopedRateThrottle` tomaba el scope de la vista, que no lo tenía, así que el login no tenía ningún límite (**O-16**).
+- `backend/accounts/throttles.py`: **borrado**. Sus clases definían `scope`, que DRF ignora, y daban la impresión de que había un límite.
+- `backend/config/settings.py`: `NUM_PROXIES` en `REST_FRAMEWORK`, leído de `backend/.env`, con 0 por defecto. Los límites usan la IP de la conexión y ya no se saltan cambiando `X-Forwarded-For` (**O-17**). `backend/.env.example` lo explica: detrás de Nginx, `NUM_PROXIES=1`.
+- Pruebas nuevas:
+  - `LimitesLoginTests` (4, en `accounts/tests.py`), con una caché real: el login da 429 al intento 11, otra IP sí entra, cambiar `X-Forwarded-For` no reinicia la cuenta y el registro da 429 a la petición 6;
+  - `NumProxiesTests` (2, en `config/tests.py`): vale 0 sin `.env` y se lee del entorno.
+  - Antes del arreglo fallaban 5 de las 6; la sexta es de control.
+- **Pruebas:** 12 de la raíz, 285 del backend y 134 del frontend, todas en verde; `npm run check` sin errores ni avisos.
+- **Documentación:**
+  - `README.md`: sin el aviso de O-16 y sin `throttles.py` en la estructura, con `NUM_PROXIES` en "Para publicar";
+  - `CLAUDE.md`: el párrafo de rate limiting y cómo probar un límite con caché real;
+  - `docs/auditoria-owasp.md` (O-16 y O-17 corregidos), el plan y `docs/progreso.md`.
+  - Además se anota en el grupo 5 el problema de `/admin/` con `datos_ingresados` vacío, a pedido del usuario.
+
+**Por qué:** la auditoría OWASP comprobó que el login no tenía ningún límite de intentos, aunque el README decía 10 por minuto, y que con la cabecera `X-Forwarded-For` se podía saltar cualquier límite por IP.
+
 ### Fase 4, grupo 1: integridad del informe (O-1, O-3, O-4 / D-14)
 
 **Qué se cambió:**

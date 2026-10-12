@@ -159,7 +159,6 @@ patologia-app/
 │   │   ├── models.py          # Modelo Usuario con rol (admin, patologo, auditor)
 │   │   ├── permissions.py     # Permisos: EsAdmin, EsPatologoOAdmin, EsPatologoOAdminYSoloAdminBorra, EsAutorOAdminOSoloLectura
 │   │   ├── serializers.py     # Perfil, registro y cambio de contraseña (con validadores)
-│   │   ├── throttles.py       # Límites de intentos de login y de registro
 │   │   ├── views.py / urls.py # Endpoints /api/auth/
 │   │   └── tests.py
 │   ├── config/
@@ -607,7 +606,7 @@ graph TD
   | Publicaciones del foro | 10/min |
   | Comentarios del foro | 20/min |
 
-  > **Aviso (2026-10-11):** la auditoría OWASP encontró que hoy los límites de login y de registro **no se aplican** (hallazgo O-16). Se corrige en la fase 4.
+  Los límites de login y de registro se suman al general de anónimos o de usuarios. Por IP cuenta la de la conexión, no la cabecera `X-Forwarded-For`, que el cliente puede inventar (ver `NUM_PROXIES` abajo).
 
 - **Contraseñas** validadas con los validadores de Django: longitud mínima, que no sean comunes, que no sean solo números y que no se parezcan al usuario.
 - **Configuración segura por defecto**: sin `SECRET_KEY` la app no arranca, y `DEBUG` es `False` si no se define. Con `DEBUG=False` se activan HTTPS, cookies seguras y HSTS, y CORS solo acepta los orígenes de `CORS_ALLOWED_ORIGINS`.
@@ -618,6 +617,7 @@ graph TD
 
 Para publicar la app en un servidor:
 - Define una `SECRET_KEY` propia, `DEBUG=False`, `ALLOWED_HOSTS` y `CORS_ALLOWED_ORIGINS`.
+- Define `NUM_PROXIES` en `backend/.env`: `0` (por defecto) si Django recibe las peticiones directamente, `1` detrás de un Nginx que agrega la IP real en `X-Forwarded-For`. Con `0` detrás de un proxy, todos los usuarios compartirían la IP del proxy y los límites de login los bloquearían a todos a la vez.
 - Configura en el servidor web un límite de tamaño de petición (por ejemplo, `client_max_body_size 60m;` en Nginx).
 - Sirve la carpeta `media/`, porque Django solo la sirve en modo desarrollo.
 - La búsqueda de pacientes (`?q=`) envía el nombre o el documento en la dirección de la petición. Configura los registros del servidor web para que no guarden esos parámetros, o protégelos como datos sensibles.
