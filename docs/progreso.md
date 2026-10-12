@@ -13,7 +13,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** `C:\Users\salam\Desktop\patolab-app-actualizado\patologia-app`.
 - **Plan vigente:** `docs/plan-calidad-y-diseno.md`, aprobado el 2026-10-08. Cada fase va en su propia rama desde `main`.
-- **Rama de trabajo:** `fase-4-limites-login` (grupo 2 de la fase 4), desde `main`.
+- **Rama de trabajo:** ninguna abierta. Todo está en `main`. La siguiente será `fase-4-imagenes-foro` (grupo 3), cuando el usuario lo indique.
 - **Estado:**
   - Están terminados y en `main`:
     - la auditoría inicial (salvo I-9c);
@@ -108,8 +108,8 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 1. **Fase 3 terminada** y unida a `main` el 2026-10-11. El usuario respondió el informe el mismo día (`docs/auditoria-owasp.md`, "Respuestas del usuario").
 2. **Fase 4, una rama por grupo** (tabla en la fase 4 del plan). El 2026-10-11 y el 2026-10-12, en orden:
    1. grupo 1, integridad del informe (O-1, O-3, O-4/D-14): **hecho** y unido a `main` el 2026-10-11;
-   2. grupo 2, límites del login (O-16, O-17), rama `fase-4-limites-login`: **hecho**; falta preguntar al usuario si se une a `main`;
-   3. grupo 3, imágenes del foro (O-13, O-5 puntos 1 y 2);
+   2. grupo 2, límites del login (O-16, O-17), **hecho** y unido a `main` el 2026-10-11;
+   3. grupo 3, imágenes del foro (O-13, O-5 puntos 1 y 2), rama `fase-4-imagenes-foro`: **no empezarlo hasta que el usuario lo indique** (lo pidió el 2026-10-11);
    4. grupo 5, errores y registros (O-22, O-23, O-21). Incluye, junto con O-23 porque es el mismo campo, el problema de `/admin/` con `datos_ingresados` vacío: un informe con `{}` no se guarda ahí ("Este campo es requerido"). Lo encontramos el 2026-10-11 al escribir las pruebas del grupo 1. Antes de aplicarlo, se explica al usuario la forma de arreglarlo, coherente con O-23.
 3. **Martes 2026-10-13: fase nueva de Cypress**, que el usuario presenta el viernes 2026-10-16. Empieza ese día aunque la fase 4 no haya terminado; su contenido se define entonces.
 4. **Después del 2026-10-16:** grupos 4 (Django 5.2), 6 (cuentas y sesiones, D-16) y 7 (concurrencia) de la fase 4; luego las fases 5 a 8.
@@ -211,5 +211,5 @@ Quedan dos:
 
 ## Pendiente de respuesta del usuario
 
-- Unir `fase-4-limites-login` (grupo 2, terminado) a `main` y seguir con el grupo 3: se pregunta antes al usuario.
+- Cuándo empezar el grupo 3 de la fase 4 (imágenes del foro). El usuario pidió esperar su indicación (2026-10-11).
 - Las preguntas de la fase 3 se respondieron el 2026-10-11. La de los borradores ajenos queda para el patólogo y el profesor (sección "Pendientes", punto 2).
