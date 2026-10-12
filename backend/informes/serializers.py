@@ -202,9 +202,12 @@ class InformeSerializer(serializers.ModelSerializer):
             'fecha_actualizacion',
         ]
         # numero_peticion lo asigna el sistema y no se puede cambiar (decisión D-7).
+        # estado solo lo cambia la acción `finalizar`, que exige los requisitos (D-8) y
+        # congela los datos (D-10, D-15); antes un PATCH lo saltaba (hallazgo O-1).
         read_only_fields = [
             'id',
             'numero_peticion',
+            'estado',
             'autor',
             'texto_generado',
             'fecha',

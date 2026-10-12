@@ -94,6 +94,8 @@ Los roles (admin, patólogo, auditor), la regla del autor (D-2), los informes fi
 
 ### O-1. `estado` se puede escribir por la API: un informe se finaliza sin requisitos ni datos congelados (Alta, comprobado)
 
+> **Estado: corregido el 2026-10-11** (fase 4, grupo 1). `estado` es de solo lectura en `InformeSerializer`. Prueba: `EstadoSoloLecturaTests`.
+
 - **Dónde:** `backend/informes/serializers.py:197` y `:205-213`. `estado` está en `fields`, pero no en `read_only_fields`.
 - **Qué pasa:** `POST /api/informes/{id}/finalizar/` comprueba los requisitos de D-8, fija `fecha_informe` y guarda `datos_finalizacion` (D-10, D-15). Pero el mismo cambio se hace con `PATCH /api/informes/{id}/` y `{"estado": "finalizado"}`, y entonces no se comprueba ni se guarda nada de eso. También se puede **crear** un informe ya finalizado con `POST /api/informes/` y `"estado": "finalizado"`.
 - **Cómo se reproduce (comprobado):**
@@ -127,6 +129,8 @@ Los roles (admin, patólogo, auditor), la regla del autor (D-2), los informes fi
 
 ### O-3. En `/admin/`, un borrador se pasa a finalizado sin requisitos ni datos congelados (Media, deducido del código)
 
+> **Estado: corregido el 2026-10-11** (fase 4, grupo 1). `estado` es de solo lectura en `InformeAdmin`. Prueba: `AdminInformeFinalizadoTests.test_un_borrador_no_se_finaliza_desde_admin`.
+
 - **Dónde:** `backend/informes/admin.py:56-81`. `estado` es un campo editable de `InformeAdmin`.
 - **Qué pasa:** D-14 cubre los informes **ya** finalizados. Un **borrador** sigue siendo editable en `/admin/`, incluido su `estado`. Pasarlo ahí a "Finalizado" tiene el mismo efecto que O-1: sin requisitos (D-8), sin `fecha_informe` ni `datos_finalizacion` (D-10, D-15).
 - **Por qué importa:** es la misma ruptura de O-1, aunque solo la puede hacer un usuario con acceso a `/admin/` (`is_staff`).
@@ -136,6 +140,8 @@ Los roles (admin, patólogo, auditor), la regla del autor (D-2), los informes fi
   - Si el usuario quiere finalizar también desde `/admin/`, la alternativa es una acción de admin que llame a la misma lógica que `finalizar`.
 
 ### O-4. En `/admin/`, un informe finalizado se modifica y se borra (Alta; ya decidida en D-14)
+
+> **Estado: corregido el 2026-10-11** (fase 4, grupo 1). Un finalizado no tiene permiso de cambio ni de borrado en `/admin/`, y sus diagnósticos son de solo lectura. Prueba: `AdminInformeFinalizadoTests`.
 
 - **Dónde:** `backend/informes/admin.py:56-81` (`InformeAdmin` y `DiagnosticoInline`).
 - **Qué pasa:** hoy se pueden cambiar el contenido, los diagnósticos y el estado de un finalizado, y también borrarlo, sin dejar rastro en el informe.
@@ -615,7 +621,7 @@ La decide el usuario. Esta es una propuesta, de lo más urgente y pequeño a lo 
 
 | Hallazgo | Estado |
 |---|---|
-| O-1, O-3, O-4 | Fase 4, grupo 1 (rama `fase-4-integridad-informe`) |
+| O-1, O-3, O-4 | **Corregidos el 2026-10-11** (fase 4, grupo 1, rama `fase-4-integridad-informe`). Pruebas: `EstadoSoloLecturaTests` (3) y `AdminInformeFinalizadoTests` (13) |
 | O-16, O-17 | Fase 4, grupo 2 |
 | O-13, O-5 (puntos 1 y 2) | Fase 4, grupo 3 |
 | O-22, O-23, O-21 | Fase 4, grupo 5 |

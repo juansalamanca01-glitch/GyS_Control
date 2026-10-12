@@ -5,6 +5,24 @@ Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1
 
 ## 2026-10-11
 
+### Fase 4, grupo 1: integridad del informe (O-1, O-3, O-4 / D-14)
+
+**Qué se cambió:**
+- `backend/informes/serializers.py`: `estado` pasa a `read_only_fields` de `InformeSerializer`. Un `PATCH`, un `PUT` o un `POST` con `"estado": "finalizado"` ya no finalizan el informe: el campo se ignora y el informe sigue en borrador. Solo lo cambia `POST /api/informes/{id}/finalizar/` (**O-1**). El frontend no enviaba ese campo, así que no cambia nada en la pantalla.
+- `backend/informes/admin.py`:
+  - `estado` es de solo lectura en `InformeAdmin`, también en los borradores. Un borrador ya no se finaliza desde `/admin/` sin requisitos ni datos congelados (**O-3**).
+  - `InformeAdmin.has_change_permission` y `has_delete_permission` devuelven `False` para un informe finalizado. Su ficha se ve en solo lectura, cualquier envío responde 403 y no se borra ni desde su página ni con la acción en lote, tenga o no adendas (**O-4**, decisión **D-14**).
+  - `DiagnosticoInline`: en un finalizado no deja agregar, cambiar ni borrar diagnósticos.
+  - Los borradores se siguen editando y borrando como antes.
+- `backend/informes/tests.py`: `EstadoSoloLecturaTests` (3) y `AdminInformeFinalizadoTests` (13), con la función `datos_formulario_admin()`, que arma lo que el navegador enviaría al guardar una ficha de `/admin/`. Antes del arreglo fallaban 11 de las 15 primeras. Las otras 4 ya pasaban: las 3 de borradores y la del finalizado con adendas, que `PROTECT` ya impedía borrar. La prueba 16 comprueba que la ficha de un finalizado se ve sin el botón de guardar.
+- **Pruebas:** 12 de la raíz, 279 del backend y 134 del frontend, todas en verde; `npm run check` sin errores ni avisos.
+- **Documentación:**
+  - `docs/decisiones.md` (D-14 implementada), `README.md` (sin el "Pendiente" de D-14 y con la regla del estado), `CLAUDE.md` y `docs/propuesta-informe-v2.md`;
+  - `docs/auditoria-owasp.md` (O-1, O-3 y O-4 corregidos), el plan y `docs/progreso.md`.
+  - En el plan, la decisión de la guía de diseño (fase 5) ya no tiene reservado el número D-16, que se usó para las cuentas: llevará el siguiente libre.
+
+**Por qué:** la auditoría OWASP comprobó que un informe podía quedar finalizado sin diagnóstico, sin firma y sin datos congelados (D-8, D-10, D-15), y que en `/admin/` un finalizado se podía modificar y borrar, contra D-14.
+
 ### Respuestas del usuario a la auditoría OWASP
 
 **Qué se cambió** (solo documentación):

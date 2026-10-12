@@ -133,7 +133,7 @@ Los códigos como "I-7" o "C-2" remiten a `docs/auditoria-inicial.md`.
   - **Tampoco se puede borrar** desde `/admin/`, tenga o no adendas (precisión del usuario del 2026-10-08). Si un informe se finalizó por error, se deja constancia con una adenda. Un estado "Anulado" queda como idea futura (`docs/progreso.md`, "Pendientes").
   - Las correcciones de un informe finalizado se hacen **siempre con adendas** (D-9). No hay ninguna vía para modificarlo.
   - Los borradores siguen editándose en `/admin/` como hasta ahora.
-- **Estado:** decidida el 2026-10-08. **Todavía no está implementada:** hoy `InformeAdmin` deja modificar un informe finalizado. Se implementa en la fase 4 de `docs/plan-calidad-y-diseno.md`, con su prueba.
+- **Estado:** decidida el 2026-10-08 e implementada el 2026-10-11 (fase 4, grupo 1; hallazgo O-4 de `docs/auditoria-owasp.md`). Lo vigila `AdminInformeFinalizadoTests`. Además, el estado de un informe ya no se cambia a mano en `/admin/` ni en la API: solo con `finalizar` (hallazgos O-1 y O-3).
 - **Motivo:** en el inventario de pendientes se encontró que la excepción de D-3 dejaba cambiar en `/admin/` el contenido, los diagnósticos y hasta el estado de un informe finalizado, sin dejar rastro. Eso contradecía D-9 (las correcciones se hacen con adendas) y lo que dice el README. Un documento clínico entregado no debe poder cambiar por ninguna vía.
 
 ## D-15. El encabezado del PDF se congela al finalizar el informe

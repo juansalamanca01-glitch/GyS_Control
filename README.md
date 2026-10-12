@@ -92,7 +92,7 @@ Estas reglas responden a decisiones del proyecto registradas en [`docs/decisione
 - **D-11:** patólogos y administradores crean y editan pacientes y administran EPS y servicios; solo un administrador borra pacientes.
 - **D-12:** el PDF de un borrador es una vista previa solo para su autor o un administrador.
 - **D-13:** aviso al salir con cambios sin guardar y autoguardado de los borradores existentes (nunca de los informes nuevos ni en el navegador).
-- **D-14:** un informe finalizado tampoco se modifica desde el panel `/admin/`: ahí un informe finalizado es de solo lectura y no se puede borrar. *Pendiente de implementar en la fase 4 del plan.*
+- **D-14:** un informe finalizado tampoco se modifica desde el panel `/admin/`: ahí un informe finalizado es de solo lectura (campos, diagnósticos y estado) y no se puede borrar, ni desde su ficha ni con la acción en lote. Además, el estado nunca se cambia a mano, ni en la API ni en `/admin/`: un informe solo se finaliza con `POST /api/informes/{id}/finalizar/`, que exige los requisitos y congela los datos (hallazgos O-1 y O-3 de la auditoría OWASP).
 - **D-15:** el encabezado del PDF (datos del laboratorio) también se congela al finalizar.
 
 Un informe finalizado se corrige **siempre** agregándole una adenda. No hay otra vía: según la decisión D-14 (2026-10-08), que reemplaza la excepción de `/admin/` de D-3, tampoco se modifica desde el panel de Django.

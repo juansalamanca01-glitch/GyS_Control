@@ -5,7 +5,7 @@ from unittest import mock
 
 from django.db import IntegrityError, connection, transaction
 from django.db.migrations.executor import MigrationExecutor
-from django.test import TransactionTestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
@@ -13,7 +13,7 @@ from rest_framework.test import APIClient, APITestCase
 from accounts.models import Usuario
 from pacientes.models import EPS, Paciente
 
-from .models import Categoria, Diagnostico, Informe, Patologia, Plantilla, Servicio
+from .models import Adenda, Categoria, Diagnostico, Informe, Patologia, Plantilla, Servicio, firma_de
 
 
 def paciente_ficticio(numero='PRUEBA0001', **extra):
@@ -2654,3 +2654,241 @@ class PdfBorradorTests(APITestCase):
         marcas, paginas = self.marcas_y_paginas()
         self.assertGreaterEqual(paginas, 2)
         self.assertEqual(marcas, 0)
+
+
+class EstadoSoloLecturaTests(APITestCase):
+    """
+    Hallazgo O-1 de docs/auditoria-owasp.md: `estado` se podía escribir por la API, así
+    que un PATCH o un POST con "finalizado" cerraba el informe sin los requisitos de D-8
+    y sin congelar sus datos (D-10, D-15). Solo la acción `finalizar` cambia el estado.
+    Solo datos ficticios.
+    """
+
+    URL = '/api/informes/'
+
+    def setUp(self):
+        # Sin registro médico: si el estado se pudiera escribir, el informe quedaría
+        # finalizado sin firma.
+        self.autor = Usuario.objects.create_user(
+            username='patologo_estado',
+            password='ClaveSegura-2026',
+            rol=Usuario.Rol.PATOLOGO,
+        )
+        self.client.force_authenticate(self.autor)
+        self.patologia = Patologia.objects.create(nombre='Patología estado')
+        self.paciente = paciente_ficticio()
+
+    def crear(self, **extra):
+        cuerpo = {'patologia': self.patologia.id, 'paciente': self.paciente.id, **extra}
+        respuesta = self.client.post(self.URL, cuerpo, format='json')
+        self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED, respuesta.data)
+        return respuesta
+
+    def assertSigueEnBorrador(self, informe_id):
+        informe = Informe.objects.get(id=informe_id)
+        self.assertEqual(informe.estado, Informe.Estado.BORRADOR)
+        self.assertIsNone(informe.fecha_informe)
+        self.assertIsNone(informe.datos_finalizacion)
+
+    def test_un_patch_con_estado_no_finaliza_el_informe(self):
+        informe_id = self.crear().data['id']
+        respuesta = self.client.patch(f'{self.URL}{informe_id}/', {'estado': 'finalizado'}, format='json')
+        self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+        self.assertEqual(respuesta.data['estado'], Informe.Estado.BORRADOR)
+        self.assertSigueEnBorrador(informe_id)
+
+    def test_un_put_con_estado_no_finaliza_el_informe(self):
+        informe_id = self.crear().data['id']
+        cuerpo = {'patologia': self.patologia.id, 'paciente': self.paciente.id, 'estado': 'finalizado'}
+        respuesta = self.client.put(f'{self.URL}{informe_id}/', cuerpo, format='json')
+        self.assertEqual(respuesta.status_code, status.HTTP_200_OK)
+        self.assertSigueEnBorrador(informe_id)
+
+    def test_un_informe_nuevo_no_se_crea_finalizado(self):
+        respuesta = self.crear(estado='finalizado')
+        self.assertEqual(respuesta.data['estado'], Informe.Estado.BORRADOR)
+        self.assertSigueEnBorrador(respuesta.data['id'])
+
+
+def datos_formulario_admin(respuesta):
+    """
+    Datos que enviaría el navegador al guardar una ficha de /admin/ sin cambiar nada:
+    los valores del formulario principal y de los inlines (con sus formularios de
+    gestión). Las pruebas cambian solo lo que necesitan.
+    """
+    datos = {}
+
+    def agregar(formulario):
+        for campo in formulario:
+            valor = campo.value()
+            if valor is None or valor is False:
+                continue
+            datos[campo.html_name] = 'on' if valor is True else valor
+
+    agregar(respuesta.context['adminform'].form)
+    for inline in respuesta.context['inline_admin_formsets']:
+        agregar(inline.formset.management_form)
+        for formulario in inline.formset.forms:
+            agregar(formulario)
+    return datos
+
+
+class AdminInformeFinalizadoTests(TestCase):
+    """
+    Decisión D-14 (hallazgo O-4 de docs/auditoria-owasp.md): en /admin/, un informe
+    finalizado es de solo lectura (campos, diagnósticos y estado) y no se borra, tenga
+    o no adendas. Hallazgo O-3: el estado tampoco se cambia en un borrador; un informe
+    solo se finaliza con POST /api/informes/{id}/finalizar/. Los borradores se siguen
+    editando y borrando. Solo datos ficticios.
+    """
+
+    LISTADO = '/admin/informes/informe/'
+
+    def setUp(self):
+        self.superusuario = Usuario.objects.create_superuser(
+            username='super_admin_informes',
+            password='ClaveSegura-2026',
+            rol=Usuario.Rol.ADMIN,
+        )
+        self.client.force_login(self.superusuario)
+        self.autor = Usuario.objects.create_user(
+            username='patologo_admin_informes',
+            password='ClaveSegura-2026',
+            rol=Usuario.Rol.PATOLOGO,
+            registro_medico='RM-PRUEBA-0001',
+        )
+        self.patologia = Patologia.objects.create(nombre='Patología admin')
+        self.paciente = paciente_ficticio()
+
+    def crear_informe(self, finalizado):
+        informe = Informe.objects.create(
+            patologia=self.patologia,
+            autor=self.autor,
+            paciente=self.paciente,
+            descripcion_microscopica='Texto original.',
+            # En /admin/, un JSON vacío ({}) cuenta como campo sin llenar y el formulario no se guarda.
+            datos_ingresados={'peso': '12 g'},
+        )
+        Diagnostico.objects.create(informe=informe, orden=1, descripcion='Diagnóstico original')
+        if finalizado:
+            informe.estado = Informe.Estado.FINALIZADO
+            informe.fecha_informe = timezone.now()
+            informe.datos_finalizacion = informe.datos_para_congelar()
+            informe.save()
+        return informe
+
+    def ficha(self, informe):
+        return f'{self.LISTADO}{informe.id}/change/'
+
+    def guardar_ficha(self, informe, **cambios):
+        datos = datos_formulario_admin(self.client.get(self.ficha(informe)))
+        datos.update(cambios)
+        return self.client.post(self.ficha(informe), datos)
+
+    def borrar_en_lote(self, informe):
+        return self.client.post(
+            self.LISTADO,
+            {'action': 'delete_selected', '_selected_action': [informe.id], 'post': 'yes'},
+        )
+
+    def agregar_adenda(self, informe):
+        Adenda.objects.create(
+            informe=informe,
+            numero=1,
+            motivo='Motivo de prueba',
+            texto='Texto de prueba',
+            autor=self.autor,
+            firma=firma_de(self.autor),
+        )
+
+    # --- Informe finalizado (D-14, O-4) ---
+
+    def test_la_ficha_de_un_finalizado_se_ve_en_solo_lectura(self):
+        informe = self.crear_informe(finalizado=True)
+        respuesta = self.client.get(self.ficha(informe))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertNotContains(respuesta, 'name="_save"')
+        self.assertContains(respuesta, 'Texto original.')
+
+    def test_no_se_cambia_el_contenido_de_un_finalizado(self):
+        informe = self.crear_informe(finalizado=True)
+        self.guardar_ficha(informe, descripcion_microscopica='Texto cambiado.')
+        informe.refresh_from_db()
+        self.assertEqual(informe.descripcion_microscopica, 'Texto original.')
+
+    def test_un_finalizado_no_vuelve_a_borrador(self):
+        informe = self.crear_informe(finalizado=True)
+        self.guardar_ficha(informe, estado=Informe.Estado.BORRADOR)
+        informe.refresh_from_db()
+        self.assertEqual(informe.estado, Informe.Estado.FINALIZADO)
+
+    def test_no_se_cambian_los_diagnosticos_de_un_finalizado(self):
+        informe = self.crear_informe(finalizado=True)
+        self.guardar_ficha(informe, **{'diagnosticos-0-descripcion': 'Diagnóstico cambiado'})
+        self.assertEqual(informe.diagnosticos.get().descripcion, 'Diagnóstico original')
+
+    def test_no_se_borran_los_diagnosticos_de_un_finalizado(self):
+        informe = self.crear_informe(finalizado=True)
+        self.guardar_ficha(informe, **{'diagnosticos-0-DELETE': 'on'})
+        self.assertEqual(informe.diagnosticos.count(), 1)
+
+    def test_no_se_agregan_diagnosticos_a_un_finalizado(self):
+        informe = self.crear_informe(finalizado=True)
+        self.guardar_ficha(
+            informe,
+            **{
+                'diagnosticos-TOTAL_FORMS': '2',
+                'diagnosticos-1-orden': '2',
+                'diagnosticos-1-descripcion': 'Diagnóstico agregado',
+                'diagnosticos-1-informe': str(informe.id),
+            },
+        )
+        self.assertEqual(informe.diagnosticos.count(), 1)
+
+    def test_no_se_borra_un_finalizado_desde_su_pagina_de_borrado(self):
+        informe = self.crear_informe(finalizado=True)
+        self.client.post(f'{self.LISTADO}{informe.id}/delete/', {'post': 'yes'})
+        self.assertTrue(Informe.objects.filter(id=informe.id).exists())
+
+    def test_no_se_borra_un_finalizado_con_la_accion_en_lote(self):
+        informe = self.crear_informe(finalizado=True)
+        self.borrar_en_lote(informe)
+        self.assertTrue(Informe.objects.filter(id=informe.id).exists())
+
+    def test_no_se_borra_un_finalizado_con_adendas(self):
+        informe = self.crear_informe(finalizado=True)
+        self.agregar_adenda(informe)
+        self.client.post(f'{self.LISTADO}{informe.id}/delete/', {'post': 'yes'})
+        self.borrar_en_lote(informe)
+        self.assertTrue(Informe.objects.filter(id=informe.id).exists())
+
+    # --- Borrador (O-3) ---
+
+    def test_un_borrador_no_se_finaliza_desde_admin(self):
+        informe = self.crear_informe(finalizado=False)
+        self.guardar_ficha(informe, estado=Informe.Estado.FINALIZADO)
+        informe.refresh_from_db()
+        self.assertEqual(informe.estado, Informe.Estado.BORRADOR)
+        self.assertIsNone(informe.datos_finalizacion)
+
+    def test_un_borrador_se_sigue_editando(self):
+        informe = self.crear_informe(finalizado=False)
+        respuesta = self.guardar_ficha(
+            informe,
+            descripcion_microscopica='Texto cambiado.',
+            **{'diagnosticos-0-descripcion': 'Diagnóstico cambiado'},
+        )
+        self.assertEqual(respuesta.status_code, 302)  # redirige: se guardó
+        informe.refresh_from_db()
+        self.assertEqual(informe.descripcion_microscopica, 'Texto cambiado.')
+        self.assertEqual(informe.diagnosticos.get().descripcion, 'Diagnóstico cambiado')
+
+    def test_un_borrador_se_sigue_borrando(self):
+        informe = self.crear_informe(finalizado=False)
+        self.client.post(f'{self.LISTADO}{informe.id}/delete/', {'post': 'yes'})
+        self.assertFalse(Informe.objects.filter(id=informe.id).exists())
+
+    def test_un_borrador_se_sigue_borrando_con_la_accion_en_lote(self):
+        informe = self.crear_informe(finalizado=False)
+        self.borrar_en_lote(informe)
+        self.assertFalse(Informe.objects.filter(id=informe.id).exists())

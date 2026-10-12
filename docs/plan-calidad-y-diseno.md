@@ -303,7 +303,7 @@ Las categorías de la edición 2025:
 
 | Orden | Grupo | Hallazgos | Rama | Cuándo |
 |---|---|---|---|---|
-| 1 | 1. Integridad del informe | O-1, O-3, O-4 (D-14) | `fase-4-integridad-informe` | 2026-10-11 y 12 |
+| 1 | 1. Integridad del informe | O-1, O-3, O-4 (D-14) | `fase-4-integridad-informe` | **Hecho** el 2026-10-11 |
 | 2 | 2. Login | O-16, O-17 | `fase-4-limites-login` | 2026-10-11 y 12 |
 | 3 | 3. Imágenes del foro | O-13 y los puntos 1 y 2 de O-5 | `fase-4-imagenes-foro` | 2026-10-11 y 12 |
 | 4 | 5. Errores y registros | O-22, O-23, O-21 | `fase-4-errores-registros` | 2026-10-11 y 12 |
@@ -314,7 +314,7 @@ Las categorías de la edición 2025:
 - **Antes de producción (grupo 8):** O-20 (con una propuesta concreta de qué registrar, cuánto tiempo y quién lo consulta), O-15, O-5 punto 3, O-18 (restringir `/admin/` en el servidor web; `django-axes` se reconsidera entonces), O-8, O-11, O-12 y el estudio de la cookie `HttpOnly` (O-19 punto 3).
 - **Fase de Cypress:** empieza el martes 2026-10-13, aunque la fase 4 no haya terminado, porque el usuario la presenta el viernes 2026-10-16. Su contenido se define ese día. Si un grupo queda a medias, se termina su commit (o se deja anotado en `docs/progreso.md`) antes de cambiar de rama.
 
-**Ya incluida (decisión D-14, 2026-10-08): informes finalizados de solo lectura en `/admin/`.**
+**Ya incluida (decisión D-14, 2026-10-08): informes finalizados de solo lectura en `/admin/`.** **Hecha el 2026-10-11** en el grupo 1, junto con O-1 y O-3 (`estado` de solo lectura en la API y en `/admin/`).
 - **Qué se hace:**
   - en `backend/informes/admin.py`, `InformeAdmin` no permite cambiar un informe finalizado. Por ejemplo, `get_readonly_fields()` devuelve todos los campos cuando `obj.esta_finalizado`, y `has_change_permission()` o el guardado lo rechazan si llega una petición;
   - `DiagnosticoInline`, en un finalizado, no deja agregar, cambiar ni borrar filas;
@@ -365,7 +365,7 @@ La guía define:
   - sigue sin librería de UI.
 - **Ejemplo visual:** si el usuario lo pide, una página de muestra (HTML estático) con la paleta y los componentes, para verla antes de aprobar.
 
-**Archivos:** `docs/guia-diseno.md` (nuevo), `docs/progreso.md` y `CHANGELOG.md`. Al aprobarse, una decisión nueva en `docs/decisiones.md` (D-16: la guía es la referencia de diseño; D-14 se usó para `/admin/` y D-15 para el encabezado congelado).
+**Archivos:** `docs/guia-diseno.md` (nuevo), `docs/progreso.md` y `CHANGELOG.md`. Al aprobarse, una decisión nueva en `docs/decisiones.md` (con el siguiente número libre: la guía es la referencia de diseño; D-14 se usó para `/admin/`, D-15 para el encabezado congelado y D-16 para las cuentas).
 
 **Terminada cuando:**
 - **la aprueban el usuario, el equipo y el profesor** (con los cambios que pidan);

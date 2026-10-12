@@ -8,9 +8,24 @@ class PlantillaInline(admin.TabularInline):
     extra = 1
 
 
+def es_finalizado(informe):
+    return informe is not None and informe.esta_finalizado
+
+
 class DiagnosticoInline(admin.TabularInline):
+    """Los diagnósticos de un informe finalizado son de solo lectura (decisión D-14)."""
+
     model = Diagnostico
     extra = 0
+
+    def has_add_permission(self, request, obj=None):
+        return not es_finalizado(obj) and super().has_add_permission(request, obj)
+
+    def has_change_permission(self, request, obj=None):
+        return not es_finalizado(obj) and super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return not es_finalizado(obj) and super().has_delete_permission(request, obj)
 
 
 class AdendaInline(admin.StackedInline):
@@ -69,9 +84,12 @@ class InformeAdmin(admin.ModelAdmin):
     # Listas con búsqueda en lugar de un menú con todos los pacientes.
     autocomplete_fields = ['paciente']
     # numero_peticion (D-7), fecha_informe y datos_finalizacion (D-10) no son editables:
-    # se muestran pero no se pueden cambiar.
+    # se muestran pero no se pueden cambiar. El estado tampoco: un informe solo se
+    # finaliza con POST /api/informes/{id}/finalizar/, que exige los requisitos (D-8) y
+    # congela los datos (D-10, D-15); en /admin/ se saltaban (hallazgo O-3).
     readonly_fields = [
         'numero_peticion',
+        'estado',
         'texto_generado',
         'fecha_informe',
         'datos_finalizacion',
@@ -79,6 +97,15 @@ class InformeAdmin(admin.ModelAdmin):
         'fecha_actualizacion',
     ]
     inlines = [DiagnosticoInline, AdendaInline]
+
+    # Un informe finalizado no se modifica ni se borra, tampoco aquí (decisión D-14): la
+    # ficha queda de solo lectura y se corrige con adendas (D-9). Django revisa el borrado
+    # objeto por objeto, así que la acción de borrado en lote tampoco lo borra.
+    def has_change_permission(self, request, obj=None):
+        return not es_finalizado(obj) and super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return not es_finalizado(obj) and super().has_delete_permission(request, obj)
 
 
 @admin.register(ConsecutivoPeticion)

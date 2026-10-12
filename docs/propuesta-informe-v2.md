@@ -421,7 +421,7 @@ Se actualiza en cada etapa, según las reglas 2, 3 y 6 de `CLAUDE.md`:
 |---|---|
 | D-1 (los patólogos administran el catálogo) | El catálogo de patologías no cambia. Los catálogos nuevos (EPS, servicios) siguen el mismo criterio (P-4, D-11). |
 | D-2 (solo el autor o un admin edita, borra o finaliza) | No cambia. Las adendas siguen la misma regla. La firma es siempre la del autor. |
-| D-3 (un informe finalizado no se modifica) | No cambia. Las adendas **no modifican** el informe: se agregan aparte. Los datos congelados refuerzan D-3. La excepción de `/admin/` sigue igual, pero en `/admin/` las adendas son de solo lectura. **Actualización del 2026-10-08:** la decisión D-14 elimina esa excepción (un finalizado tampoco se modifica en `/admin/`); se implementa en la fase 4 de `docs/plan-calidad-y-diseno.md`. |
+| D-3 (un informe finalizado no se modifica) | No cambia. Las adendas **no modifican** el informe: se agregan aparte. Los datos congelados refuerzan D-3. La excepción de `/admin/` sigue igual, pero en `/admin/` las adendas son de solo lectura. **Actualización del 2026-10-08:** la decisión D-14 elimina esa excepción (un finalizado tampoco se modifica en `/admin/`); implementada el 2026-10-11 (fase 4, grupo 1). |
 | D-4 (se desactiva en lugar de borrar) | Se aplica igual a EPS y servicios. |
 | D-5, D-6 | No se ven afectadas. |
 

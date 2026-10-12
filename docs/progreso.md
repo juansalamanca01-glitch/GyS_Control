@@ -29,7 +29,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
   5. Antes del commit, si el cambio toca código, ejecutar `npm run check` y todas las pruebas (raíz, backend y frontend). Si algo falla, no se hace el commit hasta corregirlo. Si el commit solo cambia documentación, no hace falta ejecutar las pruebas (regla 7 de `CLAUDE.md`).
   6. Hacer el commit.
   7. Hacer `git push` de la rama de trabajo después de cada commit, como respaldo. El usuario lo autorizó el 2026-10-03. Unir la rama a `main` requiere preguntar aparte.
-- **Pruebas:** 12 de la raíz (`npm test`, comprobaciones de `npm run dev` y de `npm run check`), 263 del backend (`cd backend` y luego `python manage.py test`; con SQLite usan el archivo `backend/test_db.sqlite3`) y 134 del frontend (`cd frontend` y luego `npm test`). Todas pasan.
+- **Pruebas:** 12 de la raíz (`npm test`, comprobaciones de `npm run dev` y de `npm run check`), 279 del backend (`cd backend` y luego `python manage.py test`; con SQLite usan el archivo `backend/test_db.sqlite3`) y 134 del frontend (`cd frontend` y luego `npm test`). Todas pasan.
 
 ## Hecho
 
@@ -100,13 +100,14 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 | — | Fase 2 del plan: Prettier 3.9, ESLint 9 y Ruff 0.16, `npm run check`, `.vscode` (formato al guardar y extensiones), formato automático (`836257b`, en `.git-blame-ignore-revs`), imports ordenados y arreglos a mano aprobados por el usuario (el autoguardado usa `autoguardarRef`) | `6f2e3c3`, `836257b`, `602810e` y `e10ee5f` |
 | — | Regla 7 de `CLAUDE.md`: antes de cada commit que toque código, `npm run check` y todas las pruebas; si algo falla, no hay commit. En los de solo documentación no hace falta ejecutar las pruebas | `19c02fb` |
 | — | Fase 3 del plan: informe `docs/auditoria-owasp.md` (OWASP Top 10:2025, dependencias de npm y Python), con 23 hallazgos `O-1` a `O-23` (5 altos, 13 medios, 5 bajos; 6 comprobados). Sin cambios de código. Falta que el usuario elija las correcciones | commit "docs: auditoría OWASP Top 10:2025 (fase 3)" |
+| O-1, O-3, O-4 / D-14 | Fase 4, grupo 1: `estado` de solo lectura en la API y en `/admin/` (solo `finalizar` lo cambia); en `/admin/`, un finalizado no se modifica ni se borra (tampoco en lote) y sus diagnósticos son de solo lectura. 16 pruebas nuevas | commit "fix(seguridad): integridad del informe (fase 4, grupo 1)" |
 
 ## Siguiente paso
 
 1. **Fase 3 terminada** y unida a `main` el 2026-10-11. El usuario respondió el informe el mismo día (`docs/auditoria-owasp.md`, "Respuestas del usuario").
 2. **Fase 4, una rama por grupo** (tabla en la fase 4 del plan). El 2026-10-11 y el 2026-10-12, en orden:
-   1. grupo 1, integridad del informe (O-1, O-3, O-4/D-14), rama `fase-4-integridad-informe`: **en curso**;
-   2. grupo 2, límites del login (O-16, O-17);
+   1. grupo 1, integridad del informe (O-1, O-3, O-4/D-14), rama `fase-4-integridad-informe`: **hecho**; falta preguntar al usuario si se une a `main`;
+   2. grupo 2, límites del login (O-16, O-17), rama `fase-4-limites-login`: **siguiente**;
    3. grupo 3, imágenes del foro (O-13, O-5 puntos 1 y 2);
    4. grupo 5, errores y registros (O-22, O-23, O-21).
 3. **Martes 2026-10-13: fase nueva de Cypress**, que el usuario presenta el viernes 2026-10-16. Empieza ese día aunque la fase 4 no haya terminado; su contenido se define entonces.
@@ -155,7 +156,7 @@ Inventario del 2026-10-08: todo lo pendiente, sin terminar o anotado para despu�
 
   Esta lista es del 2026-10-08. Antes de hacer el cambio, se vuelve a buscar con `git grep -i "patholab\|patolab"`.
 - **Ya decidido el 2026-10-08:**
-  - informes finalizados de solo lectura en `/admin/` (D-14, fase 4);
+  - informes finalizados de solo lectura en `/admin/` (D-14). **Hecho** el 2026-10-11 (fase 4, grupo 1);
   - corregir ya los avisos de `npm audit`. **Hecho** el mismo día.
 - **Ya decidido el 2026-10-11** (respuestas a la auditoría OWASP): D-16 (solo `is_active` y token de acceso de 30 minutos, grupo 6 de la fase 4) y el orden de la fase 4 (ver el plan).
 - **Para consultar con el patólogo y el profesor:** hoy el auditor y los demás patólogos leen por la API el contenido de los borradores ajenos (D-2), aunque no pueden descargar su PDF (D-12). El usuario decidió el 2026-10-11 mantenerlo así hasta consultarlo (observación de A01 en `docs/auditoria-owasp.md`).
@@ -176,6 +177,8 @@ Además, de la auditoría OWASP (grupo 8, `docs/auditoria-owasp.md`):
 - O-15, O-5 punto 3, O-8, O-11 y O-12, con su corrección propuesta en el informe.
 
 ### 4. Ideas futuras, sin fase en el plan
+
+- **`/admin/` y `datos_ingresados` vacío** (encontrado el 2026-10-11 al escribir las pruebas del grupo 1): un informe con `datos_ingresados = {}` no se puede guardar en `/admin/` ("Este campo es requerido"), porque el formulario cuenta el JSON vacío como campo sin llenar. No es de seguridad. Se arreglaría con `blank=True` en el campo (con su migración) o con un formulario propio en `InformeAdmin`. Falta que el usuario decida si se corrige.
 
 Vienen de la hoja de ruta del README y de la propuesta v2. Ninguna está pedida:
 - plantillas microscópicas e IHQ;
@@ -209,4 +212,5 @@ Quedan dos:
 
 ## Pendiente de respuesta del usuario
 
-- Nada por ahora. Las preguntas de la fase 3 se respondieron el 2026-10-11. La de los borradores ajenos queda para el patólogo y el profesor (sección "Pendientes", punto 2).
+- Unir `fase-4-integridad-informe` (grupo 1, terminado) a `main` y seguir con el grupo 2: se pregunta antes al usuario.
+- Las preguntas de la fase 3 se respondieron el 2026-10-11. La de los borradores ajenos queda para el patólogo y el profesor (sección "Pendientes", punto 2).
