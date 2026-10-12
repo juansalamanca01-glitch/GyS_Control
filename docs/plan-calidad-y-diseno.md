@@ -235,9 +235,9 @@ Desde la fase 2 se suman las comprobaciones de formato y linter.
 
 ---
 
-## Fase 3: auditoría OWASP Top 10:2025
+## Fase 3: auditoría OWASP Top 10:2025 (terminada)
 
-**Estado (2026-10-11):** el informe `docs/auditoria-owasp.md` está escrito, en la rama `fase-3-auditoria-owasp`: 23 hallazgos (`O-1` a `O-23`). La fase termina cuando el usuario lo lea y diga cuáles se corrigen en la fase 4 (ver "Preguntas para el usuario" del informe).
+**Estado:** terminada el 2026-10-11. El informe `docs/auditoria-owasp.md` tiene 23 hallazgos (`O-1` a `O-23`). El usuario lo leyó y respondió el mismo día (sección "Respuestas del usuario" del informe y fase 4 de este plan).
 
 **Qué se hace:** un informe de seguridad en `docs/auditoria-owasp.md`. **No se toca código.**
 
@@ -299,7 +299,20 @@ Las categorías de la edición 2025:
 
 ## Fase 4: correcciones de seguridad
 
-**Abierta.** Se define cuando el usuario revise el informe de la fase 3: qué hallazgos se corrigen, en qué orden y si van en una o en varias ramas.
+**Definida el 2026-10-11** con las respuestas del usuario al informe de la fase 3 (`docs/auditoria-owasp.md`, "Respuestas del usuario"). Va **una rama por grupo**, cada una desde `main` y unida a `main` antes de empezar la siguiente:
+
+| Orden | Grupo | Hallazgos | Rama | Cuándo |
+|---|---|---|---|---|
+| 1 | 1. Integridad del informe | O-1, O-3, O-4 (D-14) | `fase-4-integridad-informe` | 2026-10-11 y 12 |
+| 2 | 2. Login | O-16, O-17 | `fase-4-limites-login` | 2026-10-11 y 12 |
+| 3 | 3. Imágenes del foro | O-13 y los puntos 1 y 2 de O-5 | `fase-4-imagenes-foro` | 2026-10-11 y 12 |
+| 4 | 5. Errores y registros | O-22, O-23, O-21 | `fase-4-errores-registros` | 2026-10-11 y 12 |
+| 5 | 4. Django 5.2 LTS | O-9, O-10 | por definir | después del 2026-10-16 |
+| 6 | 6. Cuentas y sesiones | O-2 (solo `is_active`), O-19 (token de acceso de 30 minutos), O-6, O-7 | por definir | después del 2026-10-16 |
+| 7 | 7. Concurrencia | O-14 | por definir | después del 2026-10-16 |
+
+- **Antes de producción (grupo 8):** O-20 (con una propuesta concreta de qué registrar, cuánto tiempo y quién lo consulta), O-15, O-5 punto 3, O-18 (restringir `/admin/` en el servidor web; `django-axes` se reconsidera entonces), O-8, O-11, O-12 y el estudio de la cookie `HttpOnly` (O-19 punto 3).
+- **Fase de Cypress:** empieza el martes 2026-10-13, aunque la fase 4 no haya terminado, porque el usuario la presenta el viernes 2026-10-16. Su contenido se define ese día. Si un grupo queda a medias, se termina su commit (o se deja anotado en `docs/progreso.md`) antes de cambiar de rama.
 
 **Ya incluida (decisión D-14, 2026-10-08): informes finalizados de solo lectura en `/admin/`.**
 - **Qué se hace:**
@@ -468,3 +481,11 @@ Se hace por grupos de pantallas, con un commit por grupo, para revisar de a poco
 1. **Plan:** aprobado. Las fases 5 y 6 quedan terminadas solo cuando las aprueban el usuario, el equipo y el profesor.
 2. **Tarea previa:** sí. `patologo2` / `patologo2345`, registro `RM-PRUEBA-0002`, entre la fase 1 y la fase 2.
 3. **Fase 1:** se cierra con la rama `bloque-b-estetica`. El usuario confirmó que el PDF se ve bien, en negro.
+
+## Respuestas del usuario (2026-10-11)
+
+Al informe de la fase 3 (detalle en `docs/auditoria-owasp.md`, "Respuestas del usuario"):
+1. **Fase 4:** una rama por grupo. Los grupos 1, 2, 3 y 5 se hacen el 2026-10-11 y el 2026-10-12, en ese orden; los grupos 4, 6 y 7, después del 2026-10-16; el grupo 8, antes de producción.
+2. **Cypress:** fase nueva desde el martes 2026-10-13, que el usuario presenta el viernes 2026-10-16.
+3. **O-2:** usar solo `is_active`. **O-19:** token de acceso de 30 minutos; la cookie `HttpOnly`, como estudio antes de producción. **O-20** y **O-18**, antes de producción.
+4. **Borradores ajenos:** se mantiene D-2; queda como pregunta para el patólogo y el profesor.

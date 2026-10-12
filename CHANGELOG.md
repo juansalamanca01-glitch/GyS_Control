@@ -5,6 +5,19 @@ Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1
 
 ## 2026-10-11
 
+### Respuestas del usuario a la auditoría OWASP
+
+**Qué se cambió** (solo documentación):
+- `docs/auditoria-owasp.md`: sección "Respuestas del usuario" con el estado y el grupo de cada hallazgo.
+- `docs/plan-calidad-y-diseno.md`:
+  - la fase 3 queda terminada;
+  - la fase 4 se define con una rama por grupo y su calendario;
+  - se anota la fase nueva de Cypress (desde el 2026-10-13, presentación el 2026-10-16).
+- `docs/decisiones.md`: D-16 (solo `is_active` y token de acceso de 30 minutos). Se implementa en el grupo 6 de la fase 4.
+- `docs/progreso.md`: siguiente paso, pendientes de producción (O-20, O-18, cookie `HttpOnly`) y la pregunta de los borradores ajenos para el patólogo y el profesor.
+
+**Por qué:** el usuario leyó el informe de la fase 3 y respondió sus 6 preguntas.
+
 ### Fase 3: auditoría OWASP Top 10:2025
 
 **Qué se cambió** (solo documentación; no se tocó código):

@@ -13,13 +13,13 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** `C:\Users\salam\Desktop\patolab-app-actualizado\patologia-app`.
 - **Plan vigente:** `docs/plan-calidad-y-diseno.md`, aprobado el 2026-10-08. Cada fase va en su propia rama desde `main`.
-- **Rama de trabajo:** `fase-3-auditoria-owasp`, desde `main` (empezada el 2026-10-11 a pedido del usuario).
+- **Rama de trabajo:** `fase-4-integridad-informe` (grupo 1 de la fase 4), desde `main`.
 - **Estado:**
   - Están terminados y en `main`:
     - la auditoría inicial (salvo I-9c);
     - el informe de anatomía patológica v2 (etapas 1 a 9 y D-12);
     - los Bloques A y B (punto 4) de la prueba manual;
-    - las fases 1 y 2 y las tareas previas 1 y 2 del plan.
+    - las fases 1, 2 y 3 y las tareas previas 1 y 2 del plan.
   - El detalle está en la tabla "Hecho" y en `CHANGELOG.md`.
 - **Forma de trabajar con cada hallazgo** (ver las reglas en `CLAUDE.md`):
   1. Escribir una prueba que demuestre el fallo y mostrar que falla.
@@ -103,9 +103,14 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 ## Siguiente paso
 
-1. **Fase 2 terminada** y unida a `main` el 2026-10-08.
-2. **Fase 3: informe escrito** el 2026-10-11 (`docs/auditoria-owasp.md`, rama `fase-3-auditoria-owasp`). **Espera al usuario:** que lo lea y responda las preguntas del final del informe (ver "Pendiente de respuesta del usuario"). Después se une la rama a `main` (preguntando antes) y se define la fase 4.
-3. **Luego, las fases 4 a 8** del plan, en orden. Al terminar cada fase se actualizan esta sección y "Pendientes".
+1. **Fase 3 terminada** y unida a `main` el 2026-10-11. El usuario respondió el informe el mismo día (`docs/auditoria-owasp.md`, "Respuestas del usuario").
+2. **Fase 4, una rama por grupo** (tabla en la fase 4 del plan). El 2026-10-11 y el 2026-10-12, en orden:
+   1. grupo 1, integridad del informe (O-1, O-3, O-4/D-14), rama `fase-4-integridad-informe`: **en curso**;
+   2. grupo 2, límites del login (O-16, O-17);
+   3. grupo 3, imágenes del foro (O-13, O-5 puntos 1 y 2);
+   4. grupo 5, errores y registros (O-22, O-23, O-21).
+3. **Martes 2026-10-13: fase nueva de Cypress**, que el usuario presenta el viernes 2026-10-16. Empieza ese día aunque la fase 4 no haya terminado; su contenido se define entonces.
+4. **Después del 2026-10-16:** grupos 4 (Django 5.2), 6 (cuentas y sesiones, D-16) y 7 (concurrencia) de la fase 4; luego las fases 5 a 8.
 4. **Para arrancar la aplicación:** `npm run dev` en la raíz y abrir http://localhost:5173. Se detiene con Ctrl + C (en Windows, responder `S` si pregunta "¿Desea terminar el trabajo por lotes?").
 
 Para unir una rama a `main` (con fast-forward desde la terminal, sin pull request, porque `gh` no está instalado):
@@ -123,15 +128,8 @@ Inventario del 2026-10-08: todo lo pendiente, sin terminar o anotado para despu�
 
 | # | Qué | Origen |
 |---|---|---|
-| 3 | **Fase 3:** auditoría OWASP. Evalúa además estos puntos ya conocidos: | Plan |
-|   | • I-9c: 2 vulnerabilidades moderadas de `react-router` 6 (se cierran con React Router 7). Hay que revisar de nuevo el análisis de I-9a, porque desde D-13 la app usa `createBrowserRouter` | Auditoría inicial, I-9; `CHANGELOG.md`, I-9a |
-|   | • Dependencias de Python sin versiones fijas | `backend/requirements.txt` |
-|   | • `/admin/` permite editar informes finalizados. **Ya decidido (D-14):** solo se registra en el informe | D-3 frente a D-9 y el README |
-|   | • Conflicto entre pestañas o equipos: gana el último guardado (propuesta: comparar `fecha_actualizacion` y responder 409) | D-13; anotado por el usuario el 2026-10-05 |
-|   | • Registro de accesos (quién consulta qué informe o paciente y cuándo, también el PDF) | Hoja de ruta del README; Ley 1581 de 2012 |
-|   | • Clave antigua en el historial de git | Auditoría inicial, C-3 |
-|   | • Datos del paciente en la dirección (`?q=`) y tokens en `localStorage` | Etapa 3; plan, fase 3 (A07) |
-| 4 | **Fase 4:** las correcciones que elija el usuario de la fase 3. **Ya incluye D-14:** un informe finalizado es de solo lectura en `/admin/` (campos, diagnósticos y estado), con su prueba. Tampoco se puede borrar desde `/admin/`, tenga o no adendas | Plan; decisión D-14 |
+| 4 | **Fase 4:** correcciones de la auditoría OWASP, una rama por grupo. Grupos 1, 2, 3 y 5 el 2026-10-11 y 12; grupos 4, 6 (D-16) y 7 después del 2026-10-16. El grupo 1 incluye D-14. Los puntos conocidos que evaluó la fase 3 (I-9c, versiones de Python, D-14, conflicto entre pestañas, registro de accesos, clave antigua, `?q=`, `localStorage`) tienen ahora su hallazgo `O-x` y su grupo en `docs/auditoria-owasp.md` | Plan; `docs/auditoria-owasp.md` |
+| — | **Fase de Cypress** (nueva): desde el martes 2026-10-13; el usuario la presenta el viernes 2026-10-16 | Pedido del usuario, 2026-10-11 |
 | 5 | **Fase 5:** guía de diseño. La aprueban el usuario, el equipo y el profesor | Plan; Bloque B, punto 5 |
 | 6 | **Fase 6:** pantalla del informe. La aprueban el usuario, el equipo y el profesor | Plan; Bloque B, punto 5 |
 | 7 | **Fase 7:** resto de pantallas | Plan; Bloque B, punto 5 |
@@ -159,6 +157,8 @@ Inventario del 2026-10-08: todo lo pendiente, sin terminar o anotado para despu�
 - **Ya decidido el 2026-10-08:**
   - informes finalizados de solo lectura en `/admin/` (D-14, fase 4);
   - corregir ya los avisos de `npm audit`. **Hecho** el mismo día.
+- **Ya decidido el 2026-10-11** (respuestas a la auditoría OWASP): D-16 (solo `is_active` y token de acceso de 30 minutos, grupo 6 de la fase 4) y el orden de la fase 4 (ver el plan).
+- **Para consultar con el patólogo y el profesor:** hoy el auditor y los demás patólogos leen por la API el contenido de los borradores ajenos (D-2), aunque no pueden descargar su PDF (D-12). El usuario decidió el 2026-10-11 mantenerlo así hasta consultarlo (observación de A01 en `docs/auditoria-owasp.md`).
 
 ### 3. Para producción (al publicar la aplicación)
 
@@ -169,7 +169,11 @@ Inventario del 2026-10-08: todo lo pendiente, sin terminar o anotado para despu�
 - Configurar los registros del servidor web para que no guarden los parámetros de `GET /api/pacientes/?q=`, que llevan el nombre o el documento, o protegerlos como datos sensibles. Lo aprobó así el usuario en la etapa 3.
 - Revisión legal antes de un uso real con pacientes (Ley 1581 de 2012, Resolución 1995 de 1999), como dicen el README y la propuesta v2, sección 8.
 
-El **registro de accesos** también hace falta en producción, pero se evalúa en la fase 3 (sección 1).
+Además, de la auditoría OWASP (grupo 8, `docs/auditoria-owasp.md`):
+- **Registro de accesos (O-20):** antes de hacerlo, presentar al usuario una propuesta concreta de qué se registra, cuánto tiempo se guarda y quién lo consulta.
+- **`/admin/` (O-18):** restringirlo en el servidor web (por IP o VPN). `django-axes` se reconsidera entonces.
+- **Cookie `HttpOnly` para el token de renovación (O-19, punto 3):** estudiarla.
+- O-15, O-5 punto 3, O-8, O-11 y O-12, con su corrección propuesta en el informe.
 
 ### 4. Ideas futuras, sin fase en el plan
 
@@ -205,10 +209,4 @@ Quedan dos:
 
 ## Pendiente de respuesta del usuario
 
-Del informe de la fase 3 (`docs/auditoria-owasp.md`, "Preguntas para el usuario"):
-1. Qué hallazgos `O-x` se corrigen en la fase 4, en qué orden y en cuántas ramas. El informe propone 8 grupos; los más urgentes son O-1 (`estado` escribible), O-16 (login sin límite), O-13 (subida de `.html`), O-9 (Django 4.2 sin soporte) y O-4 (D-14).
-2. O-2: usar solo `is_active` (recomendado) o mantener `activo` sincronizado.
-3. O-19: acortar el token de acceso y si se estudia pasar el de renovación a una cookie `HttpOnly`.
-4. O-20: alcance del registro de accesos (qué se registra, cuánto tiempo y quién lo consulta).
-5. O-18: `django-axes` o solo una restricción en el servidor web.
-6. Si el auditor y los demás patólogos deben seguir leyendo por la API los borradores ajenos (D-2), aunque no descarguen su PDF (D-12).
+- Nada por ahora. Las preguntas de la fase 3 se respondieron el 2026-10-11. La de los borradores ajenos queda para el patólogo y el profesor (sección "Pendientes", punto 2).

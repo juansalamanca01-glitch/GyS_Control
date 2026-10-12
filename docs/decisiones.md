@@ -148,3 +148,14 @@ Los códigos como "I-7" o "C-2" remiten a `docs/auditoria-inicial.md`.
   - Una adenda no cambia el encabezado del informe (D-9).
   - Los informes que ya estaban finalizados reciben el encabezado de demostración ("PathoLab — Laboratorio de Patología (demostración)", "Santiago de Cali, Colombia", sin teléfono). Es el único que existía cuando se imprimieron. Lo hace la migración `informes/0012`.
 - **Motivo:** el usuario comprobó que, al cambiar el encabezado en el `.env`, también cambiaba el PDF de un informe finalizado. Un documento clínico entregado no debe cambiar después, tampoco en los datos del laboratorio que lo emitió. Es la misma idea de D-3 y D-10.
+
+## D-16. Cuentas: solo `is_active` y token de acceso de 30 minutos
+
+- **Fecha:** 2026-10-11
+- **Relacionado con:** D-6; hallazgos O-2 y O-19 de `docs/auditoria-owasp.md`
+- **Decisión:**
+  - **Usuarios activos:** se usa solo el campo estándar `is_active` de Django. El campo propio `activo`, que hoy no tiene efecto, se elimina con una migración que copia su valor en `is_active`. La API sigue mostrando el dato con el nombre `activo` (opción A de O-2).
+  - **Token de acceso:** dura 30 minutos en lugar de 8 horas. El frontend ya lo renueva solo (O-19, punto 1).
+  - Pasar el token de renovación a una cookie `HttpOnly` queda como estudio antes de producción.
+- **Estado:** decidida el 2026-10-11. **Todavía no está implementada:** va en el grupo 6 de la fase 4, después del 2026-10-16.
+- **Motivo:** la auditoría OWASP comprobó que desmarcar `activo` no impide entrar, y que un token de acceso robado sirve hasta 8 horas sin poder revocarse.

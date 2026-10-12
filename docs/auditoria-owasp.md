@@ -595,3 +595,33 @@ La decide el usuario. Esta es una propuesta, de lo más urgente y pequeño a lo 
 4. **O-20:** ¿qué acciones se registran, cuánto tiempo se guardan y quién puede consultar el registro (solo el admin o también el auditor)?
 5. **O-18:** ¿se agrega `django-axes` (una dependencia nueva) o basta con limitar `/admin/` en el servidor web al publicar?
 6. **Borradores (observación de A01):** hoy el auditor y los demás patólogos leen por la API el contenido de los borradores ajenos (D-2), aunque no pueden descargar su PDF (D-12). ¿Se mantiene así o se restringe como el PDF? Si cambia, sería una decisión nueva.
+
+---
+
+## Respuestas del usuario (2026-10-11)
+
+1. **Fase 4:** una rama por grupo de la tabla "Propuesta de orden para la fase 4".
+   - **2026-10-11 y 2026-10-12**, en este orden: grupo 1 (O-1, O-3, O-4), grupo 2 (O-16, O-17), grupo 3 (O-13 y los puntos 1 y 2 de O-5) y grupo 5 (O-22, O-23, O-21).
+   - **Desde el martes 2026-10-13:** una fase nueva de pruebas con Cypress, que el usuario presenta el viernes 2026-10-16. Empieza ese día aunque la fase 4 no haya terminado.
+   - **Después del 2026-10-16:** los grupos 4, 6 y 7.
+   - **Antes de producción:** el grupo 8.
+2. **O-2:** opción A, usar solo `is_active` (grupo 6).
+3. **O-19:** token de acceso de **30 minutos**, en el grupo 6. Pasar el token de renovación a una cookie `HttpOnly` queda como estudio antes de producción (grupo 8).
+4. **O-20:** queda para antes de producción (grupo 8). Cuando se llegue, hay que presentar una propuesta concreta: qué se registra, cuánto tiempo se guarda y quién lo consulta.
+5. **O-18:** por ahora, restringir `/admin/` en el servidor web al publicar (grupo 8). `django-axes` se reconsidera entonces.
+6. **Borradores ajenos:** se mantiene como está (D-2). Queda como pregunta para consultar con el patólogo y el profesor (ver "Pendientes" de `docs/progreso.md`).
+
+### Estado de los hallazgos
+
+| Hallazgo | Estado |
+|---|---|
+| O-1, O-3, O-4 | Fase 4, grupo 1 (rama `fase-4-integridad-informe`) |
+| O-16, O-17 | Fase 4, grupo 2 |
+| O-13, O-5 (puntos 1 y 2) | Fase 4, grupo 3 |
+| O-22, O-23, O-21 | Fase 4, grupo 5 |
+| O-9, O-10 | Fase 4, grupo 4 (después del 2026-10-16) |
+| O-2 (opción A), O-19 (punto 1: 30 minutos), O-6, O-7 | Fase 4, grupo 6 (después del 2026-10-16) |
+| O-14 | Fase 4, grupo 7 (después del 2026-10-16) |
+| O-20, O-15, O-5 (punto 3), O-18 (servidor web), O-8, O-11, O-12, O-19 (punto 3: cookie `HttpOnly`) | Antes de producción (grupo 8) |
+
+Al corregir cada hallazgo, se anota aquí su fecha y su commit.
