@@ -237,6 +237,8 @@ Desde la fase 2 se suman las comprobaciones de formato y linter.
 
 ## Fase 3: auditoría OWASP Top 10:2025
 
+**Estado (2026-10-11):** el informe `docs/auditoria-owasp.md` está escrito, en la rama `fase-3-auditoria-owasp`: 23 hallazgos (`O-1` a `O-23`). La fase termina cuando el usuario lo lea y diga cuáles se corrigen en la fase 4 (ver "Preguntas para el usuario" del informe).
+
 **Qué se hace:** un informe de seguridad en `docs/auditoria-owasp.md`. **No se toca código.**
 
 Para cada una de las 10 categorías se escribe:

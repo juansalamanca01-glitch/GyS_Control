@@ -3,6 +3,24 @@
 Todos los cambios de código del proyecto se documentan aquí, del más reciente al más antiguo.
 Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1" remiten a `docs/auditoria-inicial.md`.
 
+## 2026-10-11
+
+### Fase 3: auditoría OWASP Top 10:2025
+
+**Qué se cambió** (solo documentación; no se tocó código):
+- `docs/auditoria-owasp.md` (nuevo): el informe de seguridad de las 10 categorías de OWASP Top 10:2025.
+  - Para cada categoría: qué aplica a PathoLab, qué ya está protegido y qué falta.
+  - Las dependencias de npm (raíz y frontend) y de Python, con `npm audit` y `pip-audit`.
+  - 23 hallazgos (`O-1` a `O-23`): 5 de prioridad alta, 13 media y 5 baja, cada uno con dónde está, cómo se reproduce y la corrección propuesta. 6 se comprobaron con pruebas temporales fuera del proyecto.
+  - Una propuesta de orden para la fase 4 y las preguntas para el usuario.
+- **I-9a:** el análisis decía que GHSA-337j-9hxr-rhxg no afecta porque la app usa `BrowserRouter`. Desde D-13 usa `createBrowserRouter`. Se volvió a comprobar y sigue sin afectar, ahora porque no hidrata datos del servidor (sin `hydrationData` ni SSR). El detalle está en O-11.
+- `README.md`:
+  - enlace al informe en "Seguridad" y en la tabla de documentación;
+  - un aviso bajo la tabla de límites: hoy los de login y registro no se aplican (O-16).
+- `docs/plan-calidad-y-diseno.md` y `docs/progreso.md`: estado de la fase 3.
+
+**Por qué:** fase 3 de `docs/plan-calidad-y-diseno.md`. Las correcciones se eligen después de que el usuario lea el informe y se hacen en la fase 4.
+
 ## 2026-10-08
 
 ### Regla de comprobar antes de cada commit

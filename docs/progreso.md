@@ -5,7 +5,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 - **Decisiones tomadas:** `docs/decisiones.md`.
 - **Lista completa de problemas:** `docs/auditoria-inicial.md`.
 
-**Última actualización:** 2026-10-08
+**Última actualización:** 2026-10-11
 
 ---
 
@@ -13,7 +13,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** `C:\Users\salam\Desktop\patolab-app-actualizado\patologia-app`.
 - **Plan vigente:** `docs/plan-calidad-y-diseno.md`, aprobado el 2026-10-08. Cada fase va en su propia rama desde `main`.
-- **Rama de trabajo:** ninguna abierta. Todo está en `main`. La siguiente será `fase-3-auditoria-owasp`, cuando el usuario lo indique.
+- **Rama de trabajo:** `fase-3-auditoria-owasp`, desde `main` (empezada el 2026-10-11 a pedido del usuario).
 - **Estado:**
   - Están terminados y en `main`:
     - la auditoría inicial (salvo I-9c);
@@ -99,11 +99,12 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 | D-15 | El encabezado se congela al finalizar (`datos_finalizacion['laboratorio']`); la migración 0012 da el de demostración a los finalizados existentes. Lo encontró el usuario al probar la tarea previa 2 | `c0f08c8` |
 | — | Fase 2 del plan: Prettier 3.9, ESLint 9 y Ruff 0.16, `npm run check`, `.vscode` (formato al guardar y extensiones), formato automático (`836257b`, en `.git-blame-ignore-revs`), imports ordenados y arreglos a mano aprobados por el usuario (el autoguardado usa `autoguardarRef`) | `6f2e3c3`, `836257b`, `602810e` y `e10ee5f` |
 | — | Regla 7 de `CLAUDE.md`: antes de cada commit que toque código, `npm run check` y todas las pruebas; si algo falla, no hay commit. En los de solo documentación no hace falta ejecutar las pruebas | `19c02fb` |
+| — | Fase 3 del plan: informe `docs/auditoria-owasp.md` (OWASP Top 10:2025, dependencias de npm y Python), con 23 hallazgos `O-1` a `O-23` (5 altos, 13 medios, 5 bajos; 6 comprobados). Sin cambios de código. Falta que el usuario elija las correcciones | commit "docs: auditoría OWASP Top 10:2025 (fase 3)" |
 
 ## Siguiente paso
 
 1. **Fase 2 terminada** y unida a `main` el 2026-10-08.
-2. **Siguiente: fase 3** (auditoría OWASP Top 10:2025, solo el informe `docs/auditoria-owasp.md`, sin tocar código), en la rama `fase-3-auditoria-owasp` desde `main`. **No empezarla hasta que el usuario lo indique** (lo pidió el 2026-10-08).
+2. **Fase 3: informe escrito** el 2026-10-11 (`docs/auditoria-owasp.md`, rama `fase-3-auditoria-owasp`). **Espera al usuario:** que lo lea y responda las preguntas del final del informe (ver "Pendiente de respuesta del usuario"). Después se une la rama a `main` (preguntando antes) y se define la fase 4.
 3. **Luego, las fases 4 a 8** del plan, en orden. Al terminar cada fase se actualizan esta sección y "Pendientes".
 4. **Para arrancar la aplicación:** `npm run dev` en la raíz y abrir http://localhost:5173. Se detiene con Ctrl + C (en Windows, responder `S` si pregunta "¿Desea terminar el trabajo por lotes?").
 
@@ -199,9 +200,15 @@ El 2026-10-08 se corrigieron en la rama `docs-pendientes` (ver `CHANGELOG.md`):
 D-3 frente a D-9 se resolvió con D-14.
 
 Quedan dos:
-- `CHANGELOG.md`, I-9a: el análisis menciona `BrowserRouter`, y la app usa `createBrowserRouter` desde D-13. Se comprueba en la fase 3, por decisión del usuario.
+- `CHANGELOG.md`, I-9a: el análisis menciona `BrowserRouter`, y la app usa `createBrowserRouter` desde D-13. **Comprobado en la fase 3 (2026-10-11):** sigue sin afectar, porque la app no hidrata datos del servidor (O-11 de `docs/auditoria-owasp.md`; entrada nueva en `CHANGELOG.md`).
 - `CLAUDE.md` dice "No hay linter configurado": cambia en la fase 2.
 
 ## Pendiente de respuesta del usuario
 
-- Nada por ahora.
+Del informe de la fase 3 (`docs/auditoria-owasp.md`, "Preguntas para el usuario"):
+1. Qué hallazgos `O-x` se corrigen en la fase 4, en qué orden y en cuántas ramas. El informe propone 8 grupos; los más urgentes son O-1 (`estado` escribible), O-16 (login sin límite), O-13 (subida de `.html`), O-9 (Django 4.2 sin soporte) y O-4 (D-14).
+2. O-2: usar solo `is_active` (recomendado) o mantener `activo` sincronizado.
+3. O-19: acortar el token de acceso y si se estudia pasar el de renovación a una cookie `HttpOnly`.
+4. O-20: alcance del registro de accesos (qué se registra, cuánto tiempo y quién lo consulta).
+5. O-18: `django-axes` o solo una restricción en el servidor web.
+6. Si el auditor y los demás patólogos deben seguir leyendo por la API los borradores ajenos (D-2), aunque no descarguen su PDF (D-12).
