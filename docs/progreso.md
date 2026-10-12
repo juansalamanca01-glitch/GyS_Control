@@ -13,7 +13,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** `C:\Users\salam\Desktop\patolab-app-actualizado\patologia-app`.
 - **Plan vigente:** `docs/plan-calidad-y-diseno.md`, aprobado el 2026-10-08. Cada fase va en su propia rama desde `main`.
-- **Rama de trabajo:** `fase-4-errores-registros` (fase 4, grupo 5), creada el 2026-10-12. El grupo 3 ya está en `main`.
+- **Rama de trabajo:** ninguna abierta. Todo está en `main`. La siguiente es la fase de Cypress (desde el 2026-10-13); su rama y su contenido se definen ese día con el usuario.
 - **Estado:**
   - Están terminados y en `main`:
     - la auditoría inicial (salvo I-9c);
@@ -112,7 +112,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
    1. grupo 1, integridad del informe (O-1, O-3, O-4/D-14): **hecho** y unido a `main` el 2026-10-11;
    2. grupo 2, límites del login (O-16, O-17), **hecho** y unido a `main` el 2026-10-11;
    3. grupo 3, imágenes del foro (O-13, O-5 puntos 1 y 2), rama `fase-4-imagenes-foro`: **hecho** y unido a `main` el 2026-10-12 (también en `/admin/`, aprobado por el usuario);
-   4. grupo 5, errores y registros (O-22, O-23, O-21), rama `fase-4-errores-registros`: **hecho** el 2026-10-12. El tamaño máximo de los textos largos queda para el grupo 8 (decisión del usuario). Incluye el problema de `/admin/` con `datos_ingresados` vacío, ya resuelto (`blank=True` y el mismo validador de O-23). Falta preguntar si se une a `main`.
+   4. grupo 5, errores y registros (O-22, O-23, O-21), rama `fase-4-errores-registros`: **hecho** el 2026-10-12. El tamaño máximo de los textos largos queda para el grupo 8 (decisión del usuario). Incluye el problema de `/admin/` con `datos_ingresados` vacío, ya resuelto (`blank=True` y el mismo validador de O-23). Unido a `main` el 2026-10-12.
 3. **Martes 2026-10-13: fase nueva de Cypress**, que el usuario presenta el viernes 2026-10-16. Empieza ese día aunque la fase 4 no haya terminado; su contenido se define entonces.
 4. **Después del 2026-10-16:** grupos 4 (Django 5.2), 6 (cuentas y sesiones, D-16) y 7 (concurrencia) de la fase 4; luego las fases 5 a 8.
 4. **Para arrancar la aplicación:** `npm run dev` en la raíz y abrir http://localhost:5173. Se detiene con Ctrl + C (en Windows, responder `S` si pregunta "¿Desea terminar el trabajo por lotes?").
@@ -214,5 +214,5 @@ Quedan dos:
 
 ## Pendiente de respuesta del usuario
 
-- Unir `fase-4-errores-registros` (grupo 5) a `main` (2026-10-12).
+- Contenido y rama de la fase de Cypress, que empieza el martes 2026-10-13 (el usuario la presenta el viernes 2026-10-16).
 - Las preguntas de la fase 3 se respondieron el 2026-10-11. La de los borradores ajenos queda para el patólogo y el profesor (sección "Pendientes", punto 2).
