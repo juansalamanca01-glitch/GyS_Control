@@ -576,13 +576,20 @@ export default function InformePage() {
       </div>
 
       {successMsg && <div className="alert alert-success">{successMsg}</div>}
-      {(errors.general || errors.detail) && <div className="alert alert-error">{errors.general || errors.detail}</div>}
+      {/* Los errores llevan role="alert": los lectores de pantalla los anuncian al aparecer. */}
+      {(errors.general || errors.detail) && (
+        <div className="alert alert-error" role="alert">
+          {errors.general || errors.detail}
+        </div>
+      )}
       {/* Campos obligatorios de la plantilla que rechazó el backend: antes no se mostraban. */}
       {typeof errors.datos_ingresados === 'string' && (
-        <div className="alert alert-error">{errors.datos_ingresados}</div>
+        <div className="alert alert-error" role="alert">
+          {errors.datos_ingresados}
+        </div>
       )}
       {errors.requisitos && (
-        <div className="alert alert-error alert-lista">
+        <div className="alert alert-error alert-lista" role="alert">
           <p>No se puede finalizar el informe:</p>
           <ul>
             {errors.requisitos.map((requisito) => (

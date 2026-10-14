@@ -5,6 +5,34 @@ Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1
 
 ## 2026-10-14
 
+### Fase de Cypress: ajuste a los requisitos de la presentación
+
+**Qué se cambió:**
+- **Flujos críticos:** pasan de 4 a 6 archivos y de 22 a 25 pruebas en `frontend/cypress/e2e/`.
+  - `login-y-roles.cy.js`: el admin, un patólogo y el auditor entran **por la pantalla**, ven el menú de su rol y cierran la sesión. Antes solo entraba `patologo1`.
+  - `adendas.cy.js` (nuevo): la adenda pasa a ser su propio flujo, sobre un informe finalizado preparado por la API. También comprueba que un borrador no admite adendas y que la firma queda guardada. Sale de `informe-completo.cy.js`.
+  - `auditor.cy.js` (nuevo): el auditor no ve "Nuevo Informe" ni "+ Paciente". Si abre `/informes/nuevo` directamente, los campos están deshabilitados y no hay "Guardar Informe". La API le responde 403 al crear un informe.
+- **Selectores:** todas las pruebas buscan con `@testing-library/cypress` 10.1 (nueva dependencia de desarrollo de `frontend/`): `cy.findByRole`, `cy.findByLabelText` y `cy.findByText`. Ya no queda ningún `cy.get` ni `cy.contains` con clases CSS o ids (antes había unos 50), así que las pruebas sobreviven al rediseño de las fases 5 a 7.
+- **Accesibilidad en la app,** necesaria para buscar por rol:
+  - `frontend/src/components/FormularioPaciente.jsx`: el formulario es un `role="dialog"` con su título como nombre, igual que el aviso de cambios sin guardar.
+  - `frontend/src/pages/LoginPage.jsx` e `InformePage.jsx`: `role="alert"` en los mensajes de error, para que los lectores de pantalla los anuncien.
+  - Pruebas: `LoginPage.test.jsx` (nueva, 1), y una comprobación más en `InformePage.test.jsx` y en `SelectorPaciente.test.jsx`. Fallaron antes del cambio.
+- **Video:** `npm run e2e:video` corre todo y graba un video por archivo en `frontend/cypress/videos/` (ignorada por git).
+  - `scripts/e2e.mjs`: `leerArgumentos()` y `argumentosCypress(modo)`, con los modos `correr`, `abrir` y `video`. Una prueba nueva en `scripts/e2e.test.mjs`.
+  - `frontend/cypress.config.js`: `video: false` pasa a la raíz de la configuración. Dentro de `e2e` pesaba más que `--config video=true`, y no se grababa nada.
+- **Pruebas:** 19 de la raíz, 322 del backend, 137 del frontend y 25 de Cypress, todas en verde. `npm run check` termina sin errores ni avisos.
+- **Documentación:**
+  - sección "Fase de Cypress" en `docs/plan-calidad-y-diseno.md`, con los requisitos, los flujos, cómo se hace y cuándo se da por terminada;
+  - `README.md`, `CLAUDE.md` y `docs/progreso.md`.
+
+**Por qué:** el usuario fijó 5 requisitos para la presentación del viernes 2026-10-16. La revisión encontró que faltaban:
+- el login por la pantalla de cada rol;
+- la adenda como flujo propio;
+- comprobar que el auditor no puede crear un informe;
+- que las pruebas no dependieran de clases CSS;
+- el video de respaldo;
+- la documentación en el plan.
+
 ### Fase de Cypress: pruebas de punta a punta (decisión D-17)
 
 **Qué se cambió:**

@@ -4,7 +4,9 @@
 // 2. Arranca el backend (8001) y el frontend (5174), en otros puertos que "npm run dev",
 //    para que los dos puedan estar abiertos a la vez.
 // 3. Ejecuta Cypress y, al terminar, detiene los dos servidores.
-// "npm run e2e:abrir" hace lo mismo, pero abre la interfaz de Cypress.
+// "npm run e2e:abrir" hace lo mismo, pero abre la interfaz de Cypress (para mostrarlo en vivo).
+// "npm run e2e:video" corre todo sin interfaz y graba un video por archivo de pruebas en
+// frontend/cypress/videos/ (respaldo para una presentación). Cypress borra los anteriores.
 // Los argumentos extra pasan a Cypress: npm run e2e -- --spec cypress/e2e/login-y-roles.cy.js
 import { spawnSync } from 'node:child_process';
 import { existsSync, rmSync } from 'node:fs';
@@ -86,9 +88,17 @@ export function entornoCypress(entorno = process.env) {
   return copia;
 }
 
-/** Argumentos de Cypress: "run" sin interfaz, "open" con ella. */
-export function argumentosCypress(abrir, extra = []) {
-  return abrir ? ['cypress', 'open', '--e2e', '--browser', 'electron', ...extra] : ['cypress', 'run', ...extra];
+/** Argumentos de Cypress según el modo: 'correr' (sin interfaz), 'abrir' (con ella) o 'video'. */
+export function argumentosCypress(modo, extra = []) {
+  if (modo === 'abrir') return ['cypress', 'open', '--e2e', '--browser', 'electron', ...extra];
+  if (modo === 'video') return ['cypress', 'run', '--config', 'video=true', ...extra];
+  return ['cypress', 'run', ...extra];
+}
+
+/** El modo sale de --abrir o --video (los pone package.json); lo demás pasa a Cypress. */
+export function leerArgumentos(argumentos) {
+  const modo = argumentos.includes('--abrir') ? 'abrir' : argumentos.includes('--video') ? 'video' : 'correr';
+  return { modo, extra: argumentos.filter((arg) => arg !== '--abrir' && arg !== '--video') };
 }
 
 /** Espera a que la dirección responda (con cualquier código HTTP). */
@@ -107,8 +117,7 @@ async function esperar(url, segundos = 60) {
 // Solo se ejecuta si se llama directamente (npm run e2e), no al importarlo en las pruebas.
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-  const abrir = process.argv.includes('--abrir');
-  const extra = process.argv.slice(2).filter((arg) => arg !== '--abrir');
+  const { modo, extra } = leerArgumentos(process.argv.slice(2));
 
   const { errores } = revisarEntorno({ raiz, existe: existsSync });
   if (errores.length > 0) {
@@ -163,12 +172,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
   // 3. Cypress. En Windows, npx es un .cmd y necesita la terminal (como en check.mjs).
   console.log('\n=== Cypress ===');
-  const { status } = spawnSync(`npx ${argumentosCypress(abrir, extra).join(' ')}`, {
+  const { status } = spawnSync(`npx ${argumentosCypress(modo, extra).join(' ')}`, {
     cwd: path.join(raiz, 'frontend'),
     env: entornoCypress(),
     stdio: 'inherit',
     shell: true,
   });
   await detener();
+  if (modo === 'video') console.log('\nVideos: frontend/cypress/videos/ (uno por archivo de pruebas).');
   process.exit(status ?? 1);
 }

@@ -92,6 +92,8 @@ describe('SelectorPaciente', () => {
     render(<SelectorPaciente paciente={null} onSeleccionar={onSeleccionar} />);
     fireEvent.click(screen.getByRole('button', { name: 'Nuevo paciente' }));
     await screen.findByRole('option', { name: 'Particular' });
+    // El formulario es un diálogo con su título como nombre (accesibilidad y Cypress).
+    expect(screen.getByRole('dialog', { name: 'Nuevo paciente' })).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Número de documento'), { target: { value: 'PRUEBA0007' } });
     fireEvent.change(screen.getByLabelText('Nombres'), { target: { value: 'Paciente Ficticio' } });
     fireEvent.change(screen.getByLabelText('Apellidos'), { target: { value: 'Uno' } });

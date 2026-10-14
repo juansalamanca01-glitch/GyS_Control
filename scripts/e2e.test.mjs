@@ -10,6 +10,7 @@ import {
   argumentosCypress,
   entornoBackend,
   entornoCypress,
+  leerArgumentos,
   pasosPreparacion,
   servidores,
 } from './e2e.mjs';
@@ -57,8 +58,15 @@ test('Cypress se ejecuta sin ELECTRON_RUN_AS_NODE, que lo dejaría sin arrancar'
   assert.equal(entorno.PATH, 'algo');
 });
 
-test('"run" sin interfaz y "open" con ella; los argumentos extra pasan a Cypress', () => {
-  assert.deepEqual(argumentosCypress(false), ['cypress', 'run']);
-  assert.deepEqual(argumentosCypress(false, ['--spec', 'x.cy.js']), ['cypress', 'run', '--spec', 'x.cy.js']);
-  assert.deepEqual(argumentosCypress(true), ['cypress', 'open', '--e2e', '--browser', 'electron']);
+test('"run" sin interfaz, "open" con ella y "video" graba; los argumentos extra pasan a Cypress', () => {
+  assert.deepEqual(argumentosCypress('correr'), ['cypress', 'run']);
+  assert.deepEqual(argumentosCypress('correr', ['--spec', 'x.cy.js']), ['cypress', 'run', '--spec', 'x.cy.js']);
+  assert.deepEqual(argumentosCypress('abrir'), ['cypress', 'open', '--e2e', '--browser', 'electron']);
+  assert.deepEqual(argumentosCypress('video'), ['cypress', 'run', '--config', 'video=true']);
+});
+
+test('--abrir y --video eligen el modo y no pasan a Cypress', () => {
+  assert.deepEqual(leerArgumentos([]), { modo: 'correr', extra: [] });
+  assert.deepEqual(leerArgumentos(['--abrir']), { modo: 'abrir', extra: [] });
+  assert.deepEqual(leerArgumentos(['--video', '--spec', 'x.cy.js']), { modo: 'video', extra: ['--spec', 'x.cy.js'] });
 });

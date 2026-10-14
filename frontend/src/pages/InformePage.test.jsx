@@ -461,6 +461,8 @@ describe('InformePage: firma y finalización (etapa 6)', () => {
     fireEvent.click(await screen.findByRole('button', { name: /Finalizar Informe/i }));
     fireEvent.click(screen.getByRole('button', { name: /Confirmar/i }));
     expect(await screen.findByText('No se puede finalizar el informe:')).toBeInTheDocument();
+    // role="alert": los lectores de pantalla lo anuncian (y Cypress lo encuentra por su rol).
+    expect(screen.getByRole('alert')).toHaveTextContent('No se puede finalizar el informe:');
     const lista = screen.getAllByRole('listitem').map((li) => li.textContent);
     expect(lista).toContain('El informe debe tener al menos un diagnóstico.');
     expect(lista).toContain('El patólogo autor no tiene registro médico; un administrador debe registrarlo.');

@@ -72,8 +72,15 @@ export default function FormularioPaciente({ paciente, onGuardado, onCancelar })
 
   return createPortal(
     <div className="modal-overlay" onClick={onCancelar}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <h2>{form.id ? 'Editar paciente' : 'Nuevo paciente'}</h2>
+      {/* role="dialog" con el título como nombre, igual que el aviso de cambios sin guardar. */}
+      <div
+        className="modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="formulario-paciente-titulo"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id="formulario-paciente-titulo">{form.id ? 'Editar paciente' : 'Nuevo paciente'}</h2>
         {errores.detail && <div className="alert alert-error">{errores.detail}</div>}
         {errorDe('non_field_errors')}
         <form onSubmit={guardar}>

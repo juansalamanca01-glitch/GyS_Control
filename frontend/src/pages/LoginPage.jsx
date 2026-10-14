@@ -46,7 +46,12 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
-          {error && <div className="alert alert-error">{error}</div>}
+          {/* role="alert": los lectores de pantalla anuncian el error al aparecer. */}
+          {error && (
+            <div className="alert alert-error" role="alert">
+              {error}
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="username">Usuario</label>

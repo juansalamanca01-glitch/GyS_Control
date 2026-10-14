@@ -29,6 +29,7 @@ npm test         # pruebas de scripts/ (comprobaciones de npm run dev, npm run c
 npm run e2e      # pruebas de punta a punta con Cypress (base aparte, puertos 8001 y 5174)
 npm run e2e -- --spec cypress/e2e/permisos.cy.js  # un solo archivo de Cypress
 npm run e2e:abrir  # lo mismo, con la interfaz de Cypress
+npm run e2e:video  # lo mismo, sin interfaz y grabando un video por archivo (frontend/cypress/videos/)
 ```
 `scripts/dev.mjs` revisa el entorno con `scripts/entorno.mjs` (venv, `backend/.env`, `frontend/node_modules`), avisa de migraciones pendientes (`migrate --check`) y lanza los dos servidores con `concurrently`.
 
@@ -39,7 +40,9 @@ npm run e2e:abrir  # lo mismo, con la interfaz de Cypress
 
 Detalles:
 - Le quita a Cypress `ELECTRON_RUN_AS_NODE`, que definen las terminales de VS Code y con la que Cypress no arranca.
-- Las pruebas están en `frontend/cypress/e2e/*.cy.js`.
+- Las pruebas están en `frontend/cypress/e2e/*.cy.js`: un archivo por flujo crítico (6). Los requisitos y la tabla de flujos están en la sección "Fase de Cypress" del plan.
+- **Selectores (requisito del usuario):** solo `cy.findByRole`, `cy.findByLabelText` y `cy.findByText` de `@testing-library/cypress`. Nunca `cy.get` ni `cy.contains` con clases CSS, ids o posiciones, para que las pruebas sobrevivan al rediseño. Si falta un rol o una etiqueta, se agrega a la app, que también gana en accesibilidad (por ejemplo `role="alert"` y `role="dialog"`).
+- `video: false` va en la raíz de `cypress.config.js`, no dentro de `e2e`: lo que está en `e2e` pesa más que `--config video=true` de `npm run e2e:video`.
 - `cypress/support/commands.js` tiene:
   - `cy.entrarComo(usuario)`: login por la API con `cy.session`, para no gastar el límite de 10 logins por minuto. Solo `login-y-roles.cy.js` entra por la pantalla;
   - `cy.api()`: petición con el token del usuario;

@@ -1,5 +1,5 @@
-// Permisos sobre los informes: la pantalla oculta lo que no se puede hacer y el backend
-// lo rechaza aunque se intente directamente por la API.
+// Flujo 6: permisos sobre los informes. La pantalla oculta lo que no se puede hacer y el
+// backend lo rechaza aunque se intente directamente por la API.
 // D-2: un patólogo no modifica los informes de otro. D-3: un informe finalizado no se modifica.
 
 /**
@@ -19,7 +19,7 @@ function intentarEditar(informe) {
   );
 }
 
-describe('D-2: un patólogo no modifica el informe de otro', () => {
+describe('Flujo 6a (D-2): un patólogo no modifica el informe de otro', () => {
   let informe;
 
   before(() => {
@@ -32,14 +32,14 @@ describe('D-2: un patólogo no modifica el informe de otro', () => {
   it('patologo2 ve el borrador de patologo1 en solo lectura', () => {
     cy.entrarComo('patologo2');
     cy.visit(`/informes/${informe.id}`);
-    cy.contains('h1', informe.numero_peticion);
+    cy.findByRole('heading', { name: `Informe ${informe.numero_peticion}` });
 
-    cy.get('textarea[aria-label="Descripción microscópica"]').should('be.disabled');
-    cy.get('#tipoMuestra').should('be.disabled');
-    cy.contains('button', 'Actualizar Informe').should('not.exist');
-    cy.contains('button', 'Finalizar Informe').should('not.exist');
+    cy.findByLabelText('Descripción microscópica').should('be.disabled');
+    cy.findByLabelText('Tipo de Muestra').should('be.disabled');
+    cy.findByRole('button', { name: 'Actualizar Informe' }).should('not.exist');
+    cy.findByRole('button', { name: 'Finalizar Informe' }).should('not.exist');
     // La vista previa del PDF de un borrador es solo para su autor o un admin (D-12).
-    cy.contains('button', 'Vista previa (borrador)').should('not.exist');
+    cy.findByRole('button', { name: 'Vista previa (borrador)' }).should('not.exist');
   });
 
   it('el backend rechaza la modificación de patologo2 (403)', () => {
@@ -50,13 +50,13 @@ describe('D-2: un patólogo no modifica el informe de otro', () => {
   it('el autor sí puede editarlo', () => {
     cy.entrarComo('patologo1');
     cy.visit(`/informes/${informe.id}`);
-    cy.get('textarea[aria-label="Descripción microscópica"]').should('be.enabled');
-    cy.contains('button', 'Actualizar Informe');
+    cy.findByLabelText('Descripción microscópica').should('be.enabled');
+    cy.findByRole('button', { name: 'Actualizar Informe' });
     intentarEditar(informe).its('status').should('eq', 200);
   });
 });
 
-describe('D-3: un informe finalizado no se modifica', () => {
+describe('Flujo 6b (D-3): un informe finalizado no se modifica', () => {
   let informe;
 
   before(() => {
@@ -69,14 +69,14 @@ describe('D-3: un informe finalizado no se modifica', () => {
   it('ni su autor puede editarlo en la pantalla', () => {
     cy.entrarComo('patologo1');
     cy.visit(`/informes/${informe.id}`);
-    cy.get('.badge').should('contain', 'Finalizado');
+    cy.findByText('Finalizado');
 
-    cy.get('textarea[aria-label="Descripción microscópica"]').should('be.disabled');
-    cy.contains('button', 'Actualizar Informe').should('not.exist');
-    cy.contains('button', 'Finalizar Informe').should('not.exist');
+    cy.findByLabelText('Descripción microscópica').should('be.disabled');
+    cy.findByRole('button', { name: 'Actualizar Informe' }).should('not.exist');
+    cy.findByRole('button', { name: 'Finalizar Informe' }).should('not.exist');
     // Lo que sí queda: el PDF y las adendas, que es como se corrige (D-9).
-    cy.contains('button', 'Exportar PDF');
-    cy.contains('button', '+ Agregar adenda');
+    cy.findByRole('button', { name: 'Exportar PDF' });
+    cy.findByRole('button', { name: '+ Agregar adenda' });
   });
 
   it('el backend rechaza la modificación aunque sea del autor (400)', () => {

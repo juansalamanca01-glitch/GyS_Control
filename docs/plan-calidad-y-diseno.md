@@ -312,7 +312,7 @@ Las categorías de la edición 2025:
 | 7 | 7. Concurrencia | O-14 | por definir | después del 2026-10-16 |
 
 - **Antes de producción (grupo 8):** O-20 (con una propuesta concreta de qué registrar, cuánto tiempo y quién lo consulta), O-15, O-5 punto 3, O-18 (restringir `/admin/` en el servidor web; `django-axes` se reconsidera entonces), O-8, O-11, O-12 y el estudio de la cookie `HttpOnly` (O-19 punto 3).
-- **Fase de Cypress:** empieza el martes 2026-10-13, aunque la fase 4 no haya terminado, porque el usuario la presenta el viernes 2026-10-16. **Contenido definido y hecho el 2026-10-14** (rama `fase-cypress`, decisión D-17): Cypress con base aparte, `npm run e2e` y 4 archivos de pruebas (login y roles, informe completo, permisos D-2 y D-3, cambios sin guardar D-13). Si un grupo queda a medias, se termina su commit (o se deja anotado en `docs/progreso.md`) antes de cambiar de rama.
+- **Fase de Cypress:** empieza el martes 2026-10-13, aunque la fase 4 no haya terminado, porque el usuario la presenta el viernes 2026-10-16. **Hecha el 2026-10-14:** ver la sección "Fase de Cypress". Si un grupo queda a medias, se termina su commit (o se deja anotado en `docs/progreso.md`) antes de cambiar de rama.
 
 **Ya incluida (decisión D-14, 2026-10-08): informes finalizados de solo lectura en `/admin/`.** **Hecha el 2026-10-11** en el grupo 1, junto con O-1 y O-3 (`estado` de solo lectura en la API y en `/admin/`).
 - **Qué se hace:**
@@ -340,6 +340,54 @@ Cada corrección sigue el procedimiento común:
 Al cerrar cada corrección, se actualiza en `docs/auditoria-owasp.md` el estado del hallazgo.
 
 **Terminada cuando:** los hallazgos que eligió el usuario están corregidos, probados y marcados en el informe. Los que no se corrigen quedan anotados con su motivo.
+
+---
+
+## Fase de Cypress: pruebas de punta a punta (terminada, falta unirla a `main`)
+
+**Por qué:** el usuario la presenta el viernes 2026-10-16. Las pruebas de Vitest simulan la API. Las de Cypress manejan la aplicación real en un navegador, con el backend y el frontend juntos, y comprueban los flujos que no pueden fallar. Empezó el 2026-10-14, con la fase 4 a medio camino. Se trabaja en la rama `fase-cypress` y sigue la decisión D-17.
+
+**Requisitos del usuario (2026-10-14):**
+1. Entre 5 y 8 flujos críticos.
+2. Los elementos se buscan por texto, etiqueta o rol, nunca por clases CSS ni posiciones, para que las pruebas sigan sirviendo después del rediseño (fases 5 a 7).
+3. Una base de datos aparte, creada limpia con `seed_data` antes de cada ejecución, sin tocar la de desarrollo.
+4. Un modo interactivo para mostrarlo en vivo y un comando que grabe video, como respaldo para la presentación.
+5. Documentado en el README y en este plan.
+
+**Flujos (6, en `frontend/cypress/e2e/`):**
+
+| # | Archivo | Qué comprueba |
+|---|---|---|
+| 1 | `login-y-roles.cy.js` | El admin, un patólogo y el auditor entran por la pantalla, ven el menú de su rol y cierran la sesión con "Salir". Una contraseña incorrecta no entra, y sin sesión no se abre una página protegida |
+| 2 | `informe-completo.cy.js` | Paciente nuevo, informe borrador con su número de petición, requisitos que faltan para finalizar (D-8), finalización con la firma del autor y descarga del PDF |
+| 3 | `adendas.cy.js` | Un borrador no admite adendas. En un finalizado, la adenda se agrega con confirmación y queda guardada con su firma (D-9) |
+| 4 | `auditor.cy.js` | El auditor no ve "Nuevo Informe" ni "+ Paciente". En `/informes/nuevo` no puede llenar ni guardar nada, y la API le responde 403 |
+| 5 | `cambios-sin-guardar.cy.js` | El aviso de D-13: "Seguir editando", "Salir sin guardar", "Guardar y salir", y "Salir" del menú |
+| 6 | `permisos.cy.js` | D-2 (patologo2 no edita el informe de patologo1) y D-3 (un finalizado no se edita), en la pantalla y en la API |
+
+**Cómo se hace:**
+- **Selectores:** se usa `@testing-library/cypress` (`cy.findByRole`, `cy.findByLabelText`, `cy.findByText`), la misma forma de buscar que las pruebas de Vitest. No se usan `cy.get` ni `cy.contains` con clases o ids. Para eso, la app ganó dos mejoras de accesibilidad:
+  - `role="dialog"` en el formulario de paciente;
+  - `role="alert"` en los errores del login y del informe.
+
+  Si el rediseño cambia un texto, una etiqueta o un rol, hay que cambiar también la prueba. Es intencional: es lo que ve el usuario.
+- **Datos:** `npm run e2e` borra y vuelve a crear `backend/e2e_db.sqlite3` con `migrate` y `seed_data` (D-17). Lo que se prueba se hace por la pantalla. Lo que solo prepara el escenario (un informe finalizado para las adendas o los permisos) se crea por la API con `cy.crearInforme()`.
+- **Sesiones:** solo el flujo 1 entra por la pantalla. Los demás usan `cy.entrarComo()` (API y `cy.session`), para no pasar del límite de 10 logins por minuto (O-16).
+- **Comandos (desde la raíz):**
+  - `npm run e2e`: corre todo sin interfaz, en cerca de 40 s;
+  - `npm run e2e:abrir`: abre la interfaz de Cypress, para mostrarlo en vivo;
+  - `npm run e2e:video`: corre todo y graba un video por archivo en `frontend/cypress/videos/`, como respaldo. Los videos no se suben a git.
+- **No es parte de la regla 7:** correr Cypress no es obligatorio antes de cada commit.
+
+**Terminada cuando:**
+- las 25 pruebas pasan con `npm run e2e`;
+- `npm run e2e:video` deja los 6 videos;
+- `npm run check` y las demás pruebas siguen en verde;
+- el usuario la revisó y aprobó unir la rama a `main`.
+
+**Cierre (2026-10-14):**
+- Commits `fb454e6` (primera versión, 22 pruebas) y "test(e2e): requisitos de la presentación" (6 flujos, Testing Library, video y esta sección).
+- Falta que el usuario la pruebe y apruebe la unión a `main`.
 
 ---
 
