@@ -25,9 +25,27 @@ Desde la raíz (después de `npm install` en la raíz):
 ```powershell
 npm run dev      # arranca backend (8000) y frontend (5173) juntos; Ctrl + C detiene los dos
 npm run check    # formato y linter de frontend (Prettier, ESLint) y backend (Ruff), sin cambiar archivos
-npm test         # pruebas de scripts/ (comprobaciones de npm run dev y de npm run check)
+npm test         # pruebas de scripts/ (comprobaciones de npm run dev, npm run check y npm run e2e)
+npm run e2e      # pruebas de punta a punta con Cypress (base aparte, puertos 8001 y 5174)
+npm run e2e -- --spec cypress/e2e/permisos.cy.js  # un solo archivo de Cypress
+npm run e2e:abrir  # lo mismo, con la interfaz de Cypress
 ```
 `scripts/dev.mjs` revisa el entorno con `scripts/entorno.mjs` (venv, `backend/.env`, `frontend/node_modules`), avisa de migraciones pendientes (`migrate --check`) y lanza los dos servidores con `concurrently`.
+
+**Cypress (decisión D-17).** `scripts/e2e.mjs`:
+1. borra y vuelve a crear `backend/e2e_db.sqlite3` (`migrate` y `seed_data`);
+2. arranca el backend en el 8001, con `SQLITE_NOMBRE` y `LIMITE_PETICIONES_USUARIO` alto, y el frontend en el 5174, con `API_PROXY_DESTINO` para el proxy de `vite.config.js`;
+3. corre Cypress y espera a que los servidores se cierren antes de salir.
+
+Detalles:
+- Le quita a Cypress `ELECTRON_RUN_AS_NODE`, que definen las terminales de VS Code y con la que Cypress no arranca.
+- Las pruebas están en `frontend/cypress/e2e/*.cy.js`.
+- `cypress/support/commands.js` tiene:
+  - `cy.entrarComo(usuario)`: login por la API con `cy.session`, para no gastar el límite de 10 logins por minuto. Solo `login-y-roles.cy.js` entra por la pantalla;
+  - `cy.api()`: petición con el token del usuario;
+  - `cy.crearInforme({ listo, finalizar })`: paciente ficticio e informe de "Biopsia de Piel".
+- Los datos se preparan por la API y lo que se prueba se hace por la pantalla. Un token se lee siempre dentro de la cola de Cypress (`cy.then`), nunca al llamar la función.
+- `npm run e2e` no forma parte de la regla 7.
 
 Backend (desde `backend/`, con el venv activado: `.\venv\Scripts\Activate.ps1`):
 ```powershell
@@ -64,6 +82,7 @@ Usuarios de `seed_data`: `admin/admin1234`, `patologo1/patologo1234` (registro m
 `backend/config/settings.py` lee todo con `python-decouple` desde `backend/.env` (ver `.env.example`):
 - `SECRET_KEY` es obligatoria: si falta, `settings.py` lanza `ImproperlyConfigured` y nada arranca (ni `runserver` ni las pruebas). `DEBUG` vale `False` si no se define. Las dos cosas las verifica `backend/config/tests.py`.
 - Si `DB_NAME` está definido usa PostgreSQL; si no, SQLite (`backend/db.sqlite3`, con `timeout` de 20 s para esperar en vez de fallar con "database is locked"). Con SQLite, las pruebas usan el archivo `backend/test_db.sqlite3` y no la base en memoria, porque la prueba de concurrencia del número de petición escribe desde varios hilos. Las pruebas corren con `config/test_runner.py`, que usa `DummyCache`: así los límites de peticiones (throttles) no se acumulan entre pruebas. Ninguna prueba debe depender de esos límites, salvo las que los comprueban a propósito (`LimitesLoginTests`), que usan una caché real con `override_settings(CACHES=...)` y la vacían en `setUp`.
+- `SQLITE_NOMBRE` (opcional, `db.sqlite3` por defecto) elige el archivo SQLite, y `LIMITE_PETICIONES_USUARIO` (opcional, `120/minute`) el límite `user`. Los dos solo los define `npm run e2e` (D-17) y los vigilan `ArchivoSqliteTests` y `LimitePeticionesUsuarioTests`. El límite del login no es configurable.
 - `DEBUG=True` activa `CORS_ALLOW_ALL_ORIGINS` y sirve `/media/`; con `DEBUG=False` se usan `CORS_ALLOWED_ORIGINS` y los ajustes HTTPS/HSTS.
 - `LABORATORIO_NOMBRE`, `LABORATORIO_DIRECCION` y `LABORATORIO_TELEFONO` son el encabezado del PDF (opcionales; los vigila `EncabezadoLaboratorioTests` en `config/tests.py`).
 - `FORO_MAX_TAMANO_IMAGEN` (10 MB) es el límite por imagen del foro. Lo aplica `preparar_imagen()` de `foro/imagenes.py`, y `ForoPage.jsx` repite el valor en `MAX_TAMANO_IMAGEN_MB`: si cambia uno, hay que cambiar el otro.

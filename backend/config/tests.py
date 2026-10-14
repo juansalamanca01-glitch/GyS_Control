@@ -117,6 +117,42 @@ class NumProxiesTests(SimpleTestCase):
         self.assertEqual(settings.REST_FRAMEWORK['NUM_PROXIES'], 1)
 
 
+class LimitePeticionesUsuarioTests(SimpleTestCase):
+    """
+    Fase de Cypress: el límite de peticiones por usuario se puede subir con
+    LIMITE_PETICIONES_USUARIO (solo lo hace npm run e2e, que va más rápido que una persona).
+    El del login no cambia.
+    """
+
+    def test_sin_variable_es_120_por_minuto(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests'})
+        self.assertEqual(settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']['user'], '120/minute')
+
+    def test_se_lee_del_entorno_y_no_cambia_el_del_login(self):
+        settings = cargar_settings(
+            {'SECRET_KEY': 'clave-de-prueba-solo-para-tests', 'LIMITE_PETICIONES_USUARIO': '2000/minute'}
+        )
+        self.assertEqual(settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']['user'], '2000/minute')
+        self.assertEqual(settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']['login'], '10/minute')
+
+
+class ArchivoSqliteTests(SimpleTestCase):
+    """
+    Fase de Cypress: las pruebas de punta a punta usan su propia base SQLite
+    (SQLITE_NOMBRE), para no tocar la base de desarrollo. Sin la variable, la de siempre.
+    """
+
+    def test_sin_variable_usa_db_sqlite3(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests'})
+        self.assertEqual(settings.DATABASES['default']['NAME'], settings.BASE_DIR / 'db.sqlite3')
+
+    def test_el_archivo_se_lee_del_entorno(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests', 'SQLITE_NOMBRE': 'e2e_db.sqlite3'})
+        self.assertEqual(settings.DATABASES['default']['NAME'], settings.BASE_DIR / 'e2e_db.sqlite3')
+        # Las pruebas del backend siguen usando su propio archivo.
+        self.assertEqual(settings.DATABASES['default']['TEST']['NAME'], settings.BASE_DIR / 'test_db.sqlite3')
+
+
 class RegistrosTests(SimpleTestCase):
     """
     Hallazgo O-21 de docs/auditoria-owasp.md: sin LOGGING, con DEBUG=False los errores 500

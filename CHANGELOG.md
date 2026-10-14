@@ -3,6 +3,53 @@
 Todos los cambios de código del proyecto se documentan aquí, del más reciente al más antiguo.
 Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1" remiten a `docs/auditoria-inicial.md`.
 
+## 2026-10-14
+
+### Fase de Cypress: pruebas de punta a punta (decisión D-17)
+
+**Qué se cambió:**
+- **Cypress 15** (dependencia de desarrollo de `frontend/`):
+  - `frontend/cypress.config.js`: dirección `http://localhost:5174`, ventana de 1280 × 800 y sin videos.
+  - `frontend/cypress/support/commands.js`:
+    - `cy.entrarComo(usuario)` abre la sesión por la API y la reutiliza con `cy.session`;
+    - `cy.api()` hace peticiones con el token del usuario;
+    - `cy.crearInforme({ listo, finalizar })` crea un paciente ficticio y un informe de "Biopsia de Piel".
+- **4 archivos de pruebas** en `frontend/cypress/e2e/`, con 22 pruebas en total:
+  - `login-y-roles.cy.js` (6):
+    - login correcto e incorrecto;
+    - sin sesión, una página protegida lleva al login;
+    - "Salir";
+    - el auditor no ve "Nuevo Informe" ni "+ Paciente", y el patólogo sí.
+  - `informe-completo.cy.js` (5), todo por la pantalla:
+    1. paciente nuevo desde el informe;
+    2. borrador con su número de petición;
+    3. lista de requisitos al intentar finalizar (D-8);
+    4. microscópica y diagnóstico (con el CIE-10 normalizado) y finalización con firma;
+    5. descarga del PDF (se comprueba que empieza con `%PDF`) y adenda (D-9), que sigue ahí al recargar.
+  - `permisos.cy.js` (6):
+    - D-2: patologo2 ve el borrador de patologo1 en solo lectura y sin vista previa del PDF (D-12); la API le responde 403, y al autor 200;
+    - D-3: un finalizado no se edita en la pantalla, y la API responde 400 al autor y al admin.
+  - `cambios-sin-guardar.cy.js` (5): sin cambios no hay aviso; "Seguir editando", "Salir sin guardar" y "Guardar y salir" (que guarda el borrador); "Salir" del menú también avisa (D-13).
+- **`scripts/e2e.mjs`** (nuevo): `npm run e2e` y `npm run e2e:abrir` en `package.json` de la raíz.
+  - Pasos: crea desde cero `backend/e2e_db.sqlite3` con `migrate` y `seed_data`, arranca el backend (8001) y el frontend (5174), corre Cypress y espera a que los servidores se cierren antes de salir (si no, en Windows quedaban vivos y con la base abierta).
+  - Los argumentos extra pasan a Cypress (`-- --spec ...`).
+  - Le quita a Cypress `ELECTRON_RUN_AS_NODE`, que definen las terminales de VS Code y con la que Cypress no arranca.
+- **`scripts/e2e.test.mjs`** (nuevo, 6 pruebas): base aparte, límite, pasos, puertos, entorno de Cypress y argumentos.
+- **`backend/config/settings.py`**:
+  - `SQLITE_NOMBRE` elige el archivo SQLite (`db.sqlite3` por defecto);
+  - `LIMITE_PETICIONES_USUARIO` el límite `user` (`120/minute` por defecto). Corriendo todo junto, `patologo1` pasaba de 120 peticiones por minuto y el backend respondía 429. El límite del login sigue fijo.
+  - Pruebas: `ArchivoSqliteTests` y `LimitePeticionesUsuarioTests` en `config/tests.py` (4). Antes del cambio fallaba una de cada clase; las otras dos son de control.
+- **`frontend/vite.config.js`**: el destino del proxy se lee de `API_PROXY_DESTINO` (`http://localhost:8000` por defecto).
+- **ESLint, Prettier y git:**
+  - `frontend/eslint.config.js`: globals de Cypress y Mocha en `cypress/**`; las carpetas de salida se ignoran.
+  - `.gitignore` y `frontend/.prettierignore`: `frontend/cypress/downloads/`, `screenshots/` y `videos/`.
+- **`backend/.env.example`**: explica las dos variables nuevas.
+- **`npm audit`**: Cypress no agrega vulnerabilidades. Quedan solo las 2 moderadas de `react-router` (I-9c).
+- **Pruebas:** 18 de la raíz, 322 del backend, 136 del frontend y 22 de Cypress, todas en verde. `npm run check` termina sin errores ni avisos.
+- **Documentación:** `README.md` (estructura y pruebas), `CLAUDE.md` (comandos y configuración), `docs/decisiones.md` (D-17), el plan y `docs/progreso.md`.
+
+**Por qué:** el usuario presenta las pruebas de punta a punta el viernes 2026-10-16. Las pruebas unitarias simulan la API. Las de Cypress comprueban que la aplicación real, con backend y frontend juntos, cumple los flujos y las decisiones más importantes (D-2, D-3, D-8, D-9, D-12, D-13). La base aparte evita ensuciar la de desarrollo y gastar números de petición (D-7).
+
 ## 2026-10-12
 
 ### Fase 4, grupo 5: errores y registros (O-22, O-23, O-21)

@@ -94,7 +94,9 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            # SQLITE_NOMBRE elige otro archivo: npm run e2e (Cypress) usa e2e_db.sqlite3
+            # para no tocar la base de desarrollo.
+            'NAME': BASE_DIR / config('SQLITE_NOMBRE', default='db.sqlite3'),
             # Si otro usuario está escribiendo, espera hasta 20 s en lugar de fallar
             # con "database is locked" (número de petición, decisión D-7).
             'OPTIONS': {'timeout': 20},
@@ -137,7 +139,9 @@ REST_FRAMEWORK = {
     'NUM_PROXIES': config('NUM_PROXIES', default=0, cast=int),
     'DEFAULT_THROTTLE_RATES': {
         'anon': '30/minute',
-        'user': '120/minute',
+        # npm run e2e (Cypress) lo sube para su backend: las pruebas van más rápido que
+        # una persona. El del login no se puede cambiar (O-16).
+        'user': config('LIMITE_PETICIONES_USUARIO', default='120/minute'),
         'login': '10/minute',
         'registro': '5/minute',
         'foro_publicacion': '10/minute',

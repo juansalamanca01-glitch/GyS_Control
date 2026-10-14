@@ -24,6 +24,10 @@ dist/
 dist-ssr/
 *.local
 npm-debug.log*
+# Archivos que deja Cypress al correr (npm run e2e)
+frontend/cypress/downloads/
+frontend/cypress/screenshots/
+frontend/cypress/videos/
 yarn-debug.log*
 yarn-error.log*
 

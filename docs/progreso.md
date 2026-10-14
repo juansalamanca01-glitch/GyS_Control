@@ -5,7 +5,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 - **Decisiones tomadas:** `docs/decisiones.md`.
 - **Lista completa de problemas:** `docs/auditoria-inicial.md`.
 
-**Última actualización:** 2026-10-12
+**Última actualización:** 2026-10-14
 
 ---
 
@@ -13,7 +13,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** `C:\Users\salam\Desktop\patolab-app-actualizado\patologia-app`.
 - **Plan vigente:** `docs/plan-calidad-y-diseno.md`, aprobado el 2026-10-08. Cada fase va en su propia rama desde `main`.
-- **Rama de trabajo:** ninguna abierta. Todo está en `main`. La siguiente es la fase de Cypress (desde el 2026-10-13); su rama y su contenido se definen ese día con el usuario.
+- **Rama de trabajo:** `fase-cypress` (desde `main`, 2026-10-14). Fase de Cypress hecha; falta que el usuario la pruebe con `npm run e2e:abrir` y decida si se une a `main`.
 - **Estado:**
   - Están terminados y en `main`:
     - la auditoría inicial (salvo I-9c);
@@ -29,7 +29,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
   5. Antes del commit, si el cambio toca código, ejecutar `npm run check` y todas las pruebas (raíz, backend y frontend). Si algo falla, no se hace el commit hasta corregirlo. Si el commit solo cambia documentación, no hace falta ejecutar las pruebas (regla 7 de `CLAUDE.md`).
   6. Hacer el commit.
   7. Hacer `git push` de la rama de trabajo después de cada commit, como respaldo. El usuario lo autorizó el 2026-10-03. Unir la rama a `main` requiere preguntar aparte.
-- **Pruebas:** 12 de la raíz (`npm test`, comprobaciones de `npm run dev` y de `npm run check`), 318 del backend (`cd backend` y luego `python manage.py test`; con SQLite usan el archivo `backend/test_db.sqlite3`) y 136 del frontend (`cd frontend` y luego `npm test`). Todas pasan.
+- **Pruebas:** 18 de la raíz (`npm test`, comprobaciones de `npm run dev`, `npm run check` y `npm run e2e`), 322 del backend (`cd backend` y luego `python manage.py test`; con SQLite usan el archivo `backend/test_db.sqlite3`) y 136 del frontend (`cd frontend` y luego `npm test`). Además, 22 de Cypress (`npm run e2e` en la raíz, cerca de un minuto; no son obligatorias antes de cada commit, D-17). Todas pasan.
 
 ## Hecho
 
@@ -103,6 +103,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 | O-1, O-3, O-4 / D-14 | Fase 4, grupo 1: `estado` de solo lectura en la API y en `/admin/` (solo `finalizar` lo cambia); en `/admin/`, un finalizado no se modifica ni se borra (tampoco en lote) y sus diagnósticos son de solo lectura. 16 pruebas nuevas | commit "fix(seguridad): integridad del informe (fase 4, grupo 1)" |
 | O-16, O-17 | Fase 4, grupo 2: el login y el registro vuelven a tener límite de intentos (`throttle_scope` en la vista, sin perder los globales; se borra `accounts/throttles.py`) y `NUM_PROXIES` (0 por defecto) impide saltarlos con `X-Forwarded-For`. 6 pruebas nuevas | commit "fix(seguridad): límites del login (fase 4, grupo 2)" |
 | O-13, O-5 (1 y 2) | Fase 4, grupo 3: solo se aceptan JPG, PNG, GIF y WEBP (extensión y formato real); cada imagen se vuelve a codificar (sin EXIF ni contenido agregado, con su orientación y animación) y se guarda con un nombre aleatorio; igual en `/admin/`. `foro/imagenes.py` nuevo; 16 pruebas nuevas (14 del backend, 2 del frontend) | commit "fix(seguridad): imágenes del foro (fase 4, grupo 3)" |
+| D-17 | Fase de Cypress: Cypress 15 con base aparte (`backend/e2e_db.sqlite3`, `seed_data` en cada corrida), `npm run e2e` y `npm run e2e:abrir` (puertos 8001 y 5174), `SQLITE_NOMBRE` y `LIMITE_PETICIONES_USUARIO` en `settings.py`, proxy configurable. 22 pruebas: login y roles, informe completo (paciente, borrador, requisitos, finalizar, PDF, adenda), permisos D-2 y D-3, cambios sin guardar (D-13) | commit "test(e2e): pruebas de punta a punta con Cypress" |
 | O-22, O-23, O-21 | Fase 4, grupo 5: filtros de la URL con 400 en vez de 500 (`config/filtros.py`); `datos_ingresados` validado en el modelo (objeto, valores simples, límites) y `{}` se guarda en `/admin/` (migración 0013); `texto_generado` en la misma transacción; `LOGGING` y registro de logins (logger `seguridad`, `LOG_LEVEL`). 19 pruebas nuevas | commit "fix(seguridad): errores y registros (fase 4, grupo 5)" |
 
 ## Siguiente paso
@@ -113,7 +114,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
    2. grupo 2, límites del login (O-16, O-17), **hecho** y unido a `main` el 2026-10-11;
    3. grupo 3, imágenes del foro (O-13, O-5 puntos 1 y 2), rama `fase-4-imagenes-foro`: **hecho** y unido a `main` el 2026-10-12 (también en `/admin/`, aprobado por el usuario);
    4. grupo 5, errores y registros (O-22, O-23, O-21), rama `fase-4-errores-registros`: **hecho** el 2026-10-12. El tamaño máximo de los textos largos queda para el grupo 8 (decisión del usuario). Incluye el problema de `/admin/` con `datos_ingresados` vacío, ya resuelto (`blank=True` y el mismo validador de O-23). Unido a `main` el 2026-10-12.
-3. **Martes 2026-10-13: fase nueva de Cypress**, que el usuario presenta el viernes 2026-10-16. Empieza ese día aunque la fase 4 no haya terminado; su contenido se define entonces.
+3. **Fase de Cypress**, que el usuario presenta el viernes 2026-10-16: **hecha** el 2026-10-14 en la rama `fase-cypress` (D-17). Contenido elegido por el usuario: base aparte, los cuatro flujos (login y roles, informe completo, permisos, cambios sin guardar) y un comando aparte. Falta que el usuario la pruebe y decida si se une a `main`; después se puede ensayar la presentación con `npm run e2e:abrir`.
 4. **Después del 2026-10-16:** grupos 4 (Django 5.2), 6 (cuentas y sesiones, D-16) y 7 (concurrencia) de la fase 4; luego las fases 5 a 8.
 4. **Para arrancar la aplicación:** `npm run dev` en la raíz y abrir http://localhost:5173. Se detiene con Ctrl + C (en Windows, responder `S` si pregunta "¿Desea terminar el trabajo por lotes?").
 
@@ -133,7 +134,7 @@ Inventario del 2026-10-08: todo lo pendiente, sin terminar o anotado para despu�
 | # | Qué | Origen |
 |---|---|---|
 | 4 | **Fase 4:** correcciones de la auditoría OWASP, una rama por grupo. Grupos 1, 2, 3 y 5 el 2026-10-11 y 12; grupos 4, 6 (D-16) y 7 después del 2026-10-16. El grupo 1 incluye D-14. Los puntos conocidos que evaluó la fase 3 (I-9c, versiones de Python, D-14, conflicto entre pestañas, registro de accesos, clave antigua, `?q=`, `localStorage`) tienen ahora su hallazgo `O-x` y su grupo en `docs/auditoria-owasp.md` | Plan; `docs/auditoria-owasp.md` |
-| — | **Fase de Cypress** (nueva): desde el martes 2026-10-13; el usuario la presenta el viernes 2026-10-16 | Pedido del usuario, 2026-10-11 |
+| — | **Fase de Cypress** (nueva): hecha el 2026-10-14 en la rama `fase-cypress` (D-17), falta unirla a `main`; el usuario la presenta el viernes 2026-10-16 | Pedido del usuario, 2026-10-11 |
 | 5 | **Fase 5:** guía de diseño. La aprueban el usuario, el equipo y el profesor | Plan; Bloque B, punto 5 |
 | 6 | **Fase 6:** pantalla del informe. La aprueban el usuario, el equipo y el profesor | Plan; Bloque B, punto 5 |
 | 7 | **Fase 7:** resto de pantallas | Plan; Bloque B, punto 5 |
@@ -214,5 +215,5 @@ Quedan dos:
 
 ## Pendiente de respuesta del usuario
 
-- Contenido y rama de la fase de Cypress, que empieza el martes 2026-10-13 (el usuario la presenta el viernes 2026-10-16).
+- Fase de Cypress (rama `fase-cypress`): que el usuario la pruebe (`npm run e2e` o `npm run e2e:abrir`) y diga si se une a `main`.
 - Las preguntas de la fase 3 se respondieron el 2026-10-11. La de los borradores ajenos queda para el patólogo y el profesor (sección "Pendientes", punto 2).

@@ -6,7 +6,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import prettier from 'eslint-config-prettier';
 
 export default [
-  { ignores: ['dist/', 'coverage/'] },
+  { ignores: ['dist/', 'coverage/', 'cypress/downloads/', 'cypress/screenshots/', 'cypress/videos/'] },
   js.configs.recommended,
   react.configs.flat.recommended,
   // JSX moderno: no hace falta importar React en cada archivo.
@@ -33,6 +33,11 @@ export default [
     // Pruebas (Vitest) y archivos de configuración que corren en Node.
     files: ['**/*.test.{js,jsx}', 'src/test/**', '*.config.js'],
     languageOptions: { globals: { ...globals.node, ...globals.vitest } },
+  },
+  {
+    // Pruebas de punta a punta (Cypress, npm run e2e en la raíz).
+    files: ['cypress/**'],
+    languageOptions: { globals: { ...globals.mocha, cy: 'readonly', Cypress: 'readonly', expect: 'readonly' } },
   },
   // Al final: apaga las reglas de estilo que chocarían con Prettier.
   prettier,

@@ -159,3 +159,15 @@ Los códigos como "I-7" o "C-2" remiten a `docs/auditoria-inicial.md`.
   - Pasar el token de renovación a una cookie `HttpOnly` queda como estudio antes de producción.
 - **Estado:** decidida el 2026-10-11. **Todavía no está implementada:** va en el grupo 6 de la fase 4, después del 2026-10-16.
 - **Motivo:** la auditoría OWASP comprobó que desmarcar `activo` no impide entrar, y que un token de acceso robado sirve hasta 8 horas sin poder revocarse.
+
+## D-17. Pruebas de punta a punta con Cypress en una base aparte
+
+- **Fecha:** 2026-10-14
+- **Relacionado con:** regla 7 de `CLAUDE.md`; fase de Cypress (`docs/plan-calidad-y-diseno.md`); O-16
+- **Decisión:**
+  - Las pruebas de Cypress manejan la aplicación real (backend y frontend), no una API simulada.
+  - Corren contra una base SQLite propia (`backend/e2e_db.sqlite3`), que `npm run e2e` crea desde cero con `migrate` y `seed_data` en cada corrida. La base de desarrollo no se toca.
+  - Su backend y su frontend usan los puertos 8001 y 5174, para poder correr con `npm run dev` abierto.
+  - Ese backend sube el límite de peticiones por usuario con `LIMITE_PETICIONES_USUARIO`. El límite del login (O-16) no se puede cambiar. Para no gastarlo, solo `login-y-roles.cy.js` entra por la pantalla; las demás pruebas entran por la API y reutilizan la sesión (`cy.session`).
+  - `npm run e2e` es un comando aparte y **no** forma parte de la regla 7: no es obligatorio antes de cada commit.
+- **Motivo:** el usuario lo eligió el 2026-10-14 entre otras opciones (usar la base de desarrollo, simular la API, o volver Cypress obligatorio en la regla 7). Una base aparte no ensucia los datos ni gasta números de petición (D-7). Las pruebas reales son las que muestran el flujo completo en la presentación. Correrlas tarda cerca de un minuto, demasiado para cada commit. El límite se volvió configurable porque, al correr todo junto, `patologo1` pasaba de las 120 peticiones por minuto y el backend respondía 429.

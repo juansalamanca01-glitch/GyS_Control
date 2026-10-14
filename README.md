@@ -211,13 +211,15 @@ patologia-app/
 │   ├── .prettierrc            # Configuración de Prettier (formato)
 │   ├── eslint.config.js       # Configuración de ESLint (errores y malas prácticas)
 │   ├── vite.config.js         # Proxy /api → backend y configuración de Vitest
+│   ├── cypress.config.js      # Configuración de Cypress (pruebas de punta a punta)
+│   ├── cypress/e2e/           # Pruebas de Cypress: login y roles, informe completo, permisos y cambios sin guardar
 │   └── .env.example           # Plantilla del .env (VITE_API_URL)
 ├── docs/                      # Auditoría, decisiones, propuesta del informe v2 y estado del trabajo
 ├── CHANGELOG.md               # Registro de cambios
-├── scripts/                   # "npm run dev" (comprobaciones y arranque) y "npm run check" (formato y linter)
+├── scripts/                   # "npm run dev" (comprobaciones y arranque), "npm run check" (formato y linter) y "npm run e2e" (Cypress)
 ├── .vscode/                   # Formato al guardar y extensiones recomendadas para VS Code
 ├── .git-blame-ignore-revs     # Commits de solo formato que git blame debe saltar
-├── package.json               # Comandos de la raíz (npm run dev, npm run check, npm test)
+├── package.json               # Comandos de la raíz (npm run dev, npm run check, npm test, npm run e2e)
 ├── CLAUDE.md                  # Guía para el asistente de código
 └── PathoLab_API.postman_collection.json
 ```
@@ -396,11 +398,25 @@ python manage.py test informes            # las de una app
 npm test                                  # todas las pruebas, una vez
 npm run test:watch                        # se repiten al guardar cambios
 
-# Comprobaciones de "npm run dev" y "npm run check" (desde la raíz)
+# Comprobaciones de "npm run dev", "npm run check" y "npm run e2e" (desde la raíz)
 npm test
+
+# Pruebas de punta a punta con Cypress (desde la raíz)
+npm run e2e                               # todas, sin interfaz
+npm run e2e -- --spec cypress/e2e/permisos.cy.js   # un solo archivo
+npm run e2e:abrir                         # con la interfaz de Cypress
 ```
 
 - **Backend:** cubre el número de petición (formato, reinicio por año, creación simultánea desde varios hilos y numeración de los informes existentes al migrar), los permisos por rol, los pacientes (edad calculada, documento único, validaciones, búsqueda e historial), los datos de la solicitud del informe (paciente obligatorio, fecha de ingreso, EPS del momento del estudio, búsqueda por paciente), el contenido del informe (microscópica, comentarios, diagnósticos y validación del CIE-10), la finalización (requisitos, fecha de informe, firma del autor y datos congelados), las adendas (solo en finalizados, permisos, numeración, firma congelada, sin edición y en el PDF), quién puede descargar el PDF de un borrador y su marca de agua, el registro médico, los catálogos de EPS y servicios (y su borrado cuando están en uso), las opciones fijas (`/api/opciones/`), el bloqueo de informes finalizados, la validación de campos obligatorios y de contraseñas, el PDF, la paginación y estadísticas, la subida de imágenes y la configuración segura.
+- **Pruebas de punta a punta (Cypress):** manejan la aplicación real en un navegador, con el backend y el frontend de verdad.
+  - **Qué cubren:**
+    - el login y lo que ve cada rol;
+    - el flujo completo de un informe: paciente nuevo, borrador, requisitos para finalizar, finalización, PDF y adenda;
+    - los permisos D-2 y D-3, en la pantalla y en la API;
+    - el aviso de cambios sin guardar (D-13).
+  - **Cómo corren:** `npm run e2e` crea desde cero una base aparte (`backend/e2e_db.sqlite3`) con `seed_data`, así que no toca la base de desarrollo. Arranca el backend en el puerto 8001 y el frontend en el 5174, para no chocar con `npm run dev`, ejecuta Cypress y apaga los servidores.
+  - **Ajustes de ese backend:** usa su propia base (`SQLITE_NOMBRE`) y sube el límite de peticiones por usuario (`LIMITE_PETICIONES_USUARIO`), porque Cypress va mucho más rápido que una persona. El límite del login no cambia.
+  - **Cuándo se ejecutan:** tardan cerca de un minuto y no son obligatorias antes de cada commit (decisión D-17).
 - **Frontend:** cubre el formulario del informe (paciente, datos de la solicitud, diagnósticos, firma, requisitos para finalizar, adendas y orden de las tarjetas), la página de pacientes y su historial, la pantalla de catálogos, los listados, la página de perfil, la exportación a PDF (y la vista previa de un borrador), el aviso al salir con cambios sin guardar y el autoguardado de los borradores (D-13), el cierre de sesión por `/salir`, las imágenes del foro y su visor, y la dirección de la API.
 
 ---

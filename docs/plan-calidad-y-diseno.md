@@ -312,7 +312,7 @@ Las categorías de la edición 2025:
 | 7 | 7. Concurrencia | O-14 | por definir | después del 2026-10-16 |
 
 - **Antes de producción (grupo 8):** O-20 (con una propuesta concreta de qué registrar, cuánto tiempo y quién lo consulta), O-15, O-5 punto 3, O-18 (restringir `/admin/` en el servidor web; `django-axes` se reconsidera entonces), O-8, O-11, O-12 y el estudio de la cookie `HttpOnly` (O-19 punto 3).
-- **Fase de Cypress:** empieza el martes 2026-10-13, aunque la fase 4 no haya terminado, porque el usuario la presenta el viernes 2026-10-16. Su contenido se define ese día. Si un grupo queda a medias, se termina su commit (o se deja anotado en `docs/progreso.md`) antes de cambiar de rama.
+- **Fase de Cypress:** empieza el martes 2026-10-13, aunque la fase 4 no haya terminado, porque el usuario la presenta el viernes 2026-10-16. **Contenido definido y hecho el 2026-10-14** (rama `fase-cypress`, decisión D-17): Cypress con base aparte, `npm run e2e` y 4 archivos de pruebas (login y roles, informe completo, permisos D-2 y D-3, cambios sin guardar D-13). Si un grupo queda a medias, se termina su commit (o se deja anotado en `docs/progreso.md`) antes de cambiar de rama.
 
 **Ya incluida (decisión D-14, 2026-10-08): informes finalizados de solo lectura en `/admin/`.** **Hecha el 2026-10-11** en el grupo 1, junto con O-1 y O-3 (`estado` de solo lectura en la API y en `/admin/`).
 - **Qué se hace:**
