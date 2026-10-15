@@ -205,7 +205,7 @@ LABORATORIO_DIRECCION = config('LABORATORIO_DIRECCION', default='Santiago de Cal
 LABORATORIO_TELEFONO = config('LABORATORIO_TELEFONO', default='')
 
 # ---------- Registros (logging) ----------
-# Hallazgo O-21 de docs/auditoria-owasp.md. Sin LOGGING, con DEBUG=False Django mandaba
+# Hallazgo O-21 de docs/historial-patholab/auditoria-owasp.md. Sin LOGGING, con DEBUG=False Django mandaba
 # los errores 500 a mail_admins y, con ADMINS vacío, no quedaban en ningún lado. Todo va
 # a la consola, que recoge el servidor (systemd, Docker…), con o sin DEBUG:
 # - django.request: solo los errores 500 (los 4xx son errores del cliente);

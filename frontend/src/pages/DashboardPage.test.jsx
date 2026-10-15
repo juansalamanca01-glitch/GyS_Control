@@ -33,7 +33,7 @@ function simularApi() {
   );
 }
 
-// Hallazgo M-9 de docs/auditoria-inicial.md: los errores solo se escribían en la
+// Hallazgo M-9 de docs/historial-patholab/auditoria-inicial.md: los errores solo se escribían en la
 // consola del navegador; el usuario no veía nada.
 describe('DashboardPage: errores visibles', () => {
   beforeEach(() => {

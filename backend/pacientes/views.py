@@ -42,7 +42,7 @@ class EPSViewSet(viewsets.ModelViewSet):
 
 class PacienteViewSet(viewsets.ModelViewSet):
     """
-    Pacientes (docs/propuesta-informe-v2.md, 3.1 y 4). Todos leen; patólogo y admin
+    Pacientes (docs/historial-patholab/propuesta-informe-v2.md, 3.1 y 4). Todos leen; patólogo y admin
     crean y editan; solo el admin borra, y solo si no tiene informes (decisión D-11).
     ?q= busca por documento, nombres y apellidos: cada palabra debe aparecer en
     alguno de los tres, así que "ficticio uno" encuentra a "Paciente Ficticio Uno".

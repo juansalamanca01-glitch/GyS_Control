@@ -13,7 +13,7 @@ from .models import EPS, Paciente
 
 class CatalogoEPSTests(APITestCase):
     """
-    Informe v2, etapa 2 (docs/propuesta-informe-v2.md, sección 3.1): catálogo de
+    Informe v2, etapa 2 (docs/historial-patholab/propuesta-informe-v2.md, sección 3.1): catálogo de
     EPS. Lo administran patólogos y admin (decisión D-11); el auditor solo lee.
     Se desactiva en lugar de borrarse (D-4) y se filtra con ?activa=.
     """

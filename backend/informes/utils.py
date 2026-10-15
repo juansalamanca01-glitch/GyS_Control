@@ -86,7 +86,7 @@ def generar_descripcion_macroscopica(patologia, datos: dict) -> str:
 
 
 # ── Exportación a PDF ───────────────────────────────────────────────────
-# Estructura del informe real (docs/propuesta-informe-v2.md, sección 5).
+# Estructura del informe real (docs/historial-patholab/propuesta-informe-v2.md, sección 5).
 
 SIN_DATO = '—'
 AVISO_BORRADOR = 'BORRADOR — SIN VALIDEZ'

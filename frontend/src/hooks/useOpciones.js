@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import client from '../api/client';
 
 // Listas fijas del backend (sexos, tipos de documento, tipos de estudio), sacadas
-// de GET /api/opciones/ (docs/propuesta-informe-v2.md, 3.3). No se copian en
+// de GET /api/opciones/ (docs/historial-patholab/propuesta-informe-v2.md, 3.3). No se copian en
 // constants.js para no tener los mismos valores en dos sitios.
 const SIN_OPCIONES = { sexos: [], tipos_documento: [], tipos_estudio: [] };
 

@@ -1,5 +1,5 @@
 """
-Registro de los inicios de sesión (hallazgo O-21 de docs/auditoria-owasp.md).
+Registro de los inicios de sesión (hallazgo O-21 de docs/historial-patholab/auditoria-owasp.md).
 
 Se escribe en el logger `seguridad` (LOGGING en config/settings.py): el usuario y la IP,
 nunca la contraseña ni los tokens. Es la base para detectar muchos fallos seguidos.

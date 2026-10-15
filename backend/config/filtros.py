@@ -1,5 +1,5 @@
 """
-Lectura de los parámetros de filtro de la URL (hallazgo O-22 de docs/auditoria-owasp.md).
+Lectura de los parámetros de filtro de la URL (hallazgo O-22 de docs/historial-patholab/auditoria-owasp.md).
 
 Un valor que no es un número o una fecha llegaba sin revisar a `filter()` y el ORM
 respondía 500. Estas funciones lo comprueban antes y responden 400 con un mensaje

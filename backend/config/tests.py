@@ -27,7 +27,7 @@ def cargar_settings(variables_entorno):
 
 class ValoresPorDefectoSegurosTests(SimpleTestCase):
     """
-    Hallazgo C-3 de docs/auditoria-inicial.md: si falta el .env, la app no debe
+    Hallazgo C-3 de docs/historial-patholab/auditoria-inicial.md: si falta el .env, la app no debe
     arrancar con DEBUG=True ni con una SECRET_KEY escrita en el código.
     """
 
@@ -53,7 +53,7 @@ class ValoresPorDefectoSegurosTests(SimpleTestCase):
 
 class EncabezadoLaboratorioTests(SimpleTestCase):
     """
-    Tarea previa 2 de docs/plan-calidad-y-diseno.md: el encabezado del PDF se lee
+    Tarea previa 2 de docs/historial-patholab/plan-calidad-y-diseno.md: el encabezado del PDF se lee
     de backend/.env (LABORATORIO_NOMBRE, LABORATORIO_DIRECCION, LABORATORIO_TELEFONO).
     Sin esas variables queda el encabezado de demostración de siempre (P-9).
     """
@@ -103,7 +103,7 @@ class EncabezadoLaboratorioTests(SimpleTestCase):
 
 class NumProxiesTests(SimpleTestCase):
     """
-    Hallazgo O-17 de docs/auditoria-owasp.md: NUM_PROXIES dice cuántos proxies hay
+    Hallazgo O-17 de docs/historial-patholab/auditoria-owasp.md: NUM_PROXIES dice cuántos proxies hay
     delante de Django. Sin definir vale 0: DRF usa la IP de la conexión y no la
     cabecera X-Forwarded-For, que el cliente puede inventar.
     """
@@ -155,7 +155,7 @@ class ArchivoSqliteTests(SimpleTestCase):
 
 class RegistrosTests(SimpleTestCase):
     """
-    Hallazgo O-21 de docs/auditoria-owasp.md: sin LOGGING, con DEBUG=False los errores 500
+    Hallazgo O-21 de docs/historial-patholab/auditoria-owasp.md: sin LOGGING, con DEBUG=False los errores 500
     iban a `mail_admins` con ADMINS vacío, es decir, a ningún lado. Ahora van a la consola
     (la recoge el servidor), igual que los registros de seguridad, sin depender de DEBUG.
     """

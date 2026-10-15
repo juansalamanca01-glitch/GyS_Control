@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import SeccionFirma from './SeccionFirma';
 
-// Solo datos ficticios (docs/propuesta-informe-v2.md, sección 8).
+// Solo datos ficticios (docs/historial-patholab/propuesta-informe-v2.md, sección 8).
 const FIRMA = {
   nombre: 'Dra. Ficticia Firma',
   especialidad: 'Patología Quirúrgica',

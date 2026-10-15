@@ -19,7 +19,7 @@ const INFORME = {
   id: 5,
   numero_peticion: 'P-2026-00001',
   numero_orden_externa: 'ORD-9',
-  // Solo datos ficticios (docs/propuesta-informe-v2.md, sección 8).
+  // Solo datos ficticios (docs/historial-patholab/propuesta-informe-v2.md, sección 8).
   paciente: 1,
   paciente_datos: {
     id: 1,
@@ -113,7 +113,7 @@ function renderInforme() {
   return render(<RouterProvider router={crearRouter('/informes/5')} />);
 }
 
-// Hallazgo I-5 de docs/auditoria-inicial.md: el PDF se descargaba armando una
+// Hallazgo I-5 de docs/historial-patholab/auditoria-inicial.md: el PDF se descargaba armando una
 // URL con ?token=<access_token>, que queda en el historial y en los registros.
 describe('InformePage: exportar PDF', () => {
   beforeEach(() => {
@@ -195,7 +195,7 @@ describe('InformePage: selector de patologías', () => {
   });
 });
 
-// Hallazgo M-9 de docs/auditoria-inicial.md: si fallaba la carga de las patologías
+// Hallazgo M-9 de docs/historial-patholab/auditoria-inicial.md: si fallaba la carga de las patologías
 // o de los campos de la plantilla, el formulario quedaba vacío sin ningún aviso.
 describe('InformePage: errores visibles', () => {
   beforeEach(() => {
@@ -268,7 +268,7 @@ describe('InformePage: número de petición', () => {
   });
 });
 
-// Informe v2, etapa 4 (docs/propuesta-informe-v2.md, 6.3): el formulario sigue el
+// Informe v2, etapa 4 (docs/historial-patholab/propuesta-informe-v2.md, 6.3): el formulario sigue el
 // orden del informe real: Paciente, Datos de la solicitud y Estudio.
 describe('InformePage: paciente y datos de la solicitud', () => {
   beforeEach(() => {
@@ -347,7 +347,7 @@ describe('InformePage: paciente y datos de la solicitud', () => {
   });
 });
 
-// Informe v2, etapa 5 (docs/propuesta-informe-v2.md, 3.4, 3.6 y 6.3): descripción
+// Informe v2, etapa 5 (docs/historial-patholab/propuesta-informe-v2.md, 3.4, 3.6 y 6.3): descripción
 // microscópica, diagnósticos con CIE-10 y comentarios (antes "notas", P-5).
 describe('InformePage: contenido del informe', () => {
   beforeEach(() => {

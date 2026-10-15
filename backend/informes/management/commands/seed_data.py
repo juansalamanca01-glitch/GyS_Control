@@ -1253,7 +1253,7 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f'  Patologia "{pat.nombre}" ya existe, omitida.')
 
-        # ── Catálogos del informe v2 (docs/propuesta-informe-v2.md, 3.2 y sección 8) ─────
+        # ── Catálogos del informe v2 (docs/historial-patholab/propuesta-informe-v2.md, 3.2 y sección 8) ─────
         # Son editables: se pueden agregar, renombrar o desactivar desde la aplicación.
         servicios = [
             'Consulta externa',

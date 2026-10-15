@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 
-# Listas fijas (docs/propuesta-informe-v2.md, sección 3.3). El frontend las pide a
+# Listas fijas (docs/historial-patholab/propuesta-informe-v2.md, sección 3.3). El frontend las pide a
 # GET /api/opciones/ en lugar de copiarlas.
 class TipoDocumento(models.TextChoices):
     CC = 'CC', 'Cédula de ciudadanía'
@@ -63,7 +63,7 @@ def edad_en_texto(nacimiento, fecha):
 
 class Paciente(models.Model):
     """
-    Paciente del informe (docs/propuesta-informe-v2.md, 3.1). Solo guarda lo que
+    Paciente del informe (docs/historial-patholab/propuesta-informe-v2.md, 3.1). Solo guarda lo que
     aparece en el informe: los datos de salud son datos sensibles (Ley 1581 de
     2012), así que no se piden dirección, teléfono ni correo. La edad no se guarda:
     se calcula con edad_en().

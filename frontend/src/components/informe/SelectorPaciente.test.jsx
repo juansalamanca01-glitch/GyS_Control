@@ -9,7 +9,7 @@ vi.mock('../../api/client', async (importOriginal) => ({
   default: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
 }));
 
-// Solo datos ficticios (docs/propuesta-informe-v2.md, sección 8).
+// Solo datos ficticios (docs/historial-patholab/propuesta-informe-v2.md, sección 8).
 const PACIENTE = {
   id: 1,
   tipo_documento: 'CC',

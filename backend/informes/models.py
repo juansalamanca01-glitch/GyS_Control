@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from pacientes.models import edad_en_texto
 
-# Límites de Informe.datos_ingresados (hallazgo O-23 de docs/auditoria-owasp.md). Las
+# Límites de Informe.datos_ingresados (hallazgo O-23 de docs/historial-patholab/auditoria-owasp.md). Las
 # plantillas tienen pocos campos y valores cortos; estos topes dejan mucho margen.
 MAX_CAMPOS_DATOS_INGRESADOS = 100
 MAX_LARGO_VALOR_DATOS_INGRESADOS = 5000
@@ -198,7 +198,7 @@ class Informe(models.Model):
         BORRADOR = 'borrador', 'Borrador'
         FINALIZADO = 'finalizado', 'Finalizado'
 
-    # Lista fija que también se ofrece en GET /api/opciones/ (docs/propuesta-informe-v2.md, 3.3).
+    # Lista fija que también se ofrece en GET /api/opciones/ (docs/historial-patholab/propuesta-informe-v2.md, 3.3).
     class TipoEstudio(models.TextChoices):
         HISTOLOGIA = 'histologia', 'Histología'
         CITOLOGIA_NO_GINECOLOGICA = 'citologia_no_ginecologica', 'Citología no ginecológica'

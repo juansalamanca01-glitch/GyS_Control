@@ -18,7 +18,7 @@ const PERFIL = {
   registro_medico: 'RM-PRUEBA-0001',
 };
 
-// Hallazgo M-8 de docs/auditoria-inicial.md: si la carga del perfil fallaba,
+// Hallazgo M-8 de docs/historial-patholab/auditoria-inicial.md: si la carga del perfil fallaba,
 // la página intentaba leer perfil.nombre_completo con perfil = null y toda la
 // pantalla quedaba en blanco.
 describe('PerfilPage', () => {

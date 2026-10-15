@@ -1,4 +1,4 @@
-# Ruff: formato y linter del backend (fase 2 de docs/plan-calidad-y-diseno.md).
+# Ruff: formato y linter del backend (fase 2 de docs/historial-patholab/plan-calidad-y-diseno.md).
 line-length = 120
 # El README admite Python 3.10 o superior.
 target-version = "py310"

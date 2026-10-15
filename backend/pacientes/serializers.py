@@ -23,7 +23,7 @@ def _sin_espacios_sobrantes(valor):
 
 class PacienteSerializer(serializers.ModelSerializer):
     """
-    Paciente (docs/propuesta-informe-v2.md, 3.1). `edad` se calcula a la fecha de
+    Paciente (docs/historial-patholab/propuesta-informe-v2.md, 3.1). `edad` se calcula a la fecha de
     hoy; el informe la calculará a su fecha de ingreso (etapa 4).
     """
 

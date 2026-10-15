@@ -10,7 +10,7 @@ from .models import Usuario
 
 class PerfilCamposProtegidosTests(APITestCase):
     """
-    Hallazgo C-1 de docs/auditoria-inicial.md: un usuario no debe poder cambiar
+    Hallazgo C-1 de docs/historial-patholab/auditoria-inicial.md: un usuario no debe poder cambiar
     su propio rol, su estado "activo" ni su nombre de usuario desde /api/auth/perfil/.
     """
 
@@ -54,7 +54,7 @@ class PerfilCamposProtegidosTests(APITestCase):
 
 class ValidacionContrasenasTests(APITestCase):
     """
-    Hallazgo I-11 de docs/auditoria-inicial.md: settings.py define validadores de
+    Hallazgo I-11 de docs/historial-patholab/auditoria-inicial.md: settings.py define validadores de
     contraseña (comunes, solo números, parecidas al usuario), pero ni el cambio de
     contraseña ni el registro los aplicaban. Se aceptaba "12345678".
     """
@@ -382,7 +382,7 @@ CACHE_REAL = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCa
 @override_settings(CACHES=CACHE_REAL, REST_FRAMEWORK={**settings.REST_FRAMEWORK, 'NUM_PROXIES': 0})
 class LimitesLoginTests(APITestCase):
     """
-    Hallazgos O-16 y O-17 de docs/auditoria-owasp.md:
+    Hallazgos O-16 y O-17 de docs/historial-patholab/auditoria-owasp.md:
     - O-16: el login (10/min) y el registro (5/min) no tenían ningún límite, porque
       ScopedRateThrottle toma el scope de la vista (throttle_scope) y las vistas no lo
       definían;
@@ -430,7 +430,7 @@ class LimitesLoginTests(APITestCase):
 
 class RegistroDeAccesosTests(APITestCase):
     """
-    Hallazgo O-21 de docs/auditoria-owasp.md: los intentos de inicio de sesión no quedaban
+    Hallazgo O-21 de docs/historial-patholab/auditoria-owasp.md: los intentos de inicio de sesión no quedaban
     registrados. Se registran en el logger `seguridad` con el usuario y la IP, nunca con la
     contraseña ni con los tokens.
     """

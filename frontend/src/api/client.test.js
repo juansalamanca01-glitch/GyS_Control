@@ -7,7 +7,7 @@ async function cargarCliente() {
   return (await import('./client')).default;
 }
 
-// Hallazgo I-10 de docs/auditoria-inicial.md: la dirección del backend estaba
+// Hallazgo I-10 de docs/historial-patholab/auditoria-inicial.md: la dirección del backend estaba
 // fija en 'http://localhost:8000/api' y solo funcionaba en el computador del
 // desarrollador.
 describe('client.js: dirección de la API', () => {

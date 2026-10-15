@@ -21,7 +21,7 @@ const DOS = [
   { descripcion: 'Márgenes libres de lesión', codigo_cie10: '' },
 ];
 
-// Informe v2, etapa 5 (docs/propuesta-informe-v2.md, 3.6 y 6.3): filas con
+// Informe v2, etapa 5 (docs/historial-patholab/propuesta-informe-v2.md, 3.6 y 6.3): filas con
 // descripción y CIE-10 opcional, para agregar, quitar y reordenar.
 describe('ListaDiagnosticos', () => {
   it('sin diagnósticos muestra un aviso y permite agregar uno', () => {

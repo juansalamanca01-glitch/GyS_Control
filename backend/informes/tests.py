@@ -17,7 +17,7 @@ from .models import Adenda, Categoria, Diagnostico, Informe, Patologia, Plantill
 
 
 def paciente_ficticio(numero='PRUEBA0001', **extra):
-    """Paciente con datos ficticios (docs/propuesta-informe-v2.md, sección 8)."""
+    """Paciente con datos ficticios (docs/historial-patholab/propuesta-informe-v2.md, sección 8)."""
     datos = {
         'tipo_documento': 'CC',
         'numero_documento': numero,
@@ -32,7 +32,7 @@ def paciente_ficticio(numero='PRUEBA0001', **extra):
 
 class PermisosInformeTests(APITestCase):
     """
-    Hallazgo C-2 de docs/auditoria-inicial.md y decisión D-2 de docs/decisiones.md:
+    Hallazgo C-2 de docs/historial-patholab/auditoria-inicial.md y decisión D-2 de docs/decisiones.md:
     - un informe finalizado no se puede editar ni borrar;
     - solo el autor o un admin puede editar, borrar o finalizar un informe.
     """
@@ -182,7 +182,7 @@ class PermisosInformeTests(APITestCase):
 
 class BorrarPatologiaTests(APITestCase):
     """
-    Hallazgo I-1 de docs/auditoria-inicial.md: borrar una patología que ya tiene
+    Hallazgo I-1 de docs/historial-patholab/auditoria-inicial.md: borrar una patología que ya tiene
     informes debe responder 400 con un mensaje claro, no un error 500.
     """
 
@@ -211,7 +211,7 @@ class BorrarPatologiaTests(APITestCase):
 
 class PdfConTextoDelUsuarioTests(APITestCase):
     """
-    Hallazgo I-3 de docs/auditoria-inicial.md: ReportLab interpreta el texto de
+    Hallazgo I-3 de docs/historial-patholab/auditoria-inicial.md: ReportLab interpreta el texto de
     Paragraph como marcado (<b>, <font>...). El texto que escribe el usuario debe
     salir tal cual en el PDF: sin romper la generación y sin cambiar el formato.
     """
@@ -269,7 +269,7 @@ class PdfConTextoDelUsuarioTests(APITestCase):
 
 class EstadisticasYPaginacionTests(APITestCase):
     """
-    Hallazgo I-4 de docs/auditoria-inicial.md: el dashboard y el buscador solo
+    Hallazgo I-4 de docs/historial-patholab/auditoria-inicial.md: el dashboard y el buscador solo
     veían la primera página (20 informes). Con 25 informes, el dashboard decía
     "total 20" y el buscador no permitía ver los otros 5.
     """
@@ -326,7 +326,7 @@ class EstadisticasYPaginacionTests(APITestCase):
 
 class DescargaPdfTests(APITestCase):
     """
-    Hallazgo I-5 de docs/auditoria-inicial.md: el token de sesión no debe viajar
+    Hallazgo I-5 de docs/historial-patholab/auditoria-inicial.md: el token de sesión no debe viajar
     en la URL (queda en el historial y en los registros del servidor). El PDF se
     descarga solo por /api/informes/{id}/pdf/ con la cabecera Authorization.
     """
@@ -387,7 +387,7 @@ class DescargaPdfTests(APITestCase):
 
 class CamposObligatoriosTests(APITestCase):
     """
-    Hallazgo I-2 de docs/auditoria-inicial.md: la validación de los campos
+    Hallazgo I-2 de docs/historial-patholab/auditoria-inicial.md: la validación de los campos
     obligatorios de la plantilla se saltaba si datos_ingresados llegaba vacío.
     """
 
@@ -496,7 +496,7 @@ class NombreVisibleAutorTests(APITestCase):
 
 class ConsultasPorListadoTests(APITestCase):
     """
-    Hallazgo M-4 de docs/auditoria-inicial.md: algunos listados hacían una consulta
+    Hallazgo M-4 de docs/historial-patholab/auditoria-inicial.md: algunos listados hacían una consulta
     extra por cada fila (problema "N+1"). El número de consultas no debe crecer
     con la cantidad de elementos.
     """
@@ -826,7 +826,7 @@ class MigracionNumeroPeticionTests(TransactionTestCase):
 
 class OpcionesTests(APITestCase):
     """
-    Informe v2, etapa 2 (docs/propuesta-informe-v2.md, sección 3.3): GET /api/opciones/
+    Informe v2, etapa 2 (docs/historial-patholab/propuesta-informe-v2.md, sección 3.3): GET /api/opciones/
     devuelve las listas fijas (sexo, tipo de documento, tipo de estudio) sacadas de
     los TextChoices del backend, para que el frontend no tenga que copiarlas.
     """
@@ -955,7 +955,7 @@ class CatalogoServiciosTests(APITestCase):
 
 class DatosSolicitudTests(APITestCase):
     """
-    Informe v2, etapa 4 (docs/propuesta-informe-v2.md, secciones 3.4 y 4): el
+    Informe v2, etapa 4 (docs/historial-patholab/propuesta-informe-v2.md, secciones 3.4 y 4): el
     informe guarda el paciente y los datos de la solicitud (médico tratante,
     fecha de ingreso, EPS, servicio, estudios solicitados y tipo de estudio).
     Solo datos ficticios (sección 8).
@@ -1225,7 +1225,7 @@ class ConsultasListadoInformesTests(APITestCase):
 
 class ContenidoInformeTests(APITestCase):
     """
-    Informe v2, etapa 5 (docs/propuesta-informe-v2.md, secciones 3.4 y 3.6): el
+    Informe v2, etapa 5 (docs/historial-patholab/propuesta-informe-v2.md, secciones 3.4 y 3.6): el
     informe tiene descripción microscópica, comentarios (antes `notas`, P-5) y
     una lista de diagnósticos con código CIE-10 opcional. Solo datos ficticios.
     """
@@ -1446,7 +1446,7 @@ class MigracionContenidoTests(TransactionTestCase):
 
 class FinalizacionTests(APITestCase):
     """
-    Informe v2, etapa 6 (docs/propuesta-informe-v2.md, 3.7 y 3.9; decisiones D-8 y D-10):
+    Informe v2, etapa 6 (docs/historial-patholab/propuesta-informe-v2.md, 3.7 y 3.9; decisiones D-8 y D-10):
     - para finalizar, el informe tiene paciente y al menos un diagnóstico, el autor
       tiene registro médico y, en histología, hay descripción microscópica;
     - al finalizar se fija la fecha de informe y se congelan los datos que imprime;
@@ -1803,7 +1803,7 @@ class MigracionEncabezadoCongeladoTests(TransactionTestCase):
 
 class PdfInformeTests(APITestCase):
     """
-    Informe v2, etapa 7 (docs/propuesta-informe-v2.md, sección 5): el PDF tiene la
+    Informe v2, etapa 7 (docs/historial-patholab/propuesta-informe-v2.md, sección 5): el PDF tiene la
     estructura del informe real. Encabezado del laboratorio desde la configuración,
     tabla de datos en dos columnas, título, tipo de estudio, secciones en orden,
     firma, "BORRADOR — SIN VALIDEZ" en los borradores y pie con "Página X de Y" en
@@ -2255,7 +2255,7 @@ class PdfInformeTests(APITestCase):
 
 class AdendaTests(APITestCase):
     """
-    Informe v2, etapa 8 (docs/propuesta-informe-v2.md, 3.8; decisión D-9):
+    Informe v2, etapa 8 (docs/historial-patholab/propuesta-informe-v2.md, 3.8; decisión D-9):
     - un informe finalizado se corrige con adendas, que no lo modifican (D-3);
     - solo en informes finalizados; las crea el autor del informe o un admin (D-2);
     - quien la crea la firma y necesita registro médico; la firma queda congelada;
@@ -2609,7 +2609,7 @@ class PdfBorradorTests(APITestCase):
 
 class EstadoSoloLecturaTests(APITestCase):
     """
-    Hallazgo O-1 de docs/auditoria-owasp.md: `estado` se podía escribir por la API, así
+    Hallazgo O-1 de docs/historial-patholab/auditoria-owasp.md: `estado` se podía escribir por la API, así
     que un PATCH o un POST con "finalizado" cerraba el informe sin los requisitos de D-8
     y sin congelar sus datos (D-10, D-15). Solo la acción `finalizar` cambia el estado.
     Solo datos ficticios.
@@ -2686,7 +2686,7 @@ def datos_formulario_admin(respuesta):
 
 class AdminInformeFinalizadoTests(TestCase):
     """
-    Decisión D-14 (hallazgo O-4 de docs/auditoria-owasp.md): en /admin/, un informe
+    Decisión D-14 (hallazgo O-4 de docs/historial-patholab/auditoria-owasp.md): en /admin/, un informe
     finalizado es de solo lectura (campos, diagnósticos y estado) y no se borra, tenga
     o no adendas. Hallazgo O-3: el estado tampoco se cambia en un borrador; un informe
     solo se finaliza con POST /api/informes/{id}/finalizar/. Los borradores se siguen
@@ -2846,7 +2846,7 @@ class AdminInformeFinalizadoTests(TestCase):
 
 class FiltrosNoValidosTests(APITestCase):
     """
-    Hallazgo O-22 de docs/auditoria-owasp.md: un filtro con un valor que no es un número
+    Hallazgo O-22 de docs/historial-patholab/auditoria-owasp.md: un filtro con un valor que no es un número
     o una fecha llegaba sin revisar a filter() y respondía 500. Debe responder 400 con
     un mensaje en español. Solo datos ficticios.
     """
@@ -2898,7 +2898,7 @@ class FiltrosNoValidosTests(APITestCase):
 
 class DatosIngresadosTests(APITestCase):
     """
-    Hallazgo O-23 de docs/auditoria-owasp.md: `datos_ingresados` aceptaba cualquier JSON.
+    Hallazgo O-23 de docs/historial-patholab/auditoria-owasp.md: `datos_ingresados` aceptaba cualquier JSON.
     Con una lista, el informe se guardaba (gastando un número de petición, D-7) y después
     fallaba al generar la descripción: 500 y un informe con datos no válidos.
     Solo datos ficticios.

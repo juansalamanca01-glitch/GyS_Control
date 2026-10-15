@@ -139,7 +139,7 @@ def _opciones(choices):
 class OpcionesView(APIView):
     """
     GET /api/opciones/: listas fijas sacadas de los TextChoices, para que el
-    frontend no las copie (docs/propuesta-informe-v2.md, 3.3). Las EPS y los
+    frontend no las copie (docs/historial-patholab/propuesta-informe-v2.md, 3.3). Las EPS y los
     servicios son catálogos editables y tienen sus propios endpoints.
     """
 
