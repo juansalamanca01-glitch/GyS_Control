@@ -13,11 +13,13 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** GyS Control, sistema de gestión para empresas de control de plagas (servicios, informes y certificados en PDF, inventario de plaguicidas y agenda). Carpeta `C:\Users\salam\Desktop\GyS Control`, repositorio `github.com/juansalamanca01-glitch/GyS_Control`.
 - **Origen:** nace de la base de PathoLab (decisión G-1). Hoy la aplicación es todavía la de PathoLab sin el foro: usuarios, roles, login, seguridad, informes de patología, pacientes, PDF, firma, adendas y toda la infraestructura de pruebas. El dominio de control de plagas aún no existe.
-- **Rama de trabajo:** ninguna abierta. La limpieza (`limpieza-patholab`: quitar el foro, nombre GyS Control y documentación) se unió a `main` por fast-forward el 2026-10-15, después de que el usuario confirmara que Cypress pasaba en la rama. La rama sigue en GitHub.
+- **Rama de trabajo:** `rediseno-visual` (desde `main`), con el rediseño visual provisional (decisión G-2). **No se une a `main` hasta que el usuario revise el resultado en el navegador.**
+- **Rama anterior:** la limpieza (`limpieza-patholab`: quitar el foro, nombre GyS Control y documentación) se unió a `main` por fast-forward el 2026-10-15, después de que el usuario confirmara que Cypress pasaba en la rama. La rama sigue en GitHub.
 - **Entorno local** (preparado el 2026-10-15 en este clon): venv del backend con `requirements-dev.txt`, `npm install` en la raíz y en `frontend/`, `backend/.env` con una `SECRET_KEY` nueva y propia de GyS Control (no la de PathoLab), `migrate` y `seed_data`. `npm run dev` arranca y responde.
 - **Pruebas:**
   - **Antes de la limpieza (línea base):** 23 de la raíz, 322 del backend, 137 del frontend y 25 de Cypress. Todas pasaban.
   - **Después de cada uno de los tres commits:** 23 de la raíz (`npm test`), 293 del backend (`python manage.py test`), 124 del frontend (`npm test` en `frontend/`) y 25 de Cypress (`npm run e2e`). Todas pasan, y `npm run check` termina sin errores ni avisos.
+  - **En `rediseno-visual`:** las mismas 23, 293, 124 y 25, todas en verde, y `npm run check` sin errores ni avisos.
   - Las 29 del backend y las 13 del frontend que faltan eran del foro.
 - **Forma de trabajar:** la de las reglas 1 a 8 de `CLAUDE.md`. La regla 8 (rama por tarea, prueba que demuestre el fallo, push después de cada commit y preguntar antes de unir a `main`) se pasó a `CLAUDE.md` el 2026-10-15: en PathoLab estaba en este archivo. Además, **hasta la presentación del 2026-10-16**, `npm run e2e` se corre antes de cada commit de código, aunque la regla 7 no lo exija (lo aprobó el usuario el 2026-10-15).
 
@@ -31,9 +33,11 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 | 2026-10-15 | Limpieza 3: documentos de PathoLab a `docs/historial-patholab/`; `README.md`, `CLAUDE.md`, `CHANGELOG.md`, `docs/decisiones.md` y este archivo describen GyS Control | `docs: documentación de GyS Control` |
 | 2026-10-15 | Unión de `limpieza-patholab` a `main` (fast-forward), con Cypress en verde en la rama | `04526df` |
 | 2026-10-15 | Regla 8 en `CLAUDE.md`: la "Forma de trabajar" de PathoLab (rama por tarea, prueba primero, push, preguntar antes de unir) | commit "docs: limpieza unida a main y regla 8" |
+| 2026-10-15 | Rediseño visual provisional (G-2), en la rama `rediseno-visual`: paleta carmín, carbón y blanco, IBM Plex Sans con `@fontsource`, radio 0, sin sombras ni degradados, errores en óxido con ícono, "Finalizar Informe" en carbón. Solo `index.css`, la clase de los botones de finalizar y el favicon. La paleta, la tipografía y los botones los aprobó el usuario antes de empezar | commit "style: identidad visual provisional" |
 
 ## Siguiente paso
 
+0. **Revisión del rediseño en el navegador (usuario):** el usuario revisa la rama `rediseno-visual` con `npm run dev`. Si la aprueba, se pregunta antes de unirla a `main` (fast-forward).
 1. **Presentación de las pruebas automáticas y Cypress:** viernes 2026-10-16, desde `main`.
 2. **Videos de respaldo** (`npm run e2e:video`): el usuario los grabará después del rediseño visual.
 3. **Después:** planear con el usuario la transformación del dominio por fases (clientes, servicios, inventario de plaguicidas, agenda, certificados en PDF). No se empieza sin su aprobación.
@@ -73,4 +77,5 @@ Antes de traerlos, ejecutar `python manage.py migrate foro zero` (después ya no
 
 ## Pendiente de respuesta del usuario
 
-- Nada por ahora. La transformación del dominio no se empieza hasta que el usuario lo pida.
+- **Revisión visual de `rediseno-visual`** en el navegador, y permiso para unirla a `main`.
+- La transformación del dominio no se empieza hasta que el usuario lo pida.

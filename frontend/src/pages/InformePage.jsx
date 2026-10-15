@@ -558,7 +558,7 @@ export default function InformePage() {
                 informe?.estado === 'borrador' &&
                 (confirmFinalizar ? (
                   <>
-                    <button className="btn btn-success" onClick={handleFinalizar}>
+                    <button className="btn btn-cierre" onClick={handleFinalizar}>
                       Si, Confirmar
                     </button>
                     <button className="btn btn-outline btn-sm" onClick={() => setConfirmFinalizar(false)}>
@@ -566,7 +566,7 @@ export default function InformePage() {
                     </button>
                   </>
                 ) : (
-                  <button className="btn btn-success" onClick={handleFinalizar}>
+                  <button className="btn btn-cierre" onClick={handleFinalizar}>
                     Finalizar Informe
                   </button>
                 ))}

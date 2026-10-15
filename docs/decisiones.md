@@ -44,3 +44,17 @@ Los códigos de hallazgos (`C-x`, `I-x`, `M-x` y `O-x`) que aparecen en el códi
   - Las variables `LABORATORIO_*` y la clave `laboratorio` de `datos_finalizacion` conservan su nombre hasta la transformación del dominio, porque renombrarlas exige una migración de datos sobre los informes finalizados (D-15). Las migraciones existentes no se modifican.
   - La transformación del dominio (clientes, servicios, inventario y agenda) se planea después, por fases.
 - **Motivo:** el usuario presenta las pruebas automáticas y Cypress el 2026-10-16 con este proyecto. Una limpieza segura, sin cambiar el comportamiento de lo que se conserva, mantiene las pruebas en verde.
+
+### G-2. Identidad visual provisional: rojo carmín, carbón y blanco
+
+- **Fecha:** 2026-10-15
+- **Decisión:**
+  - Paleta inspirada en los colores del América de Cali (rojo, negro y blanco), **solo los colores**: nada del escudo, la mascota ni el nombre del club.
+  - El rojo carmín (`#A6192E`) es un acento, no un fondo: botón principal, elemento activo del menú y detalles de marca. Encabezado y menú en carbón (`#222222`), fondo gris muy claro (`#F4F4F4`), superficies blancas y texto casi negro (`#1A1A1A`).
+  - Los errores usan un tono óxido (`#B83C08`), distinto del rojo de marca, con fondo tenue, barra izquierda e ícono, para que un botón principal nunca parezca un error. Los botones de peligro van en ese mismo tono, con contorno en reposo y relleno solo al confirmar.
+  - "Finalizar Informe" (clase `btn-cierre`) va en carbón relleno con texto blanco, no en verde: es una acción irreversible y debe sentirse seria. El verde queda para los mensajes de éxito y el estado "Finalizado".
+  - Tipografía IBM Plex Sans, instalada con npm (`@fontsource/ibm-plex-sans`), no desde Google Fonts.
+  - Bordes rectos en todo (radio 0), sin sombras, degradados ni efectos de entrada. Contraste AA o mejor en todos los textos y botones.
+  - Colores, tipografía y medidas son variables CSS en un solo bloque `:root` de `frontend/src/index.css`, para aplicar el diseño final cambiando solo ese bloque.
+  - Es **provisional**: base de la identidad, no el diseño final.
+- **Motivo:** quitar todo rastro visual de PathoLab y fijar la identidad que quiere el usuario, sin cambiar textos ni estructura de las pantallas (las pruebas de Vitest y Cypress no cambian).

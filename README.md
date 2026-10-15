@@ -101,7 +101,7 @@ Estas reglas vienen de las decisiones heredadas de PathoLab, resumidas en [`docs
 ```
 
 - **Backend**: Python 3.10+, Django 4.2 LTS, Django REST Framework, SimpleJWT (tokens de acceso de 8 horas y de renovación de 7 días, con rotación), django-cors-headers, python-decouple (configuración desde `.env`), ReportLab (PDF), SQLite en desarrollo o PostgreSQL si se define `DB_NAME`, y Ruff (formato y linter, solo en desarrollo).
-- **Frontend**: React 18 y React Router 6 (`createBrowserRouter`), Vite 6.4, Axios (añade el token y lo renueva), estilos propios en `src/index.css`, Vitest 5 y React Testing Library, Prettier y ESLint.
+- **Frontend**: React 18 y React Router 6 (`createBrowserRouter`), Vite 6.4, Axios (añade el token y lo renueva), estilos propios en `src/index.css` (identidad visual provisional G-2: variables CSS en un solo bloque, fuente IBM Plex Sans instalada con `@fontsource`), Vitest 5 y React Testing Library, Prettier y ESLint.
 - **Pruebas de punta a punta**: Cypress 15 con `@testing-library/cypress`.
 
 ---

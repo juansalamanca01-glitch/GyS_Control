@@ -6,6 +6,25 @@ Todos los cambios de código de GyS Control se documentan aquí, del más recien
 
 ## 2026-10-15
 
+### Rediseño visual provisional (decisión G-2)
+
+**Qué se cambió:**
+- **`frontend/src/index.css`:** se reescribe el sistema de diseño heredado de PathoLab, con los mismos selectores.
+  - Un solo bloque `:root` con todas las variables: colores (`--color-*`, con su contraste anotado), tipografía (`--fuente-base`, `--texto-*`, `--peso-*`) y medidas (`--radio`, `--espacio-*`, `--altura-navbar`, `--borde-acento`…). Se quitan las variables `--primary-*`, `--gray-*`, `--shadow-*` y `--radius-*`.
+  - Rojo carmín solo como acento: botón principal, enlace activo del menú (bloque carmín con texto blanco), cuadro de la marca, filete superior del login, asterisco de campo obligatorio y chip de categoría activo. Menú y encabezado en carbón; fondo gris muy claro.
+  - Se quitan el degradado del menú, del login y de los botones, todas las sombras, los radios (ahora 0), la elevación al pasar el ratón y las animaciones de entrada de avisos, modales y login. El único elemento redondo es el anillo del indicador de carga.
+  - Avisos (`.alert-*`) con fondo tenue, barra izquierda de 4 px e ícono propio de cada tipo, dibujado con `::before` y `mask` (sin tocar el HTML). El error usa el tono óxido `--color-error`, distinto del carmín; los campos con error llevan un borde óxido de 2 px y el mensaje (`.field-error`) con ícono.
+  - Botones: principal carmín, secundario blanco con borde carbón, peligro en óxido (con contorno y relleno al confirmar), `btn-cierre` en carbón. "Salir" del menú tiene su variante sobre el carbón.
+  - Foco del teclado visible en todo (`:focus-visible`, contorno de 2 px; blanco dentro del menú) y `prefers-reduced-motion`.
+  - Encabezados de tabla sin mayúsculas forzadas y cifras tabulares en tablas y estadísticas.
+- **Tipografía:** IBM Plex Sans con `@fontsource/ibm-plex-sans` (nueva dependencia de `frontend/package.json`), importada en `index.css` (subconjunto latino, pesos 400 a 700). Se quita la importación de Inter desde Google Fonts.
+- **`frontend/src/pages/InformePage.jsx`:** los dos botones de finalizar ("Finalizar Informe" y "Si, Confirmar") cambian la clase `btn-success` por `btn-cierre`. No cambian el texto ni la estructura.
+- **`frontend/index.html`:** el favicon pasa del azul de PathoLab al carmín.
+- **Documentación:** decisión G-2 en `docs/decisiones.md`, `CLAUDE.md`, `README.md` y `docs/progreso.md`.
+- **Pruebas:** 23 de la raíz, 293 del backend, 124 del frontend y 25 de Cypress, todas en verde y sin cambios. `npm run check` sin errores ni avisos.
+
+**Por qué:** quitar todo rastro visual de PathoLab y dejar la base de la identidad de GyS Control (G-2), con los valores en un solo lugar para aplicar el diseño final después. Solo cambia la apariencia: los textos, las etiquetas y la estructura son los mismos, así que las pruebas no cambian.
+
 ### GyS Control, limpieza 3: documentación del nuevo proyecto
 
 **Qué se cambió:**
