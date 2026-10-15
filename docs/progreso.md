@@ -13,7 +13,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** `C:\Users\salam\Desktop\patolab-app-actualizado\patologia-app`.
 - **Plan vigente:** `docs/plan-calidad-y-diseno.md`, aprobado el 2026-10-08. Cada fase va en su propia rama desde `main`.
-- **Rama de trabajo:** ninguna abierta. Todo está en `main`. La fase de Cypress se unió a `main` el 2026-10-14, después de que el usuario probara `npm run e2e:presentacion` en Chrome y grabara los videos de respaldo. Lo siguiente es la presentación del viernes 2026-10-16; después, los grupos 4, 6 y 7 de la fase 4.
+- **Rama de trabajo:** ninguna abierta. Todo está en `main`, que es la única rama (las ramas viejas, ya unidas, se borraron el 2026-10-14). La fase de Cypress se unió a `main` el 2026-10-14, después de que el usuario probara `npm run e2e:presentacion` en Chrome y grabara los videos de respaldo. Lo siguiente es la presentación del viernes 2026-10-16; después, los grupos 4, 6 y 7 de la fase 4.
 - **Estado:**
   - Están terminados y en `main`:
     - la auditoría inicial (salvo I-9c);
@@ -106,7 +106,8 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 | D-17 | Fase de Cypress: Cypress 15 con base aparte (`backend/e2e_db.sqlite3`, `seed_data` en cada corrida), `npm run e2e` y `npm run e2e:abrir` (puertos 8001 y 5174), `SQLITE_NOMBRE` y `LIMITE_PETICIONES_USUARIO` en `settings.py`, proxy configurable. 22 pruebas: login y roles, informe completo (paciente, borrador, requisitos, finalizar, PDF, adenda), permisos D-2 y D-3, cambios sin guardar (D-13) | `fb454e6` |
 | D-17 | Fase de Cypress ajustada a los requisitos del usuario: 6 flujos (login con cada rol, informe con PDF, adendas, el auditor no crea informes, cambios sin guardar, permisos), 25 pruebas que buscan por rol, etiqueta o texto (`@testing-library/cypress`), `role="dialog"` en el formulario de paciente y `role="alert"` en los errores, `npm run e2e:video` y la sección "Fase de Cypress" del plan | `976b682` |
 | D-17 | Modo presentación (`npm run e2e:presentacion`, pausa de 500 ms configurable hasta 3000) y `e2e:abrir` en Chrome; sin la advertencia `allowCypressEnv` (`Cypress.expose()`); tildes del registro en UTF-8 también en `npm run dev`; aviso de que `exited with code 1` al apagar es normal | `230ea3b` |
-| — | Unión de `fase-cypress` a `main` (fast-forward), con la aprobación del usuario tras probar el modo presentación en Chrome | commit "docs: fase de Cypress unida a main" |
+| — | Unión de `fase-cypress` a `main` (fast-forward), con la aprobación del usuario tras probar el modo presentación en Chrome | `162e05b` |
+| — | Limpieza de ramas: se borran `fase-cypress` y otras 17 ramas viejas, en el computador y en GitHub. Antes se comprobó que ninguna tenía commits fuera de `main`, así que no se pierde nada: los commits citados en esta tabla siguen en `main`. Solo queda `main`. Lo pidió el usuario el 2026-10-14 | commit "docs: ramas viejas borradas" |
 | O-22, O-23, O-21 | Fase 4, grupo 5: filtros de la URL con 400 en vez de 500 (`config/filtros.py`); `datos_ingresados` validado en el modelo (objeto, valores simples, límites) y `{}` se guarda en `/admin/` (migración 0013); `texto_generado` en la misma transacción; `LOGGING` y registro de logins (logger `seguridad`, `LOG_LEVEL`). 19 pruebas nuevas | commit "fix(seguridad): errores y registros (fase 4, grupo 5)" |
 
 ## Siguiente paso
