@@ -343,7 +343,7 @@ Al cerrar cada corrección, se actualiza en `docs/auditoria-owasp.md` el estado 
 
 ---
 
-## Fase de Cypress: pruebas de punta a punta (terminada, falta unirla a `main`)
+## Fase de Cypress: pruebas de punta a punta (terminada)
 
 **Por qué:** el usuario la presenta el viernes 2026-10-16. Las pruebas de Vitest simulan la API. Las de Cypress manejan la aplicación real en un navegador, con el backend y el frontend juntos, y comprueban los flujos que no pueden fallar. Empezó el 2026-10-14, con la fase 4 a medio camino. Se trabaja en la rama `fase-cypress` y sigue la decisión D-17.
 
@@ -392,7 +392,7 @@ Al cerrar cada corrección, se actualiza en `docs/auditoria-owasp.md` el estado 
   - `fb454e6`: primera versión, 22 pruebas;
   - `976b682`: 6 flujos, Testing Library, video y esta sección;
   - "test(e2e): modo presentación y advertencias": modo presentación, Chrome, sin la advertencia de `Cypress.env()` y tildes en UTF-8.
-- Falta que el usuario la pruebe y apruebe la unión a `main`.
+- El usuario probó `npm run e2e:presentacion` en Chrome y grabó los videos de respaldo. La rama se unió a `main` el 2026-10-14, con fast-forward.
 
 ---
 

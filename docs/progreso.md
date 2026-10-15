@@ -13,7 +13,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** `C:\Users\salam\Desktop\patolab-app-actualizado\patologia-app`.
 - **Plan vigente:** `docs/plan-calidad-y-diseno.md`, aprobado el 2026-10-08. Cada fase va en su propia rama desde `main`.
-- **Rama de trabajo:** `fase-cypress` (desde `main`, 2026-10-14). Fase de Cypress hecha y ajustada a los 5 requisitos del usuario (6 flujos, selectores por rol, etiqueta o texto, base aparte, modo interactivo y video, documentación); falta que el usuario la pruebe y decida si se une a `main`.
+- **Rama de trabajo:** ninguna abierta. Todo está en `main`. La fase de Cypress se unió a `main` el 2026-10-14, después de que el usuario probara `npm run e2e:presentacion` en Chrome y grabara los videos de respaldo. Lo siguiente es la presentación del viernes 2026-10-16; después, los grupos 4, 6 y 7 de la fase 4.
 - **Estado:**
   - Están terminados y en `main`:
     - la auditoría inicial (salvo I-9c);
@@ -105,7 +105,8 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 | O-13, O-5 (1 y 2) | Fase 4, grupo 3: solo se aceptan JPG, PNG, GIF y WEBP (extensión y formato real); cada imagen se vuelve a codificar (sin EXIF ni contenido agregado, con su orientación y animación) y se guarda con un nombre aleatorio; igual en `/admin/`. `foro/imagenes.py` nuevo; 16 pruebas nuevas (14 del backend, 2 del frontend) | commit "fix(seguridad): imágenes del foro (fase 4, grupo 3)" |
 | D-17 | Fase de Cypress: Cypress 15 con base aparte (`backend/e2e_db.sqlite3`, `seed_data` en cada corrida), `npm run e2e` y `npm run e2e:abrir` (puertos 8001 y 5174), `SQLITE_NOMBRE` y `LIMITE_PETICIONES_USUARIO` en `settings.py`, proxy configurable. 22 pruebas: login y roles, informe completo (paciente, borrador, requisitos, finalizar, PDF, adenda), permisos D-2 y D-3, cambios sin guardar (D-13) | `fb454e6` |
 | D-17 | Fase de Cypress ajustada a los requisitos del usuario: 6 flujos (login con cada rol, informe con PDF, adendas, el auditor no crea informes, cambios sin guardar, permisos), 25 pruebas que buscan por rol, etiqueta o texto (`@testing-library/cypress`), `role="dialog"` en el formulario de paciente y `role="alert"` en los errores, `npm run e2e:video` y la sección "Fase de Cypress" del plan | `976b682` |
-| D-17 | Modo presentación (`npm run e2e:presentacion`, pausa de 500 ms configurable hasta 3000) y `e2e:abrir` en Chrome; sin la advertencia `allowCypressEnv` (`Cypress.expose()`); tildes del registro en UTF-8 también en `npm run dev`; aviso de que `exited with code 1` al apagar es normal | commit "test(e2e): modo presentación y advertencias" |
+| D-17 | Modo presentación (`npm run e2e:presentacion`, pausa de 500 ms configurable hasta 3000) y `e2e:abrir` en Chrome; sin la advertencia `allowCypressEnv` (`Cypress.expose()`); tildes del registro en UTF-8 también en `npm run dev`; aviso de que `exited with code 1` al apagar es normal | `230ea3b` |
+| — | Unión de `fase-cypress` a `main` (fast-forward), con la aprobación del usuario tras probar el modo presentación en Chrome | commit "docs: fase de Cypress unida a main" |
 | O-22, O-23, O-21 | Fase 4, grupo 5: filtros de la URL con 400 en vez de 500 (`config/filtros.py`); `datos_ingresados` validado en el modelo (objeto, valores simples, límites) y `{}` se guarda en `/admin/` (migración 0013); `texto_generado` en la misma transacción; `LOGGING` y registro de logins (logger `seguridad`, `LOG_LEVEL`). 19 pruebas nuevas | commit "fix(seguridad): errores y registros (fase 4, grupo 5)" |
 
 ## Siguiente paso
@@ -116,7 +117,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
    2. grupo 2, límites del login (O-16, O-17), **hecho** y unido a `main` el 2026-10-11;
    3. grupo 3, imágenes del foro (O-13, O-5 puntos 1 y 2), rama `fase-4-imagenes-foro`: **hecho** y unido a `main` el 2026-10-12 (también en `/admin/`, aprobado por el usuario);
    4. grupo 5, errores y registros (O-22, O-23, O-21), rama `fase-4-errores-registros`: **hecho** el 2026-10-12. El tamaño máximo de los textos largos queda para el grupo 8 (decisión del usuario). Incluye el problema de `/admin/` con `datos_ingresados` vacío, ya resuelto (`blank=True` y el mismo validador de O-23). Unido a `main` el 2026-10-12.
-3. **Fase de Cypress**, que el usuario presenta el viernes 2026-10-16: **hecha** el 2026-10-14 en la rama `fase-cypress` (D-17). Ajustada el mismo día a los 5 requisitos del usuario (sección "Fase de Cypress" del plan). Falta que el usuario la pruebe y decida si se une a `main`; el usuario va a probar `npm run e2e:presentacion` en su computador y confirma antes de unir. Para el respaldo: `npm run e2e:video`.
+3. **Fase de Cypress**, que el usuario presenta el viernes 2026-10-16: **hecha** el 2026-10-14 en la rama `fase-cypress` (D-17). Ajustada el mismo día a los 5 requisitos del usuario (sección "Fase de Cypress" del plan). El usuario probó `npm run e2e:presentacion` en Chrome y grabó los videos de respaldo (`npm run e2e:video`). **Unida a `main` el 2026-10-14.**
 4. **Después del 2026-10-16:** grupos 4 (Django 5.2), 6 (cuentas y sesiones, D-16) y 7 (concurrencia) de la fase 4; luego las fases 5 a 8.
 4. **Para arrancar la aplicación:** `npm run dev` en la raíz y abrir http://localhost:5173. Se detiene con Ctrl + C (en Windows, responder `S` si pregunta "¿Desea terminar el trabajo por lotes?").
 
@@ -136,7 +137,7 @@ Inventario del 2026-10-08: todo lo pendiente, sin terminar o anotado para despu�
 | # | Qué | Origen |
 |---|---|---|
 | 4 | **Fase 4:** correcciones de la auditoría OWASP, una rama por grupo. Grupos 1, 2, 3 y 5 el 2026-10-11 y 12; grupos 4, 6 (D-16) y 7 después del 2026-10-16. El grupo 1 incluye D-14. Los puntos conocidos que evaluó la fase 3 (I-9c, versiones de Python, D-14, conflicto entre pestañas, registro de accesos, clave antigua, `?q=`, `localStorage`) tienen ahora su hallazgo `O-x` y su grupo en `docs/auditoria-owasp.md` | Plan; `docs/auditoria-owasp.md` |
-| — | **Fase de Cypress** (nueva): hecha el 2026-10-14 en la rama `fase-cypress` (D-17), falta unirla a `main`; el usuario la presenta el viernes 2026-10-16 | Pedido del usuario, 2026-10-11 |
+| — | **Fase de Cypress** (nueva): **hecha** y unida a `main` el 2026-10-14 (D-17); el usuario la presenta el viernes 2026-10-16 | Pedido del usuario, 2026-10-11 |
 | 5 | **Fase 5:** guía de diseño. La aprueban el usuario, el equipo y el profesor | Plan; Bloque B, punto 5 |
 | 6 | **Fase 6:** pantalla del informe. La aprueban el usuario, el equipo y el profesor | Plan; Bloque B, punto 5 |
 | 7 | **Fase 7:** resto de pantallas | Plan; Bloque B, punto 5 |
@@ -217,5 +218,4 @@ Quedan dos:
 
 ## Pendiente de respuesta del usuario
 
-- Fase de Cypress (rama `fase-cypress`): el usuario prueba `npm run e2e:presentacion` y confirma antes de unir a `main` (pedido el 2026-10-14: no unir hasta entonces).
 - Las preguntas de la fase 3 se respondieron el 2026-10-11. La de los borradores ajenos queda para el patólogo y el profesor (sección "Pendientes", punto 2).
