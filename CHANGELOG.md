@@ -5,6 +5,20 @@ Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1
 
 ## 2026-10-15
 
+### GyS Control, limpieza 2: el nombre del proyecto
+
+**Qué se cambió:**
+- **Pantallas:** "GyS Control" en el menú (`Navbar.jsx`), el pie (`Footer.jsx`) y el login (`LoginPage.jsx`), con el subtítulo "Gestión de servicios de control de plagas". También el `<title>` y la descripción de `frontend/index.html`.
+- **Textos legales:** `PoliticaPrivacidadPage.jsx` y `TerminosCondicionesPage.jsx` pasan a un texto breve y neutro de GyS Control, marcado como "en preparación" (sin PathoLab, patólogos, pacientes ni historia clínica). Se conservan las rutas, el `Footer`, `LegalRoute` y los títulos que comprueba `App.test.jsx`.
+- **Encabezado del PDF:** el valor por defecto de `LABORATORIO_NOMBRE` (`backend/config/settings.py`) pasa a "GyS Control (demostración)". Las variables siguen llamándose `LABORATORIO_*`: la clave `laboratorio` está en los datos congelados de los finalizados (D-15) y renombrarla exige una migración de datos, que va con la transformación del dominio. Los finalizados conservan su encabezado congelado, y la migración `informes/0012` no se toca porque es historia. Se ajustan `EncabezadoLaboratorioTests` (`backend/config/tests.py`) y dos pruebas del PDF en `backend/informes/tests.py`.
+- **Código interno:** `PathoLabTestRunner` → `GySControlTestRunner` (`backend/config/test_runner.py` y `TEST_RUNNER`), "Datos de GyS Control" en `/admin/` (`backend/accounts/admin.py`), comentario de `frontend/src/index.css` y mensajes de `scripts/dev.mjs`.
+- **Paquetes:** `gys-control` (raíz) y `gys-control-frontend`, en `package.json` y `package-lock.json`.
+- **Ejemplos:** `api.patolab.com` → `api.example.com` (dominio reservado para ejemplos) en `frontend/src/api/client.js`, su prueba y `frontend/.env.example`; ejemplo ficticio de empresa en `backend/.env.example`.
+- **Postman:** `PathoLab_API.postman_collection.json` → `GyS_Control_API.postman_collection.json`, con el nombre y la descripción nuevos.
+- **Pruebas:** 23 de la raíz, 293 del backend, 124 del frontend y 25 de Cypress, todas en verde. `npm run check` sin errores ni avisos.
+
+**Por qué:** el proyecto se llama GyS Control. El nombre se cambia de una sola vez en todos los lugares del inventario de PathoLab, salvo la historia (migración 0012) y los nombres internos que dependen de los datos guardados.
+
 ### GyS Control, limpieza 1: se quita el foro
 
 **Qué se cambió:**

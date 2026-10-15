@@ -4,7 +4,7 @@ import axios from 'axios';
 // - vacía: se usa "/api" en el mismo sitio que la página. En desarrollo lo
 //   reenvía el proxy de vite.config.js a http://localhost:8000; en producción,
 //   el servidor web que sirva frontend y backend juntos.
-// - con valor (p. ej. https://api.patolab.com): el backend está en otro dominio.
+// - con valor (p. ej. https://api.example.com): el backend está en otro dominio.
 const API_URL = `${(import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')}/api`;
 
 const client = axios.create({

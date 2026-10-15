@@ -12,7 +12,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 ## Dónde estamos
 
 - **Proyecto:** GyS Control, en `C:\Users\salam\Desktop\GyS Control` (repositorio `github.com/juansalamanca01-glitch/GyS_Control`). Nace de la base de PathoLab.
-- **Limpieza de PathoLab (2026-10-15), rama `limpieza-patholab`:** commit 1, se quita el foro: **hecho**. Faltan el commit 2 (nombre GyS Control) y el 3 (documentación). Después, el usuario prueba `npm run e2e:presentacion` y, si funciona, se une a `main` el mismo día.
+- **Limpieza de PathoLab (2026-10-15), rama `limpieza-patholab`:** commit 1, se quita el foro, y commit 2, nombre GyS Control: **hechos**. Falta el commit 3 (documentación). Después, el usuario prueba `npm run e2e:presentacion` y, si funciona, se une a `main` el mismo día.
 - **Plan vigente:** `docs/plan-calidad-y-diseno.md`, aprobado el 2026-10-08. Cada fase va en su propia rama desde `main`.
 - **Rama de trabajo:** ninguna abierta. Todo está en `main`, que es la única rama (las ramas viejas, ya unidas, se borraron el 2026-10-14). La fase de Cypress se unió a `main` el 2026-10-14, después de que el usuario probara `npm run e2e:presentacion` en Chrome y grabara los videos de respaldo. Lo siguiente es la presentación del viernes 2026-10-16; después, los grupos 4, 6 y 7 de la fase 4.
 - **Estado:**

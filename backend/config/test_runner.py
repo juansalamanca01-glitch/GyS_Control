@@ -18,7 +18,7 @@ from django.test.runner import DiscoverRunner
 from django.test.utils import override_settings
 
 
-class PathoLabTestRunner(DiscoverRunner):
+class GySControlTestRunner(DiscoverRunner):
     def setup_test_environment(self, **kwargs):
         super().setup_test_environment(**kwargs)
         self._sin_cache = override_settings(

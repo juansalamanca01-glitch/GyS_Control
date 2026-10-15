@@ -13,7 +13,7 @@ const carpetaBackend = path.join(raiz, 'backend');
 const { errores, avisos } = revisarEntorno({ raiz, existe: existsSync });
 avisos.forEach((aviso) => console.log(`Aviso: ${aviso}`));
 if (errores.length > 0) {
-  console.error('\nTodavía no se puede arrancar PathoLab. Falta preparar lo siguiente:\n');
+  console.error('\nTodavía no se puede arrancar GyS Control. Falta preparar lo siguiente:\n');
   errores.forEach(({ problema, solucion }, i) => {
     console.error(`${i + 1}. ${problema}\n   Solución: ${solucion}\n`);
   });
@@ -45,7 +45,7 @@ try {
 }
 
 console.log(`
-PathoLab en marcha:
+GyS Control en marcha:
   Aplicación:          http://localhost:5173
   API:                 http://localhost:8000/api/
   Panel de Django:     http://localhost:8000/admin/

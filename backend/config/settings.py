@@ -147,7 +147,7 @@ REST_FRAMEWORK = {
 }
 
 # Las pruebas no acumulan los límites de peticiones entre sí (ver config/test_runner.py).
-TEST_RUNNER = 'config.test_runner.PathoLabTestRunner'
+TEST_RUNNER = 'config.test_runner.GySControlTestRunner'
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
@@ -194,11 +194,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
 # ---------- Encabezado del PDF de los informes ----------
-# Datos del laboratorio que imprime el encabezado del PDF. Sin .env queda el
-# encabezado de demostración (respuesta P-9), que no copia los datos de ningún
-# laboratorio real. La dirección es una sola línea (dirección completa y ciudad);
-# si el teléfono está vacío, el PDF no imprime su línea.
-LABORATORIO_NOMBRE = config('LABORATORIO_NOMBRE', default='PathoLab — Laboratorio de Patología (demostración)')
+# Datos de la empresa que imprime el encabezado del PDF. Sin .env queda el
+# encabezado de demostración, que no copia los datos de ninguna empresa real.
+# La dirección es una sola línea (dirección completa y ciudad); si el teléfono
+# está vacío, el PDF no imprime su línea. Las variables conservan el nombre
+# LABORATORIO_* heredado de PathoLab: la clave 'laboratorio' está en los datos
+# congelados de los informes finalizados (D-15) y se renombra con el dominio.
+LABORATORIO_NOMBRE = config('LABORATORIO_NOMBRE', default='GyS Control (demostración)')
 LABORATORIO_DIRECCION = config('LABORATORIO_DIRECCION', default='Santiago de Cali, Colombia')
 LABORATORIO_TELEFONO = config('LABORATORIO_TELEFONO', default='')
 

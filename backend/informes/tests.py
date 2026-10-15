@@ -1958,7 +1958,7 @@ class PdfInformeTests(APITestCase):
         self.finalizar(informe_id)
         textos = self.generar(informe_id)['textos']
         orden = [
-            'PathoLab — Laboratorio de Patología (demostración)',
+            'GyS Control (demostración)',
             '<b>Paciente:</b> Paciente Ficticio Uno',
             'INFORME DE ANATOMÍA PATOLÓGICA',
             '<b>Tipo de estudio:</b> Histología',
@@ -1984,12 +1984,10 @@ class PdfInformeTests(APITestCase):
     # --- Encabezado ---
 
     def test_el_encabezado_es_el_de_demostracion_sin_telefono(self):
-        # Respuesta P-9: sin datos de un laboratorio real. Son los valores por defecto
+        # Respuesta P-9: sin datos de una empresa real. Son los valores por defecto
         # de settings.py cuando backend/.env no define LABORATORIO_* (tarea previa 2).
         textos = self.generar(self.crear())['textos']
-        self.assertEqual(
-            textos[:2], ['PathoLab — Laboratorio de Patología (demostración)', 'Santiago de Cali, Colombia']
-        )
+        self.assertEqual(textos[:2], ['GyS Control (demostración)', 'Santiago de Cali, Colombia'])
         self.assertFalse(any('Teléfono' in texto for texto in textos))
 
     @override_settings(

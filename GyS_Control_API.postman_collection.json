@@ -1,8 +1,8 @@
 {
 	"info": {
 		"_postman_id": "8bbc54a1-patologia-app-collection",
-		"name": "PathoLab API - Informes de Patología",
-		"description": "Colección para probar la API de PathoLab.\n\nUso: 1) ejecuta \"Login (patólogo)\", que guarda los tokens en {{access_token}} y {{refresh_token}}. 2) Ejecuta las demás peticiones en orden: \"Crear paciente\" guarda {{paciente_id}} y \"Crear informe\" guarda {{informe_id}}.\n\nTodas las peticiones usan el token de la colección (Authorization: Bearer), excepto el login, \"Renovar token\" y \"Cerrar sesión\", que envían {{refresh_token}} en el cuerpo. \"Cerrar sesión\" invalida solo el token de renovación: el resto de la colección sigue funcionando con el token de acceso hasta que vence. Los listados vienen paginados de 20 en 20 (?page=2).",
+		"name": "GyS Control API",
+		"description": "Colección para probar la API de GyS Control.\n\nUso: 1) ejecuta \"Login (patólogo)\", que guarda los tokens en {{access_token}} y {{refresh_token}}. 2) Ejecuta las demás peticiones en orden: \"Crear paciente\" guarda {{paciente_id}} y \"Crear informe\" guarda {{informe_id}}.\n\nTodas las peticiones usan el token de la colección (Authorization: Bearer), excepto el login, \"Renovar token\" y \"Cerrar sesión\", que envían {{refresh_token}} en el cuerpo. \"Cerrar sesión\" invalida solo el token de renovación: el resto de la colección sigue funcionando con el token de acceso hasta que vence. Los listados vienen paginados de 20 en 20 (?page=2).",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {

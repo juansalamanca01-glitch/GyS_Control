@@ -21,13 +21,13 @@ describe('client.js: dirección de la API', () => {
   });
 
   it('con VITE_API_URL usa esa dirección', async () => {
-    vi.stubEnv('VITE_API_URL', 'https://api.patolab.com');
-    expect((await cargarCliente()).defaults.baseURL).toBe('https://api.patolab.com/api');
+    vi.stubEnv('VITE_API_URL', 'https://api.example.com');
+    expect((await cargarCliente()).defaults.baseURL).toBe('https://api.example.com/api');
   });
 
   it('una barra al final de VITE_API_URL no produce una doble barra', async () => {
-    vi.stubEnv('VITE_API_URL', 'https://api.patolab.com/');
-    expect((await cargarCliente()).defaults.baseURL).toBe('https://api.patolab.com/api');
+    vi.stubEnv('VITE_API_URL', 'https://api.example.com/');
+    expect((await cargarCliente()).defaults.baseURL).toBe('https://api.example.com/api');
   });
 });
 

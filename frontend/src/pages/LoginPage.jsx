@@ -41,8 +41,8 @@ export default function LoginPage() {
               <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
             </svg>
           </div>
-          <h1>PathoLab</h1>
-          <p>Sistema de Informes de Anatomía Patológica</p>
+          <h1>GyS Control</h1>
+          <p>Gestión de servicios de control de plagas</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

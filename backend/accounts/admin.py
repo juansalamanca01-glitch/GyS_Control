@@ -35,7 +35,7 @@ class UsuarioAdmin(UserAdmin):
     ordering = ['-fecha_creacion']
     fieldsets = UserAdmin.fieldsets + (
         (
-            'Datos de PathoLab',
+            'Datos de GyS Control',
             {
                 'fields': ('rol', 'nombre_completo', 'telefono', 'especialidad', 'registro_medico', 'activo'),
             },

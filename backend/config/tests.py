@@ -62,7 +62,7 @@ class EncabezadoLaboratorioTests(SimpleTestCase):
 
     def test_sin_variables_usa_el_encabezado_de_demostracion(self):
         settings = cargar_settings(self.CLAVE)
-        self.assertEqual(settings.LABORATORIO_NOMBRE, 'PathoLab — Laboratorio de Patología (demostración)')
+        self.assertEqual(settings.LABORATORIO_NOMBRE, 'GyS Control (demostración)')
         self.assertEqual(settings.LABORATORIO_DIRECCION, 'Santiago de Cali, Colombia')
         self.assertEqual(settings.LABORATORIO_TELEFONO, '')
 
