@@ -13,7 +13,8 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** GyS Control, sistema de gestión para empresas de control de plagas (servicios, informes y certificados en PDF, inventario de plaguicidas y agenda). Carpeta `C:\Users\salam\Desktop\GyS Control`, repositorio `github.com/juansalamanca01-glitch/GyS_Control`.
 - **Origen:** nace de la base de PathoLab (decisión G-1). Hoy la aplicación es todavía la de PathoLab sin el foro: usuarios, roles, login, seguridad, informes de patología, pacientes, PDF, firma, adendas y toda la infraestructura de pruebas. El dominio de control de plagas aún no existe.
-- **Rama de trabajo:** `rediseno-visual` (desde `main`), con el rediseño visual provisional (decisión G-2). **No se une a `main` hasta que el usuario revise el resultado en el navegador.**
+- **Rama de trabajo:** `rediseno-visual` (desde `main`). Tiene el rediseño visual provisional (decisión G-2) y es la base de la etapa 1 del plan de la interfaz. **No se une a `main` hasta que el usuario revise el resultado en el navegador.**
+- **Plan vigente:** [`plan-interfaz.md`](plan-interfaz.md) (2026-10-15). En la presentación del 2026-10-16 no debe verse nada de PathoLab, ni en pantallas ni en pruebas. Etapas: 1) estructura nueva de la interfaz y ocultar lo heredado (G-3), hoy; 2) Cypress solo de GyS Control, el 2026-10-16 en la mañana; 3) dominio, después de entrevistar al técnico; 4) métricas y KPI; 5) IA y ciencia de datos; además, los grupos 4, 6, 7 y 8 de OWASP.
 - **Rama anterior:** la limpieza (`limpieza-patholab`: quitar el foro, nombre GyS Control y documentación) se unió a `main` por fast-forward el 2026-10-15, después de que el usuario confirmara que Cypress pasaba en la rama. La rama sigue en GitHub.
 - **Entorno local** (preparado el 2026-10-15 en este clon): venv del backend con `requirements-dev.txt`, `npm install` en la raíz y en `frontend/`, `backend/.env` con una `SECRET_KEY` nueva y propia de GyS Control (no la de PathoLab), `migrate` y `seed_data`. `npm run dev` arranca y responde.
 - **Pruebas:**
@@ -37,7 +38,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 ## Siguiente paso
 
-0. **Revisión del rediseño en el navegador (usuario):** el usuario revisa la rama `rediseno-visual` con `npm run dev`. Si la aprueba, se pregunta antes de unirla a `main` (fast-forward).
+0. **Etapa 1 del plan de la interfaz** (en `rediseno-visual`): se mostró la maqueta del login, del Inicio con la barra lateral y de una página "Próximamente", y la lista de pruebas que se eliminan. **Se espera la aprobación del usuario antes de tocar código.** Después, el usuario revisa la rama en el navegador y se pregunta antes de unirla a `main`.
 1. **Presentación de las pruebas automáticas y Cypress:** viernes 2026-10-16, desde `main`.
 2. **Videos de respaldo** (`npm run e2e:video`): el usuario los grabará después del rediseño visual.
 3. **Después:** planear con el usuario la transformación del dominio por fases (clientes, servicios, inventario de plaguicidas, agenda, certificados en PDF). No se empieza sin su aprobación.
@@ -77,5 +78,6 @@ Antes de traerlos, ejecutar `python manage.py migrate foro zero` (después ya no
 
 ## Pendiente de respuesta del usuario
 
+- **Aprobación de la maqueta de la etapa 1** (login, Inicio con barra lateral y "Próximamente") y de la lista de pruebas que se eliminan.
 - **Revisión visual de `rediseno-visual`** en el navegador, y permiso para unirla a `main`.
 - La transformación del dominio no se empieza hasta que el usuario lo pida.
