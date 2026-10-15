@@ -8,7 +8,7 @@ vi.mock('../context/AuthContext', () => ({ useAuth: () => ({ login }) }));
 
 describe('LoginPage', () => {
   it('con credenciales incorrectas muestra el error como alerta', async () => {
-    login.mockRejectedValue({ response: { data: { detail: 'Credenciales incorrectas.' } } });
+    login.mockRejectedValue({ response: { data: { detail: 'Usuario o contraseña incorrectos.' } } });
     render(
       <MemoryRouter>
         <LoginPage />
@@ -18,6 +18,6 @@ describe('LoginPage', () => {
     fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'mala' } });
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar Sesión' }));
     // role="alert": los lectores de pantalla lo anuncian (y Cypress lo encuentra por su rol).
-    expect(await screen.findByRole('alert')).toHaveTextContent('Credenciales incorrectas.');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Usuario o contraseña incorrectos.');
   });
 });

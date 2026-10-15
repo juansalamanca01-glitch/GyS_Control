@@ -41,7 +41,6 @@ export default function PerfilPage() {
         nombre_completo: perfil.nombre_completo,
         email: perfil.email,
         telefono: perfil.telefono,
-        especialidad: perfil.especialidad,
       });
       setPerfil(data);
       const savedUser = JSON.parse(localStorage.getItem('user_data') || '{}');
@@ -145,13 +144,6 @@ export default function PerfilPage() {
                 <input
                   value={perfil.telefono || ''}
                   onChange={(e) => setPerfil({ ...perfil, telefono: e.target.value })}
-                />
-              </div>
-              <div className="form-group">
-                <label>Especialidad</label>
-                <input
-                  value={perfil.especialidad || ''}
-                  onChange={(e) => setPerfil({ ...perfil, especialidad: e.target.value })}
                 />
               </div>
             </div>

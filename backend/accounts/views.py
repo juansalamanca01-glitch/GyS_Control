@@ -18,6 +18,10 @@ Usuario = get_user_model()
 
 # ── Token JWT que incluye el rol del usuario ──────────────────────
 class CustomTokenSerializer(TokenObtainPairSerializer):
+    # Mismo mensaje con contraseña incorrecta, usuario inexistente o cuenta desactivada:
+    # no revela cuál falló. Reemplaza el texto por defecto de SimpleJWT.
+    default_error_messages = {'no_active_account': 'Usuario o contraseña incorrectos.'}
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)

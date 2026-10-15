@@ -42,7 +42,7 @@ describe('Flujo 1: inicio de sesión con cada rol', () => {
 
   it('con una contraseña incorrecta muestra un error y no entra', () => {
     entrarPorPantalla('tecnico1', 'contrasena-incorrecta');
-    cy.findByRole('alert').should('be.visible');
+    cy.findByRole('alert').should('be.visible').and('have.text', 'Usuario o contraseña incorrectos.');
     cy.location('pathname').should('eq', '/login');
   });
 

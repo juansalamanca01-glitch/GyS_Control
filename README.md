@@ -266,10 +266,10 @@ Los correos son `@gyscontrol.local`. En el código, el rol de los técnicos es `
 
 ```bash
 # Backend (desde backend/, con el entorno virtual activado)
-python manage.py test                     # 293 pruebas
+python manage.py test                     # 296 pruebas
 
 # Frontend (desde frontend/)
-npm test                                  # 34 pruebas
+npm test                                  # 35 pruebas
 npm run test:watch                        # se repiten al guardar cambios
 
 # Comprobaciones de los scripts (desde la raíz)

@@ -6,6 +6,20 @@ Todos los cambios de código de GyS Control se documentan aquí, del más recien
 
 ## 2026-10-15
 
+### Ajustes antes de unir `rediseno-visual`: "Especialidad" y mensaje del login
+
+**Qué se cambió:**
+- **Mi cuenta** (`frontend/src/pages/PerfilPage.jsx`): se quita el campo "Especialidad" y ya no se envía al guardar. El campo sigue en el modelo y en `/admin/` (backend heredado, G-3).
+- **Mensaje del login fallido** (`backend/accounts/views.py`): `CustomTokenSerializer` responde "Usuario o contraseña incorrectos." en lugar del texto por defecto de SimpleJWT ("La combinación de credenciales no tiene una cuenta activa"). Es el mismo mensaje con contraseña incorrecta, usuario inexistente o cuenta desactivada, para no revelar cuál falló. La pantalla de login lo muestra tal cual.
+- **Pruebas:**
+  - **Backend:** `MensajeLoginFallidoTests` (3), escrita primero y mostrada en rojo antes del cambio.
+  - **Frontend:** `LoginPage.test.jsx` usa el texto nuevo; `PerfilPage.test.jsx` comprueba que "Especialidad" no aparece ni se envía.
+  - **Cypress:** `login-y-roles.cy.js` comprueba el texto del aviso.
+  - Totales: 23 de la raíz, 296 del backend, 35 del frontend y 5 de Cypress, todas en verde. `npm run check` sin errores ni avisos.
+- **Unión:** `rediseno-visual` se une a `main` por fast-forward, con permiso del usuario, después de revisar la interfaz en el navegador.
+
+**Por qué:** pedido del usuario al revisar la interfaz: "Especialidad" venía del patólogo, y el mensaje anterior era confuso.
+
 ### Etapa 1 del plan de la interfaz: estructura de GyS Control y lo heredado oculto (decisión G-3)
 
 **Qué se cambió:**

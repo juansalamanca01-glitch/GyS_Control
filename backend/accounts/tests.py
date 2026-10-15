@@ -316,6 +316,40 @@ class RegistroMedicoTests(APITestCase):
         self.assertTrue(tecnico2.check_password(self.CLAVE))
 
 
+class MensajeLoginFallidoTests(APITestCase):
+    """
+    El login fallido responde "Usuario o contraseña incorrectos." (pedido del usuario,
+    2026-10-15), y no el texto por defecto de SimpleJWT. Es el mismo mensaje con una
+    contraseña incorrecta, un usuario que no existe o una cuenta desactivada, para no
+    revelar cuál de las tres cosas falló.
+    """
+
+    MENSAJE = 'Usuario o contraseña incorrectos.'
+    CLAVE = 'ClaveSegura-2026'
+
+    def setUp(self):
+        Usuario.objects.create_user(username='tecnico_login', password=self.CLAVE, rol=Usuario.Rol.PATOLOGO)
+        Usuario.objects.create_user(username='tecnico_inactivo', password=self.CLAVE, is_active=False)
+
+    def entrar(self, usuario, clave):
+        return self.client.post('/api/auth/login/', {'username': usuario, 'password': clave}, format='json')
+
+    def test_contrasena_incorrecta(self):
+        respuesta = self.entrar('tecnico_login', 'clave-incorrecta')
+        self.assertEqual(respuesta.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(respuesta.data['detail'], self.MENSAJE)
+
+    def test_usuario_que_no_existe(self):
+        respuesta = self.entrar('no_existe', self.CLAVE)
+        self.assertEqual(respuesta.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(respuesta.data['detail'], self.MENSAJE)
+
+    def test_cuenta_desactivada(self):
+        respuesta = self.entrar('tecnico_inactivo', self.CLAVE)
+        self.assertEqual(respuesta.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(respuesta.data['detail'], self.MENSAJE)
+
+
 class AdminUsuariosTests(TestCase):
     """
     Hallazgo del 2026-10-05: /admin/ registraba Usuario con un ModelAdmin común, así

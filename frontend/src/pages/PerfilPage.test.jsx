@@ -48,6 +48,18 @@ describe('PerfilPage', () => {
     // El rol interno 'patologo' se muestra como "Técnico" (G-3).
     expect(screen.getByText(/^Técnico ·/)).toBeInTheDocument();
   });
+
+  // "Especialidad" venía de la especialidad del patólogo: no se muestra ni se envía (G-3).
+  it('no muestra "Especialidad" y no la envía al guardar', async () => {
+    client.get.mockResolvedValue({ data: PERFIL });
+    client.patch.mockResolvedValue({ data: PERFIL });
+    render(<PerfilPage />);
+    await screen.findByDisplayValue('Técnico Ficticio Uno');
+    expect(screen.queryByText('Especialidad')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    await vi.waitFor(() => expect(client.patch).toHaveBeenCalled());
+    expect(client.patch.mock.calls[0][1]).not.toHaveProperty('especialidad');
+  });
 });
 
 // Decisión D-6: al cambiar la contraseña se invalidan las sesiones anteriores y el
