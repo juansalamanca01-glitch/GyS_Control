@@ -24,10 +24,12 @@ test('el backend de las pruebas usa su propia base y no la de desarrollo', () =>
   assert.equal(entorno.SECRET_KEY, 'x');
 });
 
-test('solo sube el límite de peticiones por usuario', () => {
+test('solo sube el límite de peticiones por usuario y escribe la salida en UTF-8', () => {
   const entorno = entornoBackend({});
   assert.equal(entorno.LIMITE_PETICIONES_USUARIO, '2000/minute');
-  assert.deepEqual(Object.keys(entorno).sort(), ['LIMITE_PETICIONES_USUARIO', 'SQLITE_NOMBRE']);
+  // Sin UTF-8, las tildes del registro salen mal en Windows ("Inicio de sesi�n").
+  assert.equal(entorno.PYTHONIOENCODING, 'utf-8');
+  assert.deepEqual(Object.keys(entorno).sort(), ['LIMITE_PETICIONES_USUARIO', 'PYTHONIOENCODING', 'SQLITE_NOMBRE']);
 });
 
 test('prepara la base con migrate y seed_data, con el Python del venv', () => {
@@ -58,15 +60,50 @@ test('Cypress se ejecuta sin ELECTRON_RUN_AS_NODE, que lo dejaría sin arrancar'
   assert.equal(entorno.PATH, 'algo');
 });
 
-test('"run" sin interfaz, "open" con ella y "video" graba; los argumentos extra pasan a Cypress', () => {
+test('"run" sin interfaz, "open" con Chrome y "video" graba; los argumentos extra pasan a Cypress', () => {
   assert.deepEqual(argumentosCypress('correr'), ['cypress', 'run']);
   assert.deepEqual(argumentosCypress('correr', ['--spec', 'x.cy.js']), ['cypress', 'run', '--spec', 'x.cy.js']);
-  assert.deepEqual(argumentosCypress('abrir'), ['cypress', 'open', '--e2e', '--browser', 'electron']);
+  assert.deepEqual(argumentosCypress('abrir'), ['cypress', 'open', '--e2e', '--browser', 'chrome']);
   assert.deepEqual(argumentosCypress('video'), ['cypress', 'run', '--config', 'video=true']);
 });
 
-test('--abrir y --video eligen el modo y no pasan a Cypress', () => {
-  assert.deepEqual(leerArgumentos([]), { modo: 'correr', extra: [] });
-  assert.deepEqual(leerArgumentos(['--abrir']), { modo: 'abrir', extra: [] });
-  assert.deepEqual(leerArgumentos(['--video', '--spec', 'x.cy.js']), { modo: 'video', extra: ['--spec', 'x.cy.js'] });
+test('el modo presentación abre Chrome y le pasa la pausa a Cypress con --expose', () => {
+  assert.deepEqual(argumentosCypress('presentacion', [], 500), [
+    'cypress',
+    'open',
+    '--e2e',
+    '--browser',
+    'chrome',
+    '--expose',
+    'pausa=500',
+  ]);
+});
+
+test('--abrir, --video y --presentacion eligen el modo y no pasan a Cypress', () => {
+  assert.deepEqual(leerArgumentos([]), { modo: 'correr', pausa: 0, extra: [] });
+  assert.deepEqual(leerArgumentos(['--abrir']), { modo: 'abrir', pausa: 0, extra: [] });
+  assert.deepEqual(leerArgumentos(['--video', '--spec', 'x.cy.js']), {
+    modo: 'video',
+    pausa: 0,
+    extra: ['--spec', 'x.cy.js'],
+  });
+});
+
+test('la presentación hace una pausa de 500 ms por defecto, que se cambia con --pausa', () => {
+  assert.deepEqual(leerArgumentos(['--presentacion']), { modo: 'presentacion', pausa: 500, extra: [] });
+  assert.deepEqual(leerArgumentos(['--presentacion', '--pausa=1000']), {
+    modo: 'presentacion',
+    pausa: 1000,
+    extra: [],
+  });
+  // Fuera de la presentación, la pausa no se usa: las pruebas normales no se hacen más lentas.
+  assert.equal(leerArgumentos(['--pausa=1000']).pausa, 0);
+});
+
+test('una pausa que no es un número entero positivo se rechaza con un mensaje claro', () => {
+  assert.throws(() => leerArgumentos(['--presentacion', '--pausa=lento']), /--pausa/);
+  assert.throws(() => leerArgumentos(['--presentacion', '--pausa=-5']), /--pausa/);
+  // Más de 3000 ms chocaría con el autoguardado de los borradores a los 5 s (D-13).
+  assert.throws(() => leerArgumentos(['--presentacion', '--pausa=3001']), /3000/);
+  assert.equal(leerArgumentos(['--presentacion', '--pausa=3000']).pausa, 3000);
 });

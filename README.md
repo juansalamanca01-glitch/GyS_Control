@@ -404,7 +404,9 @@ npm test
 # Pruebas de punta a punta con Cypress (desde la raíz)
 npm run e2e                               # todas, sin interfaz
 npm run e2e -- --spec cypress/e2e/permisos.cy.js   # un solo archivo
-npm run e2e:abrir                         # con la interfaz de Cypress (para mostrarlo en vivo)
+npm run e2e:abrir                         # con la interfaz de Cypress, en Chrome
+npm run e2e:presentacion                  # igual, con una pausa de 500 ms después de cada acción
+npm run e2e:presentacion -- --pausa=1000  # con otra pausa (máximo 3000 ms)
 npm run e2e:video                         # graba un video por archivo en frontend/cypress/videos/
 ```
 
@@ -420,7 +422,7 @@ npm run e2e:video                         # graba un video por archivo en fronte
   - **Cómo buscan los elementos:** por rol, etiqueta o texto, con `@testing-library/cypress` (`cy.findByRole`, `cy.findByLabelText`, `cy.findByText`). Nunca por clases CSS ni posiciones, para que sigan sirviendo después del rediseño.
   - **Cómo corren:** `npm run e2e` crea desde cero una base aparte (`backend/e2e_db.sqlite3`) con `seed_data`, así que no toca la base de desarrollo. Arranca el backend en el puerto 8001 y el frontend en el 5174, para no chocar con `npm run dev`, ejecuta Cypress y apaga los servidores.
   - **Ajustes de ese backend:** usa su propia base (`SQLITE_NOMBRE`) y sube el límite de peticiones por usuario (`LIMITE_PETICIONES_USUARIO`), porque Cypress va mucho más rápido que una persona. El límite del login no cambia.
-  - **Cuándo se ejecutan:** tardan cerca de un minuto y no son obligatorias antes de cada commit (decisión D-17). El detalle está en la sección "Fase de Cypress" de `docs/plan-calidad-y-diseno.md`.
+  - **Cuándo se ejecutan:** tardan cerca de un minuto y no son obligatorias antes de cada commit (decisión D-17). Requieren Google Chrome para `e2e:abrir` y `e2e:presentacion` (Electron, el navegador propio de Cypress, se cerró de golpe en Windows). Al terminar, en Windows es normal ver `exited with code 1` de los dos servidores: es el apagado, no un fallo. El detalle está en la sección "Fase de Cypress" de `docs/plan-calidad-y-diseno.md`.
 - **Frontend:** cubre el formulario del informe (paciente, datos de la solicitud, diagnósticos, firma, requisitos para finalizar, adendas y orden de las tarjetas), la página de pacientes y su historial, la pantalla de catálogos, los listados, la página de perfil, la exportación a PDF (y la vista previa de un borrador), el aviso al salir con cambios sin guardar y el autoguardado de los borradores (D-13), el cierre de sesión por `/salir`, las imágenes del foro y su visor, y la dirección de la API.
 
 ---

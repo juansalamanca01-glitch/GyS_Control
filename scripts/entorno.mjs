@@ -9,6 +9,15 @@ export function rutaPython(raiz, plataforma = process.platform) {
 }
 
 /**
+ * Variables de entorno para el Python del backend. Cuando su salida pasa por concurrently
+ * (npm run dev y npm run e2e), Python escribe con la codificación antigua de Windows y las
+ * tildes salen mal ("Inicio de sesi�n"). Con PYTHONIOENCODING escribe en UTF-8.
+ */
+export function entornoPython(entorno = process.env) {
+  return { ...entorno, PYTHONIOENCODING: 'utf-8' };
+}
+
+/**
  * Revisa lo necesario para arrancar backend y frontend.
  * - errores: impiden arrancar; cada uno trae el problema y la solución.
  * - avisos: la app funciona igual, pero conviene saberlo.

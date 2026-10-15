@@ -9,7 +9,8 @@
     "test": "node --test scripts/*.test.mjs",
     "e2e": "node scripts/e2e.mjs",
     "e2e:abrir": "node scripts/e2e.mjs --abrir",
-    "e2e:video": "node scripts/e2e.mjs --video"
+    "e2e:video": "node scripts/e2e.mjs --video",
+    "e2e:presentacion": "node scripts/e2e.mjs --presentacion"
   },
   "engines": {
     "node": ">=22.12"

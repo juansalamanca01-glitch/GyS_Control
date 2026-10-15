@@ -375,18 +375,23 @@ Al cerrar cada corrección, se actualiza en `docs/auditoria-owasp.md` el estado 
 - **Sesiones:** solo el flujo 1 entra por la pantalla. Los demás usan `cy.entrarComo()` (API y `cy.session`), para no pasar del límite de 10 logins por minuto (O-16).
 - **Comandos (desde la raíz):**
   - `npm run e2e`: corre todo sin interfaz, en cerca de 40 s;
-  - `npm run e2e:abrir`: abre la interfaz de Cypress, para mostrarlo en vivo;
+  - `npm run e2e:abrir`: abre la interfaz de Cypress en Chrome;
+  - `npm run e2e:presentacion`: igual, con una pausa de 500 ms después de cada acción, para que el público pueda seguirla. Se cambia con `-- --pausa=N` (hasta 3000 ms, porque los borradores se autoguardan a los 5 s). Las demás corridas no se hacen más lentas;
   - `npm run e2e:video`: corre todo y graba un video por archivo en `frontend/cypress/videos/`, como respaldo. Los videos no se suben a git.
 - **No es parte de la regla 7:** correr Cypress no es obligatorio antes de cada commit.
 
 **Terminada cuando:**
 - las 25 pruebas pasan con `npm run e2e`;
 - `npm run e2e:video` deja los 6 videos;
+- `npm run e2e:presentacion` abre Chrome con la pausa, y la terminal no muestra la advertencia de `allowCypressEnv` ni tildes rotas;
 - `npm run check` y las demás pruebas siguen en verde;
 - el usuario la revisó y aprobó unir la rama a `main`.
 
 **Cierre (2026-10-14):**
-- Commits `fb454e6` (primera versión, 22 pruebas) y "test(e2e): requisitos de la presentación" (6 flujos, Testing Library, video y esta sección).
+- Commits:
+  - `fb454e6`: primera versión, 22 pruebas;
+  - `976b682`: 6 flujos, Testing Library, video y esta sección;
+  - "test(e2e): modo presentación y advertencias": modo presentación, Chrome, sin la advertencia de `Cypress.env()` y tildes en UTF-8.
 - Falta que el usuario la pruebe y apruebe la unión a `main`.
 
 ---

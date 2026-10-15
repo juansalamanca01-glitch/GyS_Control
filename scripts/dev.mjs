@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { revisarEntorno, rutaPython } from './entorno.mjs';
+import { entornoPython, revisarEntorno, rutaPython } from './entorno.mjs';
 
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const carpetaBackend = path.join(raiz, 'backend');
@@ -54,7 +54,14 @@ Pulsa Ctrl + C para detener los dos servidores.
 
 const { result } = concurrently(
   [
-    { command: `"${python}" manage.py runserver`, name: 'backend', cwd: carpetaBackend, prefixColor: 'green' },
+    {
+      command: `"${python}" manage.py runserver`,
+      name: 'backend',
+      cwd: carpetaBackend,
+      // UTF-8: si no, las tildes del registro salen mal en Windows.
+      env: entornoPython(),
+      prefixColor: 'green',
+    },
     { command: 'npm run dev', name: 'frontend', cwd: path.join(raiz, 'frontend'), prefixColor: 'cyan' },
   ],
   { killOthersOn: ['failure', 'success'] },

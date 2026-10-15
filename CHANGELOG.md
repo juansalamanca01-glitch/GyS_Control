@@ -5,6 +5,26 @@ Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1
 
 ## 2026-10-14
 
+### Fase de Cypress: modo presentación y advertencias de la terminal
+
+**Qué se cambió:**
+- **Modo presentación:** `npm run e2e:presentacion` abre la interfaz de Cypress con una pausa después de cada acción, para que el público pueda seguirla.
+  - La pausa es de 500 ms por defecto y se cambia con `-- --pausa=N`. Admite hasta 3000 ms, porque los borradores se autoguardan a los 5 s (D-13) y una pausa mayor haría fallar "Guardar y salir". Un valor no válido se rechaza con un mensaje.
+  - `scripts/e2e.mjs`: `leerArgumentos()` devuelve también la pausa, que solo se usa en la presentación. `argumentosCypress()` la pasa a Cypress con `--expose pausa=N`.
+  - `frontend/cypress/support/e2e.js`: si recibe una pausa, reemplaza las acciones (`visit`, `reload`, `click`, `type`, `clear`, `select`, `check`, `uncheck`) por otras que esperan después. Sin pausa no cambia nada.
+  - Comprobado: `npm run e2e` sigue tardando lo mismo (29 s), y un mismo archivo pasa de 8 s a 14 s con 500 ms. Con 1000 ms pasan las 25 pruebas.
+- **Chrome:** `e2e:abrir` y `e2e:presentacion` abren Chrome (`--browser chrome`) en lugar de Electron, que se cerró de golpe en el computador del usuario.
+- **Advertencia de `allowCypressEnv`:** `allowCypressEnv: false` en `frontend/cypress.config.js`. Cypress avisaba que `Cypress.env()` deja que el código del navegador lea esos valores, que es inseguro y que lo quitará. Las pruebas no lo usaban (Testing Library tampoco).
+- **Tildes rotas en la terminal** ("Inicio de sesi�n"): `entornoPython()` en `scripts/entorno.mjs` da `PYTHONIOENCODING=utf-8` al backend de `npm run dev` y de `npm run e2e`. Cuando la salida de Python pasa por concurrently, Windows usaba su codificación antigua.
+- **`exited with code 1` al terminar:** no se quita, porque es Windows informando que los servidores se apagaron a la fuerza. Solo se podría ocultar quitando también las etiquetas `[backend]` y `[frontend]`, que sirven para encontrar problemas. Ahora el script avisa antes de apagarlos que es normal.
+- **Se dejan como están:**
+  - `WARNING seguridad: Inicio de sesión fallido`: es el registro de seguridad (O-21) anotando la contraseña incorrecta que la prueba usa a propósito;
+  - `Re-optimizing dependencies because lockfile has changed`, de Vite: sale una vez después de instalar paquetes.
+- **Pruebas:** 5 nuevas en `scripts/` (UTF-8, Chrome, modo presentación, pausa por defecto y configurable, pausa no válida o mayor de 3000), que fallaron antes del cambio. Total: 23 de la raíz, 322 del backend, 137 del frontend y 25 de Cypress, todas en verde. `npm run check` termina sin errores ni avisos.
+- **Documentación:** `README.md`, `CLAUDE.md`, la sección "Fase de Cypress" del plan y `docs/progreso.md`.
+
+**Por qué:** el usuario pidió quitar las advertencias de la terminal y explicarlas, y un modo más lento para la presentación del viernes que no haga más lentas las pruebas normales. También pidió abrir Chrome directamente, porque Electron se le cerró de golpe.
+
 ### Fase de Cypress: ajuste a los requisitos de la presentación
 
 **Qué se cambió:**

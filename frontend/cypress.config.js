@@ -9,6 +9,10 @@ export default defineConfig({
   // Va aquí y no dentro de "e2e": lo que está en "e2e" pesa más que la línea de comandos,
   // y "npm run e2e:video" lo activa con --config video=true.
   video: false,
+  // Cypress.env() deja que el código del navegador lea esos valores, y Cypress avisa que es
+  // inseguro y que lo quitará. Las pruebas no lo usan: la pausa de la presentación llega con
+  // --expose y se lee con Cypress.expose().
+  allowCypressEnv: false,
   e2e: {
     baseUrl: 'http://localhost:5174',
     // La interfaz de Cypress y los videos muestran cada prueba en este tamaño de ventana.

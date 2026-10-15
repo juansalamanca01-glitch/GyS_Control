@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { test } from 'node:test';
-import { revisarEntorno, rutaPython } from './entorno.mjs';
+import { entornoPython, revisarEntorno, rutaPython } from './entorno.mjs';
 
 const RAIZ = path.join('C:', 'proyecto');
 
@@ -66,4 +66,10 @@ test('si falta frontend/.env solo avisa: la app funciona igual', () => {
 test('informa todos los problemas a la vez, no solo el primero', () => {
   const { errores } = revisarEntorno({ raiz: RAIZ, plataforma: 'win32', existe: () => false });
   assert.equal(errores.length, 3);
+});
+
+test('Python escribe su salida en UTF-8, para que las tildes no salgan mal en Windows', () => {
+  const entorno = entornoPython({ PATH: 'algo' });
+  assert.equal(entorno.PYTHONIOENCODING, 'utf-8');
+  assert.equal(entorno.PATH, 'algo');
 });

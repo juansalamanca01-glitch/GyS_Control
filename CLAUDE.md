@@ -28,7 +28,8 @@ npm run check    # formato y linter de frontend (Prettier, ESLint) y backend (Ru
 npm test         # pruebas de scripts/ (comprobaciones de npm run dev, npm run check y npm run e2e)
 npm run e2e      # pruebas de punta a punta con Cypress (base aparte, puertos 8001 y 5174)
 npm run e2e -- --spec cypress/e2e/permisos.cy.js  # un solo archivo de Cypress
-npm run e2e:abrir  # lo mismo, con la interfaz de Cypress
+npm run e2e:abrir  # lo mismo, con la interfaz de Cypress en Chrome
+npm run e2e:presentacion  # como e2e:abrir, con una pausa después de cada acción (500 ms; -- --pausa=N, máx. 3000)
 npm run e2e:video  # lo mismo, sin interfaz y grabando un video por archivo (frontend/cypress/videos/)
 ```
 `scripts/dev.mjs` revisa el entorno con `scripts/entorno.mjs` (venv, `backend/.env`, `frontend/node_modules`), avisa de migraciones pendientes (`migrate --check`) y lanza los dos servidores con `concurrently`.
@@ -42,6 +43,10 @@ Detalles:
 - Le quita a Cypress `ELECTRON_RUN_AS_NODE`, que definen las terminales de VS Code y con la que Cypress no arranca.
 - Las pruebas están en `frontend/cypress/e2e/*.cy.js`: un archivo por flujo crítico (6). Los requisitos y la tabla de flujos están en la sección "Fase de Cypress" del plan.
 - **Selectores (requisito del usuario):** solo `cy.findByRole`, `cy.findByLabelText` y `cy.findByText` de `@testing-library/cypress`. Nunca `cy.get` ni `cy.contains` con clases CSS, ids o posiciones, para que las pruebas sobrevivan al rediseño. Si falta un rol o una etiqueta, se agrega a la app, que también gana en accesibilidad (por ejemplo `role="alert"` y `role="dialog"`).
+- **Modo presentación:** la pausa llega con `--expose pausa=N` y `cypress/support/e2e.js` la lee con `Cypress.expose()`. Solo si es mayor que 0 reemplaza las acciones (`visit`, `click`, `type`, `select`…) por otras que esperan después. Las demás corridas no reciben la pausa y no se hacen más lentas. El tope de 3000 ms existe porque los borradores se autoguardan a los 5 s (D-13).
+- `allowCypressEnv: false` en `cypress.config.js`: no uses `Cypress.env()` (Cypress lo considera inseguro y lo quitará). Para pasar un valor a las pruebas, usa `--expose` y `Cypress.expose()`.
+- `e2e:abrir` y `e2e:presentacion` abren **Chrome** (`--browser chrome`), no Electron, que se cerró de golpe en el computador del usuario.
+- El backend de `npm run dev` y de `npm run e2e` recibe `PYTHONIOENCODING=utf-8` (`entornoPython()` de `scripts/entorno.mjs`). Si no, como su salida pasa por concurrently, las tildes del registro salen mal en Windows.
 - `video: false` va en la raíz de `cypress.config.js`, no dentro de `e2e`: lo que está en `e2e` pesa más que `--config video=true` de `npm run e2e:video`.
 - `cypress/support/commands.js` tiene:
   - `cy.entrarComo(usuario)`: login por la API con `cy.session`, para no gastar el límite de 10 logins por minuto. Solo `login-y-roles.cy.js` entra por la pantalla;
