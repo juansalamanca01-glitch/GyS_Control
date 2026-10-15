@@ -493,18 +493,6 @@ class NombreVisibleAutorTests(APITestCase):
         informe = Informe.objects.get(autor=self.sin_nombre)
         self.assertEqual(self.client.get(f'/api/informes/{informe.id}/').data['autor_nombre'], 'patologo_sin_nombre')
 
-    def test_foro_muestra_nombre_completo_o_username(self):
-        from foro.models import Comentario, Publicacion
-
-        publicacion = Publicacion.objects.create(autor=self.sin_nombre, titulo='Caso', contenido='Texto')
-        Comentario.objects.create(publicacion=publicacion, autor=self.con_nombre, contenido='Hola')
-        self.assertEqual(
-            self.client.get('/api/foro/publicaciones/').data['results'][0]['autor_nombre'], 'patologo_sin_nombre'
-        )
-        detalle = self.client.get(f'/api/foro/publicaciones/{publicacion.id}/').data
-        self.assertEqual(detalle['autor_nombre'], 'patologo_sin_nombre')
-        self.assertEqual(detalle['comentarios'][0]['autor_nombre'], 'Dr. Carlos Méndez')
-
 
 class ConsultasPorListadoTests(APITestCase):
     """
@@ -514,21 +502,13 @@ class ConsultasPorListadoTests(APITestCase):
     """
 
     def setUp(self):
-        from foro.models import Comentario, ImagenPublicacion, Publicacion, TemaForo
-
-        self.modelos = (Comentario, ImagenPublicacion, Publicacion, TemaForo)
         self.usuario = Usuario.objects.create_user(username='consultas', password='x', rol=Usuario.Rol.ADMIN)
         self.client.force_authenticate(self.usuario)
 
     def crear_elementos(self, desde, hasta):
-        Comentario, ImagenPublicacion, Publicacion, TemaForo = self.modelos
         for i in range(desde, hasta):
             categoria = Categoria.objects.create(nombre=f'Categoría {i}')
             Patologia.objects.create(nombre=f'Patología {i}', categoria=categoria)
-            tema = TemaForo.objects.create(nombre=f'Tema {i}')
-            publicacion = Publicacion.objects.create(autor=self.usuario, titulo='t', contenido='c', tema=tema)
-            Comentario.objects.create(publicacion=publicacion, autor=self.usuario, contenido='c')
-            ImagenPublicacion.objects.create(publicacion=publicacion, imagen=f'foro/prueba{i}.png')
 
     def contar_consultas(self, url):
         from django.db import connection
@@ -539,64 +519,37 @@ class ConsultasPorListadoTests(APITestCase):
         return len(consultas)
 
     def test_las_consultas_no_crecen_con_los_elementos(self):
-        urls = ['/api/categorias/', '/api/patologias/', '/api/foro/temas/', '/api/foro/publicaciones/']
+        urls = ['/api/categorias/', '/api/patologias/']
         self.crear_elementos(0, 5)
         con_5 = {url: self.contar_consultas(url) for url in urls}
         self.crear_elementos(5, 20)
         con_20 = {url: self.contar_consultas(url) for url in urls}
         self.assertEqual(con_20, con_5)
 
-    def test_crear_categoria_y_tema_devuelve_su_total(self):
+    def test_crear_categoria_devuelve_su_total(self):
         respuesta = self.client.post('/api/categorias/', {'nombre': 'Nueva', 'color': '#123456'}, format='json')
         self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED)
         self.assertEqual(respuesta.data['total_patologias'], 0)
-        respuesta = self.client.post('/api/foro/temas/', {'nombre': 'Nuevo tema'}, format='json')
-        self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(respuesta.data['total_publicaciones'], 0)
 
-    def test_los_totales_y_la_portada_son_correctos(self):
-        Comentario, ImagenPublicacion, Publicacion, TemaForo = self.modelos
-        tema = TemaForo.objects.create(nombre='Con datos')
-        publicacion = Publicacion.objects.create(autor=self.usuario, titulo='t', contenido='c', tema=tema)
+    def test_los_totales_son_correctos(self):
+        categoria = Categoria.objects.create(nombre='Con datos')
         for i in range(3):
-            Comentario.objects.create(publicacion=publicacion, autor=self.usuario, contenido=f'c{i}')
-        primera = ImagenPublicacion.objects.create(publicacion=publicacion, imagen='foro/primera.png')
-        ImagenPublicacion.objects.create(publicacion=publicacion, imagen='foro/segunda.png')
-        fila = self.client.get('/api/foro/publicaciones/').data['results'][0]
-        self.assertEqual((fila['total_comentarios'], fila['total_imagenes']), (3, 2))
-        self.assertTrue(fila['portada'].endswith(primera.imagen.url))
-        temas = {t['nombre']: t['total_publicaciones'] for t in self.client.get('/api/foro/temas/').data['results']}
-        self.assertEqual(temas['Con datos'], 1)
+            Patologia.objects.create(nombre=f'Patología con datos {i}', categoria=categoria)
+        totales = {c['nombre']: c['total_patologias'] for c in self.client.get('/api/categorias/').data['results']}
+        self.assertEqual(totales['Con datos'], 3)
 
     def test_los_listados_conservan_su_orden(self):
         # Con annotate(Count), Django ignora Meta.ordering si no se indica el orden.
-        Comentario, ImagenPublicacion, Publicacion, TemaForo = self.modelos
         for nombre in ['Zeta', 'Alfa', 'Media']:
             Categoria.objects.create(nombre=nombre)
-            TemaForo.objects.create(nombre=nombre)
-        normal = Publicacion.objects.create(autor=self.usuario, titulo='Normal', contenido='c')
-        Publicacion.objects.create(autor=self.usuario, titulo='Fijada', contenido='c', fijado=True)
-        Publicacion.objects.create(autor=self.usuario, titulo='Reciente', contenido='c')
-        Comentario.objects.create(publicacion=normal, autor=self.usuario, contenido='c')
-        # Se crean en el mismo instante: se hace "Normal" un día más antigua para que no empaten.
-        from datetime import timedelta
-
-        from django.utils import timezone
-
-        Publicacion.objects.filter(id=normal.id).update(fecha_creacion=timezone.now() - timedelta(days=1))
-
-        def nombres(url, campo):
-            return [f[campo] for f in self.client.get(url).data['results']]
-
-        self.assertEqual(nombres('/api/categorias/', 'nombre'), ['Alfa', 'Media', 'Zeta'])
-        self.assertEqual(nombres('/api/foro/temas/', 'nombre'), ['Alfa', 'Media', 'Zeta'])
-        self.assertEqual(nombres('/api/foro/publicaciones/', 'titulo'), ['Fijada', 'Reciente', 'Normal'])
+        nombres = [c['nombre'] for c in self.client.get('/api/categorias/').data['results']]
+        self.assertEqual(nombres, ['Alfa', 'Media', 'Zeta'])
 
 
 class TamanoDePaginaTests(APITestCase):
     """
     Los listados vienen de 20 en 20. Los menús desplegables del frontend (patologías,
-    categorías, temas) necesitan todos los elementos: con ?page_size= se puede pedir
+    categorías) necesitan todos los elementos: con ?page_size= se puede pedir
     una página más grande, hasta un máximo de 1000.
     """
 

@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'accounts',
     'informes',
     'pacientes',
-    'foro',
 ]
 
 # ---------- Middleware ----------
@@ -128,7 +127,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     # ---- Anti-SPAM / seguridad de la API REST ----
     # Limita cuántas peticiones puede hacer un cliente en una ventana de tiempo,
-    # para frenar fuerza bruta en login y flood de publicaciones/comentarios.
+    # para frenar la fuerza bruta en el login y el registro.
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -144,8 +143,6 @@ REST_FRAMEWORK = {
         'user': config('LIMITE_PETICIONES_USUARIO', default='120/minute'),
         'login': '10/minute',
         'registro': '5/minute',
-        'foro_publicacion': '10/minute',
-        'foro_comentario': '20/minute',
     },
 }
 
@@ -183,12 +180,11 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-# ---------- Archivos subidos (imágenes del foro) ----------
+# ---------- Archivos subidos ----------
+# Hoy ninguna pantalla sube archivos (el foro de PathoLab se quitó). Se conserva para
+# las evidencias de los servicios que llegarán con la transformación del dominio.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-# Tamaño máximo de cada imagen del foro. Lo comprueba foro/views.py (auditoría I-6).
-# El frontend (ForoPage.jsx) usa el mismo valor para avisar antes de publicar.
-FORO_MAX_TAMANO_IMAGEN = 10 * 1024 * 1024
 # DATA_UPLOAD_MAX_MEMORY_SIZE limita el cuerpo de la petición SIN contar los archivos,
 # así que no sirve para limitar imágenes. Para FILE_UPLOAD_MAX_MEMORY_SIZE se deja el
 # valor por defecto de Django (2,5 MB): los archivos más grandes van a disco temporal

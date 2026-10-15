@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "8bbc54a1-patologia-app-collection",
 		"name": "PathoLab API - Informes de Patología",
-		"description": "Colección para probar la API de PathoLab.\n\nUso: 1) ejecuta \"Login (patólogo)\", que guarda los tokens en {{access_token}} y {{refresh_token}}. 2) Ejecuta las demás peticiones en orden: \"Crear paciente\" guarda {{paciente_id}}, \"Crear informe\" guarda {{informe_id}} y \"Crear publicación\" guarda {{publicacion_id}}.\n\nTodas las peticiones usan el token de la colección (Authorization: Bearer), excepto el login, \"Renovar token\" y \"Cerrar sesión\", que envían {{refresh_token}} en el cuerpo. \"Cerrar sesión\" invalida solo el token de renovación: el resto de la colección sigue funcionando con el token de acceso hasta que vence. Los listados vienen paginados de 20 en 20 (?page=2).",
+		"description": "Colección para probar la API de PathoLab.\n\nUso: 1) ejecuta \"Login (patólogo)\", que guarda los tokens en {{access_token}} y {{refresh_token}}. 2) Ejecuta las demás peticiones en orden: \"Crear paciente\" guarda {{paciente_id}} y \"Crear informe\" guarda {{informe_id}}.\n\nTodas las peticiones usan el token de la colección (Authorization: Bearer), excepto el login, \"Renovar token\" y \"Cerrar sesión\", que envían {{refresh_token}} en el cuerpo. \"Cerrar sesión\" invalida solo el token de renovación: el resto de la colección sigue funcionando con el token de acceso hasta que vence. Los listados vienen paginados de 20 en 20 (?page=2).",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -33,11 +33,6 @@
 		},
 		{
 			"key": "informe_id",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "publicacion_id",
 			"value": "",
 			"type": "string"
 		},
@@ -807,120 +802,6 @@
 							]
 						},
 						"description": "Genera el PDF del informe. En Postman usa \"Send and Download\" para guardarlo como archivo. El PDF de un borrador es una vista previa solo para su autor o un admin (decisión D-12): lleva la marca de agua \"BORRADOR\" y se llama informe_P-AAAA-NNNNN_borrador.pdf; los demás usuarios reciben 403. El de un informe finalizado lo descargan todos."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "5. Foro",
-			"item": [
-				{
-					"name": "Listar publicaciones",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/api/foro/publicaciones/?tema=&search=",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"foro",
-								"publicaciones",
-								""
-							],
-							"query": [
-								{
-									"key": "tema",
-									"value": "",
-									"description": "Id del tema",
-									"disabled": true
-								},
-								{
-									"key": "search",
-									"value": "",
-									"description": "Texto en el título o el contenido",
-									"disabled": true
-								}
-							]
-						},
-						"description": "Publicaciones del foro (las fijadas primero). Filtros opcionales en la pestaña Params."
-					},
-					"response": []
-				},
-				{
-					"name": "Crear publicación",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/foro/publicaciones/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"foro",
-								"publicaciones",
-								""
-							]
-						},
-						"description": "Crea una publicación (patólogo o admin). El campo fijado solo lo puede cambiar un admin. Guarda el id en {{publicacion_id}}. Para adjuntar imágenes: POST a /api/foro/publicaciones/{{publicacion_id}}/imagenes/ con form-data, campo \"imagenes\" de tipo File (máximo 6, de hasta 10 MB cada una).",
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"titulo\": \"Caso de interés: lesión pigmentada\",\n  \"contenido\": \"Comparto este caso para discusión.\",\n  \"tema\": null\n}"
-						}
-					},
-					"response": [],
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"if (pm.response.code === 200 || pm.response.code === 201) {",
-									"    pm.collectionVariables.set('publicacion_id', pm.response.json().id);",
-									"    console.log('Guardado en publicacion_id: ' + pm.response.json().id);",
-									"}"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Comentar publicación",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/foro/comentarios/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"foro",
-								"comentarios",
-								""
-							]
-						},
-						"description": "Añade un comentario a la publicación creada (máximo 3000 caracteres).",
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"publicacion\": {{publicacion_id}},\n  \"contenido\": \"Interesante, ¿se hizo inmunohistoquímica?\"\n}"
-						}
 					},
 					"response": []
 				}

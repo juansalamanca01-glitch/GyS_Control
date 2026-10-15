@@ -30,7 +30,7 @@ class EsPatologoOAdminYSoloAdminBorra(EsPatologoOAdmin):
 
 class EsAutorOAdminOSoloLectura(permissions.BasePermission):
     """
-    Permiso compartido por informes y foro (ver decisión D-2 en docs/decisiones.md).
+    Permiso de los informes (ver decisión D-2 en docs/decisiones.md).
     - Cualquier usuario autenticado puede leer.
     - Crear (POST) requiere rol patólogo o admin; el auditor solo lee.
     - Editar, eliminar o ejecutar acciones sobre un objeto (por ejemplo, finalizar

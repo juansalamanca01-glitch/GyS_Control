@@ -10,8 +10,6 @@ import BuscarPage from './pages/BuscarPage';
 import PatologiasPage from './pages/PatologiasPage';
 import PacientesPage from './pages/PacientesPage';
 import CatalogosPage from './pages/CatalogosPage';
-import ForoPage from './pages/ForoPage';
-import PublicacionDetallePage from './pages/PublicacionDetallePage';
 import PerfilPage from './pages/PerfilPage';
 import PoliticaPrivacidadPage from './pages/PoliticaPrivacidadPage';
 import TerminosCondicionesPage from './pages/TerminosCondicionesPage';
@@ -135,22 +133,6 @@ const rutas = createRoutesFromElements(
       element={
         <ProtectedRoute>
           <CatalogosPage />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/foro"
-      element={
-        <ProtectedRoute>
-          <ForoPage />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/foro/:id"
-      element={
-        <ProtectedRoute>
-          <PublicacionDetallePage />
         </ProtectedRoute>
       }
     />

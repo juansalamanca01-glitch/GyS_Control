@@ -1,6 +1,6 @@
 """
 Comando para cargar datos iniciales: usuarios de prueba (uno por rol y un segundo
-patólogo), 14 patologías con sus plantillas, temas del foro, los catálogos de servicios y EPS y 2 pacientes ficticios.
+patólogo), 14 patologías con sus plantillas, los catálogos de servicios y EPS y 2 pacientes ficticios.
 Uso: python manage.py seed_data (se puede ejecutar varias veces sin duplicar datos).
 """
 
@@ -9,7 +9,6 @@ from datetime import date
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
-from foro.models import TemaForo
 from informes.models import Patologia, Plantilla, Servicio
 from pacientes.models import EPS, Paciente, Sexo, TipoDocumento
 
@@ -17,7 +16,7 @@ Usuario = get_user_model()
 
 
 class Command(BaseCommand):
-    help = 'Carga usuarios de prueba, 14 patologías con sus plantillas, temas del foro, servicios, EPS y pacientes ficticios.'
+    help = 'Carga usuarios de prueba, 14 patologías con sus plantillas, servicios, EPS y pacientes ficticios.'
 
     def handle(self, *args, **options):
         # ── Superusuario (administrador) ────────────────────────────
@@ -1253,18 +1252,6 @@ class Command(BaseCommand):
                     Plantilla.objects.create(patologia=pat, **c)
             else:
                 self.stdout.write(f'  Patologia "{pat.nombre}" ya existe, omitida.')
-
-        # ── Temas iniciales del foro (decisión D-5) ─────
-        temas_foro = [
-            ('Casos clínicos', 'Casos de interés para discutir con los colegas.'),
-            ('Técnicas de laboratorio', 'Procesamiento de muestras, tinciones e inmunohistoquímica.'),
-            ('Investigación', 'Notas, artículos y hallazgos de investigación.'),
-            ('Dudas y consultas', 'Preguntas a otros patólogos.'),
-        ]
-        for nombre, descripcion in temas_foro:
-            _, creado = TemaForo.objects.get_or_create(nombre=nombre, defaults={'descripcion': descripcion})
-            if creado:
-                self.stdout.write(self.style.SUCCESS(f'[OK] Tema del foro "{nombre}" creado'))
 
         # ── Catálogos del informe v2 (docs/propuesta-informe-v2.md, 3.2 y sección 8) ─────
         # Son editables: se pueden agregar, renombrar o desactivar desde la aplicación.

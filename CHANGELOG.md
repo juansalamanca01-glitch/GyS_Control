@@ -3,6 +3,20 @@
 Todos los cambios de código del proyecto se documentan aquí, del más reciente al más antiguo.
 Cada entrada indica la fecha, qué se cambió y por qué. Los códigos como "C-1" remiten a `docs/auditoria-inicial.md`.
 
+## 2026-10-15
+
+### GyS Control, limpieza 1: se quita el foro
+
+**Qué se cambió:**
+- **Backend:** se borra la app `foro` (modelos, migración, `imagenes.py`, vistas, serializadores, `/admin/` y sus 28 pruebas). En `backend/config/settings.py` salen `'foro'` de `INSTALLED_APPS`, los límites `foro_publicacion` y `foro_comentario` y `FORO_MAX_TAMANO_IMAGEN`; `MEDIA_URL` y `MEDIA_ROOT` se conservan para las evidencias de los servicios. `backend/config/urls.py` ya no tiene `api/foro/`. `seed_data` ya no crea los temas del foro (D-5 queda retirada).
+- **Pruebas del backend:** `backend/informes/tests.py` pierde `test_foro_muestra_nombre_completo_o_username`, y `ConsultasPorListadoTests` conserva sus 4 pruebas solo con categorías y patologías (los totales se comprueban ahora con `total_patologias`).
+- **Frontend:** se borran `ForoPage.jsx`, `PublicacionDetallePage.jsx`, sus pruebas (13) y `VisorImagenes.jsx`, que solo usaba el foro. Salen las rutas `/foro` y `/foro/:id` de `App.jsx`, el enlace "Foro" de `Navbar.jsx` y los estilos del foro, el visor y los comentarios de `index.css`. Las páginas legales ya no mencionan el foro.
+- **Postman:** sin la carpeta "5. Foro" ni la variable `publicacion_id`.
+- **Base de datos local:** antes de quitar la app se ejecutó `python manage.py migrate foro zero`, para no dejar tablas huérfanas. Quien tenga una base con el foro debe hacer lo mismo **antes** de traer este cambio (después ya no se puede, porque la app no existe) y borrar `backend/media/foro/`.
+- **Pruebas:** 23 de la raíz, 293 del backend (antes 322), 124 del frontend (antes 137) y 25 de Cypress, todas en verde. `npm run check` sin errores ni avisos.
+
+**Por qué:** GyS Control (gestión para empresas de control de plagas) nace de la base de PathoLab, y el foro de patólogos no tiene lugar en el nuevo proyecto. Se quita sin tocar usuarios, roles, informes, pacientes, PDF, firma ni adendas, que se conservan hasta la transformación del dominio.
+
 ## 2026-10-14
 
 ### Fase de Cypress: modo presentación y advertencias de la terminal

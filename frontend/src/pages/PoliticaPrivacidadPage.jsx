@@ -40,7 +40,6 @@ export default function PoliticaPrivacidadPage() {
               registro médico. El nombre, la especialidad y el registro médico aparecen en la firma de los informes y de
               las adendas.
             </li>
-            <li>Contenido compartido voluntariamente en el foro (publicaciones, comentarios e imágenes).</li>
             <li>Metadatos técnicos: fecha y hora de creación y de modificación de los registros, para trazabilidad.</li>
           </ul>
 
@@ -55,16 +54,14 @@ export default function PoliticaPrivacidadPage() {
           <p>
             Los datos se usan exclusivamente para: (a) generar, almacenar y auditar informes de anatomía patológica; (b)
             identificar al paciente en sus informes y consultar su historial; (c) gestionar el acceso y los roles de los
-            usuarios del sistema; (d) permitir el intercambio profesional de conocimiento en el foro interno; y (e)
-            cumplir obligaciones legales de conservación de la historia clínica.
+            usuarios del sistema; y (d) cumplir obligaciones legales de conservación de la historia clínica.
           </p>
 
           <h2>5. Confidencialidad de la información clínica</h2>
           <p>
             La información clínica tiene carácter confidencial y solo es accesible para el personal autorizado según su
             rol (patólogo, auditor o administrador). No se comparte con terceros sin el debido soporte legal o el
-            consentimiento del paciente, salvo requerimiento de autoridad competente. En el foro no se deben publicar
-            datos que permitan identificar a un paciente.
+            consentimiento del paciente, salvo requerimiento de autoridad competente.
           </p>
 
           <h2>6. Integridad de los informes</h2>

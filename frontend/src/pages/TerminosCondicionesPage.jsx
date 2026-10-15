@@ -31,11 +31,6 @@ export default function TerminosCondicionesPage() {
           <ul>
             <li>Los informes de patología deben registrarse con información veraz y completa.</li>
             <li>
-              El foro es un espacio profesional para compartir investigaciones y observaciones clínicas entre patólogos;
-              no debe usarse para publicar contenido ajeno a este fin, spam, ni información de pacientes que permita
-              identificarlos indebidamente.
-            </li>
-            <li>
               Está prohibido intentar vulnerar los mecanismos de seguridad del sistema (autenticación, límites de
               solicitudes, permisos por rol, etc.).
             </li>
@@ -45,29 +40,22 @@ export default function TerminosCondicionesPage() {
           <p>
             El sistema define roles (administrador, patólogo, auditor) con distintos niveles de acceso. Los patólogos
             pueden crear y gestionar patologías, categorías e informes; los auditores tienen acceso de solo lectura; los
-            administradores gestionan usuarios y moderan el contenido del foro.
+            administradores gestionan los usuarios.
           </p>
 
-          <h2>5. Contenido publicado por los usuarios</h2>
-          <p>
-            Al publicar en el foro (texto e imágenes), el usuario declara que tiene derecho a compartir ese contenido y
-            autoriza su visualización por otros usuarios autorizados de la plataforma. El administrador puede eliminar o
-            fijar publicaciones con fines de moderación.
-          </p>
-
-          <h2>6. Disponibilidad del servicio</h2>
+          <h2>5. Disponibilidad del servicio</h2>
           <p>
             Se procura la disponibilidad continua del sistema, sin perjuicio de labores de mantenimiento programado o
             eventos de fuerza mayor.
           </p>
 
-          <h2>7. Limitación de responsabilidad</h2>
+          <h2>6. Limitación de responsabilidad</h2>
           <p>
             PathoLab es una herramienta de apoyo para la generación y gestión de informes; la responsabilidad clínica y
             diagnóstica final corresponde al profesional de la salud que firma y finaliza cada informe.
           </p>
 
-          <h2>8. Modificaciones</h2>
+          <h2>7. Modificaciones</h2>
           <p>
             Estos términos pueden actualizarse periódicamente. El uso continuado del sistema tras una actualización
             implica la aceptación de los nuevos términos.
