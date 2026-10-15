@@ -13,16 +13,13 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** GyS Control, sistema de gestión para empresas de control de plagas (servicios, informes y certificados en PDF, inventario de plaguicidas y agenda). Carpeta `C:\Users\salam\Desktop\GyS Control`, repositorio `github.com/juansalamanca01-glitch/GyS_Control`.
 - **Origen:** nace de la base de PathoLab (decisión G-1). Hoy la aplicación es todavía la de PathoLab sin el foro: usuarios, roles, login, seguridad, informes de patología, pacientes, PDF, firma, adendas y toda la infraestructura de pruebas. El dominio de control de plagas aún no existe.
-- **Rama de trabajo:** `limpieza-patholab`, con tres commits, todos subidos a GitHub:
-  1. `refactor: quitar el foro`;
-  2. `refactor: nombre GyS Control`;
-  3. `docs: documentación de GyS Control`.
+- **Rama de trabajo:** ninguna abierta. La limpieza (`limpieza-patholab`: quitar el foro, nombre GyS Control y documentación) se unió a `main` por fast-forward el 2026-10-15, después de que el usuario confirmara que Cypress pasaba en la rama. La rama sigue en GitHub.
 - **Entorno local** (preparado el 2026-10-15 en este clon): venv del backend con `requirements-dev.txt`, `npm install` en la raíz y en `frontend/`, `backend/.env` con una `SECRET_KEY` nueva y propia de GyS Control (no la de PathoLab), `migrate` y `seed_data`. `npm run dev` arranca y responde.
 - **Pruebas:**
   - **Antes de la limpieza (línea base):** 23 de la raíz, 322 del backend, 137 del frontend y 25 de Cypress. Todas pasaban.
   - **Después de cada uno de los tres commits:** 23 de la raíz (`npm test`), 293 del backend (`python manage.py test`), 124 del frontend (`npm test` en `frontend/`) y 25 de Cypress (`npm run e2e`). Todas pasan, y `npm run check` termina sin errores ni avisos.
   - Las 29 del backend y las 13 del frontend que faltan eran del foro.
-- **Forma de trabajar:** la de las reglas de `CLAUDE.md`. Además, **hasta la presentación del 2026-10-16**, `npm run e2e` se corre antes de cada commit de código, aunque la regla 7 no lo exija (lo aprobó el usuario el 2026-10-15). Después de cada commit se hace `git push` de la rama de trabajo (autorizado por el usuario el 2026-10-15 para este repositorio). Unir una rama a `main` requiere preguntar aparte.
+- **Forma de trabajar:** la de las reglas 1 a 8 de `CLAUDE.md`. La regla 8 (rama por tarea, prueba que demuestre el fallo, push después de cada commit y preguntar antes de unir a `main`) se pasó a `CLAUDE.md` el 2026-10-15: en PathoLab estaba en este archivo. Además, **hasta la presentación del 2026-10-16**, `npm run e2e` se corre antes de cada commit de código, aunque la regla 7 no lo exija (lo aprobó el usuario el 2026-10-15).
 
 ## Hecho
 
@@ -32,17 +29,18 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 | 2026-10-15 | Limpieza 1: se quita el foro (backend, frontend, estilos, `seed_data`, Postman). La base local se limpió con `migrate foro zero` antes de borrar la app | `refactor: quitar el foro` |
 | 2026-10-15 | Limpieza 2: nombre GyS Control en pantallas, `/admin/`, PDF (encabezado de demostración), scripts, paquetes, ejemplos y Postman; textos legales neutros "en preparación" | `refactor: nombre GyS Control` |
 | 2026-10-15 | Limpieza 3: documentos de PathoLab a `docs/historial-patholab/`; `README.md`, `CLAUDE.md`, `CHANGELOG.md`, `docs/decisiones.md` y este archivo describen GyS Control | `docs: documentación de GyS Control` |
+| 2026-10-15 | Unión de `limpieza-patholab` a `main` (fast-forward), con Cypress en verde en la rama | `04526df` |
+| 2026-10-15 | Regla 8 en `CLAUDE.md`: la "Forma de trabajar" de PathoLab (rama por tarea, prueba primero, push, preguntar antes de unir) | commit "docs: limpieza unida a main y regla 8" |
 
 ## Siguiente paso
 
-1. **El usuario prueba `npm run e2e:presentacion`** con la rama `limpieza-patholab`.
-2. Si funciona, **se une a `main` hoy, 2026-10-15** (fast-forward, con todas las pruebas en verde), y mañana presenta desde `main`. El usuario ya lo aprobó con esa condición.
-3. **Presentación de las pruebas automáticas y Cypress:** viernes 2026-10-16.
-4. **Después:** planear con el usuario la transformación del dominio por fases (clientes, servicios, inventario de plaguicidas, agenda, certificados en PDF). No se empieza sin su aprobación.
+1. **Presentación de las pruebas automáticas y Cypress:** viernes 2026-10-16, desde `main`.
+2. **Videos de respaldo** (`npm run e2e:video`): el usuario los grabará después del rediseño visual.
+3. **Después:** planear con el usuario la transformación del dominio por fases (clientes, servicios, inventario de plaguicidas, agenda, certificados en PDF). No se empieza sin su aprobación.
 
 Para unir una rama a `main` (fast-forward desde la terminal, sin pull request, porque `gh` no está instalado):
 1. Comprobar que todas las pruebas pasan.
-2. Ejecutar `git switch main`, luego `git merge --ff-only limpieza-patholab` y `git push origin main`.
+2. Ejecutar `git switch main`, luego `git merge --ff-only <rama de trabajo>` y `git push origin main`.
 
 Siempre se pregunta antes al usuario.
 
@@ -75,4 +73,4 @@ Antes de traerlos, ejecutar `python manage.py migrate foro zero` (después ya no
 
 ## Pendiente de respuesta del usuario
 
-- Resultado de `npm run e2e:presentacion` con la rama `limpieza-patholab`, para unirla a `main`.
+- Nada por ahora. La transformación del dominio no se empieza hasta que el usuario lo pida.

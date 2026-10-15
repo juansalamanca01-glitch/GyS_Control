@@ -18,6 +18,11 @@ GyS Control: sistema de gestión para empresas de control de plagas (servicios, 
 7. **Comprobar antes de cada commit.**
    - Antes de cada commit que toque código, ejecutar `npm run check` (desde la raíz) y todas las pruebas: las de la raíz (`npm test`), las del backend (`python manage.py test`) y las del frontend (`npm test` en `frontend/`). Si algo falla, no se hace el commit hasta corregirlo.
    - En los commits que solo cambian documentación no hace falta ejecutar las pruebas.
+8. **Ramas, pruebas primero y push** (heredada de la "Forma de trabajar" de PathoLab).
+   - Cada tarea o fase va en su propia rama, creada desde `main`.
+   - Para corregir un fallo, primero se escribe una prueba que lo demuestre y se muestra que falla. Después se explica el arreglo y se espera la confirmación (regla 1), se aplica y se muestra que la prueba pasa.
+   - Después de cada commit se hace `git push` de la rama de trabajo, como respaldo. El usuario lo autorizó para GyS Control el 2026-10-15.
+   - Unir una rama a `main` (fast-forward, con todas las pruebas en verde) requiere preguntar aparte al usuario.
 
 ## Comandos
 
