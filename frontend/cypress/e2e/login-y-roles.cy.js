@@ -1,6 +1,6 @@
-// Flujo 1: inicio de sesión con cada rol y cierre de sesión.
-// Es el único archivo que entra por la pantalla de login; los demás usan cy.entrarComo(),
-// para no pasar del límite de 10 intentos de login por minuto (O-16).
+// Flujo 1: inicio de sesión con cada rol, estructura de GyS Control y cierre de sesión.
+// Es el único archivo que entra por la pantalla de login; las demás pruebas usan
+// cy.entrarComo(), para no pasar del límite de 10 intentos de login por minuto (O-16).
 import { USUARIOS } from '../support/commands';
 
 function entrarPorPantalla(usuario, contrasena) {
@@ -11,27 +11,28 @@ function entrarPorPantalla(usuario, contrasena) {
 }
 
 const ROLES = [
-  { usuario: 'admin', rol: 'Administrador', escribe: true },
-  { usuario: 'patologo1', rol: 'Patólogo', escribe: true },
-  { usuario: 'auditor1', rol: 'Auditor', escribe: false },
+  { usuario: 'admin', rol: 'Administrador' },
+  { usuario: 'tecnico1', rol: 'Técnico' },
+  { usuario: 'auditor1', rol: 'Auditor' },
 ];
 
+const MODULOS = ['Inicio', 'Clientes', 'Servicios', 'Agenda', 'Inventario', 'Informes', 'Métricas'];
+
 describe('Flujo 1: inicio de sesión con cada rol', () => {
-  ROLES.forEach(({ usuario, rol, escribe }) => {
-    it(`${rol}: entra, ve el menú de su rol y cierra la sesión`, () => {
+  ROLES.forEach(({ usuario, rol }) => {
+    it(`${rol}: entra, ve el Inicio y los módulos, y cierra la sesión`, () => {
       entrarPorPantalla(usuario, USUARIOS[usuario]);
       cy.location('pathname').should('eq', '/');
-      cy.findByRole('heading', { name: /Bienvenido/ });
-      cy.findByText(`Panel de control — ${rol}`);
+      cy.findByRole('heading', { level: 1, name: /^(Buenos días|Buenas tardes|Buenas noches), / });
 
-      // Solo el admin y el patólogo pueden crear informes.
-      cy.findByRole('navigation').within(() => {
-        cy.findByRole('link', { name: 'Buscar' });
-        cy.findByRole('link', { name: 'Nuevo Informe' }).should(escribe ? 'exist' : 'not.exist');
+      // La barra superior muestra el rol; la lateral, los módulos de GyS Control.
+      cy.findByRole('banner').findByText(rol);
+      cy.findByRole('navigation', { name: 'Módulos' }).within(() => {
+        MODULOS.forEach((modulo) => cy.findByRole('link', { name: modulo }));
       });
 
       // "Salir" cierra la sesión: vuelve al login y las páginas protegidas ya no abren.
-      cy.findByRole('navigation').findByRole('button', { name: 'Salir' }).click();
+      cy.findByRole('banner').findByRole('button', { name: 'Salir' }).click();
       cy.location('pathname').should('eq', '/login');
       cy.window().its('localStorage.access_token').should('be.undefined');
       cy.visit('/');
@@ -40,13 +41,13 @@ describe('Flujo 1: inicio de sesión con cada rol', () => {
   });
 
   it('con una contraseña incorrecta muestra un error y no entra', () => {
-    entrarPorPantalla('patologo1', 'contrasena-incorrecta');
+    entrarPorPantalla('tecnico1', 'contrasena-incorrecta');
     cy.findByRole('alert').should('be.visible');
     cy.location('pathname').should('eq', '/login');
   });
 
   it('sin sesión, una página protegida lleva al login', () => {
-    cy.visit('/pacientes');
+    cy.visit('/clientes');
     cy.location('pathname').should('eq', '/login');
   });
 });

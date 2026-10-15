@@ -6,7 +6,9 @@ Plan acordado con el usuario el 2026-10-15. El estado de cada etapa se lleva en 
 
 ---
 
-## Etapa 1. Nueva estructura de la interfaz (2026-10-15)
+## Etapa 1. Nueva estructura de la interfaz (2026-10-15) — hecha
+
+Hecha el 2026-10-15 en la rama `rediseno-visual` (decisión G-3). El frontend borrado está en la etiqueta de git `patholab-frontend`.
 
 **Objetivo:** que en la presentación del 2026-10-16 no se vea nada de PathoLab, ni en las pantallas ni en las pruebas.
 

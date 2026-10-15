@@ -14,7 +14,7 @@ describe('LoginPage', () => {
         <LoginPage />
       </MemoryRouter>,
     );
-    fireEvent.change(screen.getByLabelText('Usuario'), { target: { value: 'patologo1' } });
+    fireEvent.change(screen.getByLabelText('Usuario'), { target: { value: 'tecnico1' } });
     fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'mala' } });
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar Sesión' }));
     // role="alert": los lectores de pantalla lo anuncian (y Cypress lo encuentra por su rol).

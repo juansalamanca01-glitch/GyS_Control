@@ -27,7 +27,7 @@ describe('AuthContext: permisos según el rol', () => {
     localStorage.clear();
   });
 
-  it('el patólogo puede escribir, pero no es admin', () => {
+  it('el técnico puede escribir, pero no es admin', () => {
     renderConRol('patologo');
     expect(screen.getByText('patologo: isAdmin=false canWrite=true')).toBeInTheDocument();
   });

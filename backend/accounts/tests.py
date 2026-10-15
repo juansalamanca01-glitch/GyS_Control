@@ -252,15 +252,15 @@ class RegistroMedicoTests(APITestCase):
         self.assertEqual(respuesta.status_code, status.HTTP_201_CREATED, respuesta.data)
         self.assertEqual(Usuario.objects.get(username='patologo_nuevo').registro_medico, 'RM-PRUEBA-0002')
 
-    def test_seed_data_da_registro_medico_a_patologo1(self):
-        # También si patologo1 ya existía sin registro (bases creadas antes de la etapa 6).
+    def test_seed_data_da_registro_medico_a_tecnico1(self):
+        # También si tecnico1 ya existía sin registro (bases creadas antes de la etapa 6).
         from io import StringIO
 
         from django.core.management import call_command
 
-        Usuario.objects.create_user(username='patologo1', password=self.CLAVE, rol=Usuario.Rol.PATOLOGO)
+        Usuario.objects.create_user(username='tecnico1', password=self.CLAVE, rol=Usuario.Rol.PATOLOGO)
         call_command('seed_data', stdout=StringIO())
-        self.assertEqual(Usuario.objects.get(username='patologo1').registro_medico, 'RM-PRUEBA-0001')
+        self.assertEqual(Usuario.objects.get(username='tecnico1').registro_medico, 'RM-PRUEBA-0001')
 
     def test_seed_data_no_cambia_un_registro_medico_ya_asignado(self):
         from io import StringIO
@@ -268,52 +268,52 @@ class RegistroMedicoTests(APITestCase):
         from django.core.management import call_command
 
         Usuario.objects.create_user(
-            username='patologo1',
+            username='tecnico1',
             password=self.CLAVE,
             rol=Usuario.Rol.PATOLOGO,
             registro_medico='RM-PRUEBA-0777',
         )
         call_command('seed_data', stdout=StringIO())
-        self.assertEqual(Usuario.objects.get(username='patologo1').registro_medico, 'RM-PRUEBA-0777')
+        self.assertEqual(Usuario.objects.get(username='tecnico1').registro_medico, 'RM-PRUEBA-0777')
 
-    # patologo2 sirve para probar que un patólogo no modifica informes de otro (D-2).
+    # tecnico2 sirve para probar que un usuario no modifica informes de otro (D-2).
 
-    def test_seed_data_crea_patologo2_con_su_registro_medico(self):
+    def test_seed_data_crea_tecnico2_con_su_registro_medico(self):
         from io import StringIO
 
         from django.core.management import call_command
 
         call_command('seed_data', stdout=StringIO())
-        patologo2 = Usuario.objects.get(username='patologo2')
-        self.assertEqual(patologo2.rol, Usuario.Rol.PATOLOGO)
-        self.assertEqual(patologo2.registro_medico, 'RM-PRUEBA-0002')
-        self.assertTrue(patologo2.check_password('patologo2345'))
+        tecnico2 = Usuario.objects.get(username='tecnico2')
+        self.assertEqual(tecnico2.rol, Usuario.Rol.PATOLOGO)
+        self.assertEqual(tecnico2.registro_medico, 'RM-PRUEBA-0002')
+        self.assertTrue(tecnico2.check_password('tecnico2345'))
 
-    def test_seed_data_no_duplica_a_patologo2(self):
+    def test_seed_data_no_duplica_a_tecnico2(self):
         from io import StringIO
 
         from django.core.management import call_command
 
         call_command('seed_data', stdout=StringIO())
         call_command('seed_data', stdout=StringIO())
-        self.assertEqual(Usuario.objects.filter(username='patologo2').count(), 1)
+        self.assertEqual(Usuario.objects.filter(username='tecnico2').count(), 1)
 
-    def test_seed_data_no_cambia_a_un_patologo2_que_ya_existia(self):
+    def test_seed_data_no_cambia_a_un_tecnico2_que_ya_existia(self):
         # Como el que se creó a mano para la prueba manual del 2026-10-05.
         from io import StringIO
 
         from django.core.management import call_command
 
         Usuario.objects.create_user(
-            username='patologo2',
+            username='tecnico2',
             password=self.CLAVE,
             rol=Usuario.Rol.PATOLOGO,
             registro_medico='RM-PRUEBA-0888',
         )
         call_command('seed_data', stdout=StringIO())
-        patologo2 = Usuario.objects.get(username='patologo2')
-        self.assertEqual(patologo2.registro_medico, 'RM-PRUEBA-0888')
-        self.assertTrue(patologo2.check_password(self.CLAVE))
+        tecnico2 = Usuario.objects.get(username='tecnico2')
+        self.assertEqual(tecnico2.registro_medico, 'RM-PRUEBA-0888')
+        self.assertTrue(tecnico2.check_password(self.CLAVE))
 
 
 class AdminUsuariosTests(TestCase):

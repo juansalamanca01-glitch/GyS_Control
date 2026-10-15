@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route, Navigate, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Navbar from './components/Navbar';
+import EstructuraApp from './components/EstructuraApp';
 import Footer from './components/Footer';
+import { MODULOS } from './modulos';
 import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import InformePage from './pages/InformePage';
-import BuscarPage from './pages/BuscarPage';
-import PatologiasPage from './pages/PatologiasPage';
-import PacientesPage from './pages/PacientesPage';
-import CatalogosPage from './pages/CatalogosPage';
+import InicioPage from './pages/InicioPage';
+import ProximamentePage from './pages/ProximamentePage';
 import PerfilPage from './pages/PerfilPage';
 import PoliticaPrivacidadPage from './pages/PoliticaPrivacidadPage';
 import TerminosCondicionesPage from './pages/TerminosCondicionesPage';
@@ -24,13 +21,7 @@ function ProtectedRoute({ children }) {
       </div>
     );
   if (!user) return <Navigate to="/login" replace />;
-  return (
-    <>
-      <Navbar />
-      <main className="main-content">{children}</main>
-      <Footer />
-    </>
-  );
+  return <EstructuraApp>{children}</EstructuraApp>;
 }
 
 function PublicRoute({ children }) {
@@ -41,14 +32,14 @@ function PublicRoute({ children }) {
 }
 
 // Las páginas legales son visibles tanto autenticado como sin autenticar.
-// Sin sesión no hay Navbar: se ofrece volver al login y el pie con los enlaces legales.
+// Sin sesión no hay barra lateral: se ofrece volver al login y el pie con los enlaces legales.
 function LegalRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return null;
   if (!user) {
     return (
       <>
-        <main className="main-content">
+        <main className="legal-sin-sesion">
           <p className="legal-volver">
             <Link to="/login">← Volver al inicio de sesión</Link>
           </p>
@@ -58,17 +49,13 @@ function LegalRoute({ children }) {
       </>
     );
   }
-  return (
-    <>
-      <Navbar />
-      <main className="main-content">{children}</main>
-      <Footer />
-    </>
-  );
+  return <EstructuraApp>{children}</EstructuraApp>;
 }
 
-// Router de datos (createBrowserRouter): lo necesita useBlocker, con el que el informe
+// Router de datos (createBrowserRouter): lo necesita useBlocker, con el que una pantalla
 // avisa antes de salir si hay cambios sin guardar (decisión D-13).
+// Las pantallas heredadas de PathoLab (informes de patología, pacientes, patologías y
+// catálogos) se quitaron (decisión G-3); sus rutas viejas llevan al Inicio por la ruta "*".
 const rutas = createRoutesFromElements(
   <>
     <Route
@@ -84,58 +71,21 @@ const rutas = createRoutesFromElements(
       path="/"
       element={
         <ProtectedRoute>
-          <DashboardPage />
+          <InicioPage />
         </ProtectedRoute>
       }
     />
-    <Route
-      path="/informes/nuevo"
-      element={
-        <ProtectedRoute>
-          <InformePage />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/informes/:id"
-      element={
-        <ProtectedRoute>
-          <InformePage />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/buscar"
-      element={
-        <ProtectedRoute>
-          <BuscarPage />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/patologias"
-      element={
-        <ProtectedRoute>
-          <PatologiasPage />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/pacientes"
-      element={
-        <ProtectedRoute>
-          <PacientesPage />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/catalogos"
-      element={
-        <ProtectedRoute>
-          <CatalogosPage />
-        </ProtectedRoute>
-      }
-    />
+    {MODULOS.map((modulo) => (
+      <Route
+        key={modulo.ruta}
+        path={modulo.ruta}
+        element={
+          <ProtectedRoute>
+            <ProximamentePage modulo={modulo} />
+          </ProtectedRoute>
+        }
+      />
+    ))}
     <Route
       path="/perfil"
       element={

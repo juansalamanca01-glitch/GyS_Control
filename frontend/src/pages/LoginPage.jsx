@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
+import Icono from '../components/Icono';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -27,25 +28,25 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      <div className="login-container">
-        <div className="login-header">
-          <div className="login-icon">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
-          </div>
-          <h1>GyS Control</h1>
-          <p>Gestión de servicios de control de plagas</p>
+      <div className="login-marca">
+        <div className="login-logo">
+          <span className="marca-cuadro">
+            <Icono nombre="marca" />
+          </span>
+          <span>GyS Control</span>
         </div>
+        <p className="login-lema">Gestión de servicios de control de plagas</p>
+        <span className="login-raya" aria-hidden="true"></span>
+        <p className="login-texto">
+          Clientes, servicios, agenda de visitas, inventario de plaguicidas e informes en un solo lugar.
+        </p>
+      </div>
 
+      <div className="login-panel">
         <form onSubmit={handleSubmit} className="login-form">
+          <h1>Iniciar sesión</h1>
+          <p className="text-muted">Ingrese con su usuario de GyS Control.</p>
+
           {/* role="alert": los lectores de pantalla anuncian el error al aparecer. */}
           {error && (
             <div className="alert alert-error" role="alert">
@@ -81,14 +82,12 @@ export default function LoginPage() {
           <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
             {loading ? <span className="spinner"></span> : 'Iniciar Sesión'}
           </button>
+          <p className="login-restringido">Acceso restringido a personal autorizado.</p>
         </form>
 
-        <div className="login-footer">
-          <p>Acceso restringido a personal autorizado</p>
-        </div>
+        {/* La política de privacidad y los términos se pueden leer antes de iniciar sesión. */}
+        <Footer />
       </div>
-      {/* La política de privacidad y los términos se pueden leer antes de iniciar sesión. */}
-      <Footer />
     </div>
   );
 }

@@ -58,3 +58,16 @@ Los códigos de hallazgos (`C-x`, `I-x`, `M-x` y `O-x`) que aparecen en el códi
   - Colores, tipografía y medidas son variables CSS en un solo bloque `:root` de `frontend/src/index.css`, para aplicar el diseño final cambiando solo ese bloque.
   - Es **provisional**: base de la identidad, no el diseño final.
 - **Motivo:** quitar todo rastro visual de PathoLab y fijar la identidad que quiere el usuario, sin cambiar textos ni estructura de las pantallas (las pruebas de Vitest y Cypress no cambian).
+
+### G-3. La interfaz de GyS Control oculta lo heredado de PathoLab
+
+- **Fecha:** 2026-10-15
+- **Decisión:**
+  - En la interfaz no se ve nada de PathoLab ni de patología. Se quitan del frontend las pantallas de informes de patología, pacientes, patologías y catálogos, sus componentes y sus pruebas (de Vitest y de Cypress). El frontend borrado queda en la etiqueta de git `patholab-frontend`.
+  - El **backend no se borra**: modelos, API y sus pruebas siguen en el código, inactivos en la interfaz, hasta la transformación del dominio (etapa 3 de `docs/plan-interfaz.md`). Ahí se transforman o se eliminan.
+  - La interfaz nueva tiene una barra lateral con Inicio, Clientes, Servicios, Agenda, Inventario, Informes y Métricas, una barra superior con el título, el usuario, su rol y "Salir", y páginas "Próximamente" para los módulos que todavía no existen. Los indicadores del Inicio no muestran cifras hasta que haya datos reales.
+  - El rol interno `patologo` se muestra como **"Técnico"**; el valor no cambia en el backend. "Auditor" se queda igual por ahora y se define en la fase de dominio.
+  - Los usuarios de prueba `patologo1` y `patologo2` se reemplazan en `seed_data` por `tecnico1` y `tecnico2` (rol interno `patologo`), con nombres ficticios sin títulos médicos ni especialidades de patología, y los correos de todos pasan a `@gyscontrol.local`.
+  - El perfil ya no muestra el registro médico ni su aviso.
+- **Motivo:** en la presentación del 2026-10-16 no debe verse nada de PathoLab, ni en las pantallas ni en las pruebas. Borrar el backend antes de entrevistar al técnico obligaría a rehacer partes que quizá se reutilicen (firma, PDF, documentos inmutables).
+

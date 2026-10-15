@@ -8,7 +8,7 @@
 
 **GyS Control** es un sistema web de gestión para empresas de control de plagas: servicios, informes y certificados en PDF, inventario de plaguicidas y agenda.
 
-> **Estado actual (2026-10-15).** GyS Control nace de la base de **PathoLab**, un sistema de informes de anatomía patológica del mismo autor. De PathoLab conserva la plataforma completa: usuarios, roles, login, seguridad, informes con PDF, firma y adendas, pacientes, catálogos y toda la infraestructura de pruebas (Django, Vitest y Cypress). El dominio de control de plagas (clientes, servicios, inventario y agenda) se construirá **por fases** sobre esa base. Mientras tanto, los módulos funcionales son los heredados, descritos abajo. La historia de PathoLab está en [`docs/historial-patholab/`](docs/historial-patholab/).
+> **Estado actual (2026-10-15).** GyS Control nace de la base de **PathoLab**, un sistema de informes de anatomía patológica del mismo autor. De PathoLab conserva la plataforma: usuarios, roles, login, seguridad e infraestructura de pruebas (Django, Vitest y Cypress). **La interfaz ya es la de GyS Control** (decisión G-3): barra lateral con los módulos Inicio, Clientes, Servicios, Agenda, Inventario, Informes y Métricas, que por ahora muestran "Próximamente". Las pantallas de patología se quitaron del frontend; su backend (modelos, API y pruebas) sigue en el código, **inactivo**, hasta la transformación del dominio. El plan está en [`docs/plan-interfaz.md`](docs/plan-interfaz.md). La historia de PathoLab está en [`docs/historial-patholab/`](docs/historial-patholab/).
 
 ---
 
@@ -33,9 +33,17 @@
 
 ## Características
 
+### Interfaz de GyS Control (etapa 1 del plan)
+
+- **Barra lateral** en carbón con la marca y los módulos; el activo, en carmín. En el celular se abre con un botón de menú.
+- **Barra superior** con el título de la sección, el usuario, su rol y "Salir".
+- **Inicio**: saludo, indicadores de control de plagas marcados "Próximamente" (sin cifras) y accesos rápidos.
+- **Módulos** Clientes, Servicios, Agenda, Inventario, Informes y Métricas: por ahora, una página "Próximamente" que explica qué hará cada uno.
+- **Identidad visual provisional** (G-2): rojo carmín, carbón y blanco, IBM Plex Sans, bordes rectos y sin sombras.
+
 ### Plataforma (se mantiene en GyS Control)
 
-- **Usuarios y roles**: administrador, patólogo y auditor, con permisos aplicados en el backend. Los nombres de los roles cambiarán con el dominio nuevo.
+- **Usuarios y roles**: administrador, técnico y auditor, con permisos aplicados en el backend. En el código, el rol del técnico sigue llamándose `patologo` hasta la transformación del dominio.
 - **Inicio de sesión con JWT**: renovación automática del token, cierre de sesión real (lista negra de tokens) y límites de intentos.
 - **Perfil de usuario**: edición de datos personales y cambio de contraseña (con los validadores de Django).
 - **Documentos firmados e inmutables**: un informe se guarda como borrador, se finaliza con la firma de su autor y desde ese momento no se modifica; se corrige con adendas firmadas. Al finalizar se congelan los datos que imprime.
@@ -43,17 +51,22 @@
 - **No perder lo escrito**: aviso al salir con cambios sin guardar y autoguardado de los borradores existentes.
 - **Catálogos administrables** que se desactivan en lugar de borrarse, y **búsqueda paginada** con filtros.
 
-### Módulos heredados de PathoLab (se transformarán)
+### Backend heredado de PathoLab (inactivo; se transformará)
+
+Sus modelos, su API y sus pruebas siguen en el código, pero el frontend ya no lo usa (G-3). Las pantallas que lo manejaban están en la etiqueta de git `patholab-frontend`.
+
 
 - **Informes de anatomía patológica**: 14 patologías con formularios dinámicos, descripción macroscópica redactada automáticamente, número de petición `P-AÑO-NNNNN`, datos de la solicitud, descripción microscópica, diagnósticos con código CIE-10 y comentarios.
 - **Pacientes**: documento, nombres, fecha de nacimiento, sexo y EPS, con la edad calculada y el historial de informes. Solo datos ficticios.
-- **Catálogos de EPS y servicios** (pantalla Catálogos).
+- **Catálogos de EPS y servicios**.
 
 ---
 
 ## Roles y Permisos
 
-| Acción | Administrador | Patólogo | Auditor |
+Hoy los tres roles ven las mismas pantallas, porque los módulos todavía no existen. Las reglas de abajo son las del **backend heredado**, que sigue activo en la API (en la tabla, "Técnico" es el rol interno `patologo`):
+
+| Acción | Administrador | Técnico | Auditor |
 |---|:---:|:---:|:---:|
 | Ver informes, buscar y descargar el PDF de un informe finalizado | Sí | Sí | Sí |
 | Descargar la vista previa en PDF de un borrador | Sí (cualquiera) | Solo los suyos | No |
@@ -119,13 +132,14 @@ GyS Control/
 │   ├── requirements-dev.txt   # Las de producción más Ruff
 │   └── .env.example           # Plantilla del .env (SECRET_KEY obligatoria)
 ├── frontend/
-│   ├── src/                   # api/, context/, components/ (e informe/), hooks/, pages/, utils/, App.jsx, index.css
-│   ├── cypress/e2e/           # Pruebas de Cypress: 6 flujos críticos
+│   ├── src/                   # api/, context/, components/ (estructura), pages/, utils/, modulos.js, App.jsx, index.css
+│   ├── cypress/e2e/           # Pruebas de Cypress (login y roles; las nuevas, en la etapa 2 del plan)
 │   ├── cypress.config.js
 │   ├── vite.config.js         # Proxy /api → backend y configuración de Vitest
 │   └── .env.example           # Plantilla del .env (VITE_API_URL)
 ├── docs/
 │   ├── decisiones.md          # Decisiones vigentes (heredadas y de GyS Control)
+│   ├── plan-interfaz.md       # Plan de la interfaz y de las fases siguientes
 │   ├── progreso.md            # Estado del trabajo, pendientes y siguiente paso
 │   └── historial-patholab/    # Documentos de PathoLab: auditorías, decisiones, propuesta del informe v2, plan y registro de cambios
 ├── scripts/                   # "npm run dev", "npm run check" y "npm run e2e"
@@ -238,11 +252,11 @@ npm run dev
 | Usuario | Contraseña | Rol |
 |---|---|---|
 | `admin` | `admin1234` | **Administrador** (también entra en `/admin/`) |
-| `patologo1` | `patologo1234` | **Patólogo** (registro médico ficticio `RM-PRUEBA-0001`) |
-| `patologo2` | `patologo2345` | **Patólogo** (`RM-PRUEBA-0002`), para probar que un patólogo no modifica los informes de otro (D-2) |
-| `auditor1` | `auditor1234` | **Auditor** |
+| `tecnico1` | `tecnico1234` | **Técnico** ("Técnico Ficticio Uno"; registro ficticio `RM-PRUEBA-0001` para la API heredada) |
+| `tecnico2` | `tecnico2345` | **Técnico** ("Técnica Ficticia Dos", `RM-PRUEBA-0002`), para probar que un usuario no modifica los informes de otro (D-2) |
+| `auditor1` | `auditor1234` | **Auditor** ("Auditora Ficticia Uno") |
 
-Los pacientes de `seed_data` son **ficticios** ("Paciente Ficticio Uno", documento `PRUEBA0001`, y "Prueba Apellido Dos", `PRUEBA0002`). Nunca se usan datos de personas reales.
+Los correos son `@gyscontrol.local`. En el código, el rol de los técnicos es `patologo` hasta la transformación del dominio (G-3). `seed_data` también carga los datos del backend heredado (patologías, servicios, EPS y dos pacientes **ficticios**), que la interfaz ya no muestra. Nunca se usan datos de personas reales.
 
 > **Importante:** son contraseñas de **demostración**. La API rechaza contraseñas así de débiles al registrar un usuario o cambiar una contraseña.
 
@@ -255,15 +269,15 @@ Los pacientes de `seed_data` son **ficticios** ("Paciente Ficticio Uno", documen
 python manage.py test                     # 293 pruebas
 
 # Frontend (desde frontend/)
-npm test                                  # 124 pruebas
+npm test                                  # 34 pruebas
 npm run test:watch                        # se repiten al guardar cambios
 
 # Comprobaciones de los scripts (desde la raíz)
 npm test                                  # 23 pruebas
 
 # Pruebas de punta a punta con Cypress (desde la raíz)
-npm run e2e                               # 25 pruebas, sin interfaz
-npm run e2e -- --spec cypress/e2e/permisos.cy.js   # un solo archivo
+npm run e2e                               # 5 pruebas, sin interfaz
+npm run e2e -- --spec cypress/e2e/login-y-roles.cy.js   # un solo archivo
 npm run e2e:abrir                         # con la interfaz de Cypress, en Chrome
 npm run e2e:presentacion                  # igual, con una pausa de 500 ms después de cada acción
 npm run e2e:presentacion -- --pausa=1000  # con otra pausa (máximo 3000 ms)
@@ -271,14 +285,9 @@ npm run e2e:video                         # graba un video por archivo en fronte
 ```
 
 - **Backend:** permisos por rol y por autor, número de petición (incluida la creación simultánea), pacientes, datos de la solicitud, diagnósticos y CIE-10, finalización, datos congelados, adendas, PDF, catálogos, paginación, filtros, límites del login, registros de seguridad y configuración segura.
-- **Frontend:** formulario del informe y sus partes, pacientes, catálogos, listados, perfil, exportación a PDF, aviso de cambios sin guardar y autoguardado, cierre de sesión y dirección de la API.
-- **Cypress:** manejan la aplicación real en un navegador (6 flujos críticos y 25 pruebas):
-  1. inicio de sesión con cada rol y "Salir";
-  2. crear y finalizar un informe con su PDF;
-  3. agregar una adenda;
-  4. el auditor no puede crear informes, ni en la pantalla ni por la API;
-  5. el aviso de cambios sin guardar (D-13);
-  6. los permisos D-2 y D-3.
+- **Backend heredado:** las pruebas del backend siguen cubriéndolo aunque la interfaz ya no lo use (G-3).
+- **Frontend:** barra lateral y barra superior (módulos, rol, menú del celular y "Salir"), Inicio, páginas "Próximamente", login, perfil, páginas legales, cierre de sesión, sesión y permisos (`AuthContext`) y dirección de la API.
+- **Cypress:** maneja la aplicación real en un navegador. Hoy tiene 5 pruebas: inicio de sesión con cada rol y "Salir", contraseña incorrecta y página protegida sin sesión. Las pruebas de las pantallas de patología se quitaron con G-3 (siguen en el historial de git); las nuevas de GyS Control son la etapa 2 del plan.
 
   Buscan los elementos por rol, etiqueta o texto (`cy.findByRole`, `cy.findByLabelText`, `cy.findByText`), nunca por clases CSS. `npm run e2e` crea desde cero una base aparte (`backend/e2e_db.sqlite3`) y usa los puertos 8001 y 5174, así que no toca la base de desarrollo ni choca con `npm run dev` (D-17). Al terminar, en Windows es normal ver `exited with code 1` de los dos servidores: es el apagado.
 
@@ -346,7 +355,7 @@ Todas las rutas exigen la cabecera `Authorization: Bearer <token>`, excepto el l
 | Método | Endpoint | Descripción | Acceso |
 |---|---|---|---|
 | GET | `/api/informes/` | Listar informes. Filtros: `q`, `fecha_desde`, `fecha_hasta`, `estado`, `patologia`, `paciente`. Un valor no válido → 400 | Todos |
-| POST | `/api/informes/` | Crear un informe (`paciente` obligatorio). El backend asigna `numero_peticion` y redacta la macroscópica | Patólogo / Admin |
+| POST | `/api/informes/` | Crear un informe (`paciente` obligatorio). El backend asigna `numero_peticion` y redacta la macroscópica | Técnico / Admin |
 | GET | `/api/informes/estadisticas/` | Totales `{total, borradores, finalizados}` | Todos |
 | GET | `/api/informes/{id}/` | Ver un informe completo, con diagnósticos y adendas | Todos |
 | PUT / PATCH | `/api/informes/{id}/` | Editar un borrador (finalizado → 400) | Autor / Admin |
@@ -380,6 +389,7 @@ Para publicar la app en un servidor: `SECRET_KEY` propia, `DEBUG=False`, `ALLOWE
 |---|---|
 | [`CHANGELOG.md`](CHANGELOG.md) | Registro de cada cambio de GyS Control: fecha, qué se cambió y por qué |
 | [`docs/decisiones.md`](docs/decisiones.md) | Decisiones vigentes: las heredadas de PathoLab (D-1 a D-17) y las de GyS Control (G-x) |
+| [`docs/plan-interfaz.md`](docs/plan-interfaz.md) | Plan por etapas: interfaz, pruebas de Cypress, dominio, métricas, IA y pendientes de seguridad |
 | [`docs/progreso.md`](docs/progreso.md) | Estado del trabajo, pendientes y siguiente paso |
 | [`docs/historial-patholab/`](docs/historial-patholab/) | Documentos de PathoLab: auditorías, decisiones completas, propuesta del informe v2, plan de calidad, progreso y registro de cambios |
 
@@ -387,14 +397,20 @@ Para publicar la app en un servidor: `SECRET_KEY` propia, `DEBUG=False`, `ALLOWE
 
 ## Hoja de Ruta
 
-La transformación del dominio se planeará por fases. Ninguna está empezada:
+El plan por etapas está en [`docs/plan-interfaz.md`](docs/plan-interfaz.md):
+
+- [x] **Etapa 1. Interfaz de GyS Control** (2026-10-15): estructura nueva y pantallas de patología ocultas (G-3).
+- [ ] **Etapa 2. Pruebas de Cypress** solo de GyS Control (2026-10-16).
+- [ ] **Etapa 3. Dominio**, después de entrevistar al técnico. Incluye los módulos de abajo:
 
 - [ ] **Clientes**: empresas y personas que contratan el servicio, con sus sedes.
 - [ ] **Servicios de control de plagas**: programación, ejecución, informe del servicio y **certificado en PDF**, sobre la base de firma, adendas y documentos inmutables que ya existe.
 - [ ] **Inventario de plaguicidas**: productos, lotes, existencias y consumo por servicio.
 - [ ] **Agenda**: calendario de servicios por técnico.
 - [ ] **Adaptar lo heredado**: roles, catálogos, encabezado del PDF (`LABORATORIO_*` → datos de la empresa) y textos legales definitivos (Ley 1581 de 2012), y retirar lo propio de la patología cuando ya no se use.
-- [ ] **Pendientes de seguridad heredados**: grupos 4, 6 (D-16) y 7 de la auditoría OWASP y lo necesario para producción.
+- [ ] **Etapa 4. Panel de métricas y KPI** con datos reales.
+- [ ] **Etapa 5. Inteligencia artificial y ciencia de datos.**
+- [ ] **Pendientes de seguridad heredados**: grupos 4, 6 (D-16), 7 y 8 de la auditoría OWASP.
 - [ ] **Contenedores Docker**: `Dockerfile` y `docker-compose.yml` para desplegar en un solo paso.
 
 ---

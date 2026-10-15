@@ -1,6 +1,6 @@
 """
 Comando para cargar datos iniciales: usuarios de prueba (uno por rol y un segundo
-patólogo), 14 patologías con sus plantillas, los catálogos de servicios y EPS y 2 pacientes ficticios.
+técnico), 14 patologías con sus plantillas, los catálogos de servicios y EPS y 2 pacientes ficticios.
 Uso: python manage.py seed_data (se puede ejecutar varias veces sin duplicar datos).
 """
 
@@ -23,51 +23,51 @@ class Command(BaseCommand):
         if not Usuario.objects.filter(username='admin').exists():
             Usuario.objects.create_superuser(
                 username='admin',
-                email='admin@patologia.local',
+                email='admin@gyscontrol.local',
                 password='admin1234',
                 nombre_completo='Administrador del Sistema',
                 rol='admin',
             )
             self.stdout.write(self.style.SUCCESS('[OK] Superusuario "admin" creado (pass: admin1234)'))
 
-        # ── Patólogo de prueba ────────────────────
-        if not Usuario.objects.filter(username='patologo1').exists():
+        # ── Técnico de prueba ────────────────────
+        # En la interfaz el rol se llama "Técnico"; el valor interno sigue siendo 'patologo'
+        # hasta la transformación del dominio (G-3).
+        if not Usuario.objects.filter(username='tecnico1').exists():
             Usuario.objects.create_user(
-                username='patologo1',
-                email='patologo@patologia.local',
-                password='patologo1234',
-                nombre_completo='Dr. Carlos Méndez',
+                username='tecnico1',
+                email='tecnico1@gyscontrol.local',
+                password='tecnico1234',
+                nombre_completo='Técnico Ficticio Uno',
                 rol='patologo',
-                especialidad='Patología Quirúrgica',
                 registro_medico='RM-PRUEBA-0001',
             )
-            self.stdout.write(self.style.SUCCESS('[OK] Patologo "patologo1" creado (pass: patologo1234)'))
-        # Registro médico ficticio para poder finalizar informes (D-8). También se asigna si
-        # patologo1 ya existía sin registro (bases creadas antes de la etapa 6); no se cambia uno ya asignado.
-        elif Usuario.objects.filter(username='patologo1', registro_medico='').update(registro_medico='RM-PRUEBA-0001'):
-            self.stdout.write(self.style.SUCCESS('[OK] Registro medico RM-PRUEBA-0001 asignado a "patologo1"'))
+            self.stdout.write(self.style.SUCCESS('[OK] Tecnico "tecnico1" creado (pass: tecnico1234)'))
+        # Registro ficticio para poder finalizar informes en la API heredada (D-8). También se asigna
+        # si tecnico1 ya existía sin registro; no se cambia uno ya asignado.
+        elif Usuario.objects.filter(username='tecnico1', registro_medico='').update(registro_medico='RM-PRUEBA-0001'):
+            self.stdout.write(self.style.SUCCESS('[OK] Registro RM-PRUEBA-0001 asignado a "tecnico1"'))
 
-        # ── Segundo patólogo: para probar que un patólogo no modifica informes de otro (D-2) ──
+        # ── Segundo técnico: para probar que un usuario no modifica informes de otro (D-2) ──
         # Si ya existe (por ejemplo, creado a mano), no se toca.
-        if not Usuario.objects.filter(username='patologo2').exists():
+        if not Usuario.objects.filter(username='tecnico2').exists():
             Usuario.objects.create_user(
-                username='patologo2',
-                email='patologo2@patologia.local',
-                password='patologo2345',
-                nombre_completo='Dra. Ana Ficticia',
+                username='tecnico2',
+                email='tecnico2@gyscontrol.local',
+                password='tecnico2345',
+                nombre_completo='Técnica Ficticia Dos',
                 rol='patologo',
-                especialidad='Patología Quirúrgica',
                 registro_medico='RM-PRUEBA-0002',
             )
-            self.stdout.write(self.style.SUCCESS('[OK] Patologo "patologo2" creado (pass: patologo2345)'))
+            self.stdout.write(self.style.SUCCESS('[OK] Tecnico "tecnico2" creado (pass: tecnico2345)'))
 
         # ── Auditor de prueba ──────────────────────────────
         if not Usuario.objects.filter(username='auditor1').exists():
             Usuario.objects.create_user(
                 username='auditor1',
-                email='auditor@patologia.local',
+                email='auditor1@gyscontrol.local',
                 password='auditor1234',
-                nombre_completo='Lic. María García',
+                nombre_completo='Auditora Ficticia Uno',
                 rol='auditor',
             )
             self.stdout.write(self.style.SUCCESS('[OK] Auditor "auditor1" creado (pass: auditor1234)'))

@@ -6,6 +6,33 @@ Todos los cambios de código de GyS Control se documentan aquí, del más recien
 
 ## 2026-10-15
 
+### Etapa 1 del plan de la interfaz: estructura de GyS Control y lo heredado oculto (decisión G-3)
+
+**Qué se cambió:**
+- **Frontend borrado** (queda en la etiqueta de git `patholab-frontend`, creada antes de borrarlo):
+  - páginas `DashboardPage`, `InformePage`, `BuscarPage`, `PacientesPage`, `PatologiasPage` y `CatalogosPage`;
+  - componentes `Navbar`, `EstadoBadge`, `CeldaPaciente`, `FormularioPaciente` y `components/informe/*`;
+  - `hooks/useOpciones.js`, `utils/formularios.js` y `ESTADOS_INFORME` de `constants.js`.
+- **Estructura nueva:**
+  - `src/modulos.js`: módulos, indicadores y títulos de cada ruta.
+  - `components/EstructuraApp.jsx`, `BarraLateral.jsx`, `BarraSuperior.jsx` e `Icono.jsx`: barra lateral carbón con el activo en carmín (botón de menú en el celular), barra superior con título, usuario, rol y "Salir" (sigue pasando por `/salir`, D-13).
+  - `pages/InicioPage.jsx` (saludo según la hora de Bogotá con `utils/saludo.js`, indicadores "Próximamente" sin cifras y accesos rápidos) y `pages/ProximamentePage.jsx` (una por módulo).
+  - `LoginPage.jsx` rediseñado en dos paneles; mismas etiquetas y botón.
+  - `App.jsx`: rutas de los módulos; las rutas viejas llevan al Inicio.
+  - `index.css`: estilos de la estructura nueva; se quitan los de las pantallas borradas. Los valores siguen en el bloque `:root` (G-2).
+  - `index.html`: el favicon pasa del ícono de pulso heredado a la marca.
+- **Textos:** "Patólogo" pasa a "Técnico" en `ROL_LABELS` (el valor interno `patologo` no cambia), y el perfil ya no muestra el registro médico ni su aviso.
+- **`seed_data`** (`backend/informes/management/commands/seed_data.py`): `tecnico1/tecnico1234` y `tecnico2/tecnico2345` reemplazan a `patologo1` y `patologo2`, con nombres ficticios ("Técnico Ficticio Uno", "Técnica Ficticia Dos", "Auditora Ficticia Uno") y correos `@gyscontrol.local`. El rol interno sigue siendo `patologo`.
+- **Pruebas:**
+  - **Backend:** las 5 de `seed_data` de `RegistroMedicoTests` en `backend/accounts/tests.py` usan los nombres nuevos. Ninguna más cambia: 293, todas en verde.
+  - **Vitest:** se quitan 11 archivos (102 pruebas) de las pantallas borradas y 3 pruebas del registro médico de `PerfilPage.test.jsx`. `Navbar.test.jsx` pasa a `EstructuraApp.test.jsx`, y hay pruebas nuevas del Inicio, de "Próximamente" y del saludo. Quedan 34, todas en verde.
+  - **Cypress:** se quitan `informe-completo`, `adendas`, `auditor`, `cambios-sin-guardar` y `permisos` (20 pruebas) y `cy.crearInforme`. `login-y-roles.cy.js` se ajusta a la estructura nueva: 5, todas en verde.
+  - Raíz: 23. `npm run check` sin errores ni avisos.
+- **Postman, README, CLAUDE.md** y la decisión G-3 en `docs/decisiones.md`.
+- **Base local** recreada desde cero (`migrate` y `seed_data`) para quitar los usuarios viejos.
+
+**Por qué:** en la presentación del 2026-10-16 no debe verse nada de PathoLab (G-3, etapa 1 de `docs/plan-interfaz.md`). El backend heredado se conserva hasta la transformación del dominio.
+
 ### Rediseño visual provisional (decisión G-2)
 
 **Qué se cambió:**
