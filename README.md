@@ -382,6 +382,30 @@ La colección [`GyS_Control_API.postman_collection.json`](GyS_Control_API.postma
 - **Integridad:** un documento finalizado no se modifica por ninguna vía y conserva los datos congelados (D-10, D-14, D-15).
 - **Errores y registros:** un filtro no válido responde 400, no 500. Los errores 500 y los inicios de sesión (usuario e IP) se registran en la consola, nunca contraseñas, tokens ni datos personales (`LOG_LEVEL`).
 
+### Demostración de CORS en el navegador (Programación Web II)
+
+Con `npm run dev` el proxy de Vite hace que todo sea un solo origen, así que para ver CORS el frontend debe llamar directo al backend:
+
+1. En `backend/.env`, deja `CORS_ALLOWED_ORIGINS=http://localhost:5173` (sin `127.0.0.1:5173`) y reinicia el backend: `runserver` no recarga solo cuando cambia el `.env`.
+2. En `frontend/.env`, pon `VITE_API_URL=http://localhost:8000`.
+3. Arranca el backend (`python manage.py runserver`) y, desde `frontend/`, el frontend con `npx vite --host`, que responde en `localhost:5173` y en `127.0.0.1:5173`.
+   > **Advertencia:** `npx vite --host` expone el frontend a los demás equipos de la red local. Úsalo solo durante la demostración y apágalo (Ctrl + C) al terminar.
+4. En F12 → Red, marca "Disable cache" y filtra por Fetch/XHR. Sin "Disable cache", el navegador recuerda el preflight 10 minutos (`Access-Control-Max-Age: 600`) y en el segundo intento no se ve el `OPTIONS`.
+
+| Caso | Qué se ve |
+|---|---|
+| `http://localhost:5173` (permitido): iniciar sesión | `OPTIONS /api/auth/login/` con 200 y `Access-Control-Allow-Origin: http://localhost:5173`, `Allow-Headers` (con `authorization` y `content-type`), `Allow-Methods`, `Max-Age: 600` y `Vary: Origin`; después el `POST` con 200. Consola limpia |
+| `http://127.0.0.1:5173` (mismo servidor, otro origen) | Consola: "…has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present…". Red: el `OPTIONS` responde sin `Access-Control-Allow-Origin` y el `POST` sale como "CORS error" |
+| `http://localhost:5175` (otro puerto: `npx vite --port 5175`) | El mismo bloqueo: cambiar el puerto también cambia el origen |
+
+Sin navegador (PowerShell):
+```powershell
+curl.exe -i -H "Origin: http://localhost:5173" http://localhost:8000/api/opciones/   # con Access-Control-Allow-Origin
+curl.exe -i -H "Origin: http://localhost:5175" http://localhost:8000/api/opciones/   # sin cabeceras Access-Control-*
+curl.exe -i -X OPTIONS -H "Origin: http://localhost:5173" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: authorization, content-type" http://localhost:8000/api/auth/login/
+```
+curl recibe la respuesta en todos los casos: **CORS lo aplica el navegador**, no protege la API (eso lo hacen el JWT y los permisos). Al terminar, deja `VITE_API_URL=` vacía en `frontend/.env`.
+
 Para publicar la app en un servidor: `SECRET_KEY` propia, `DEBUG=False`, `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS` con la URL HTTPS real del frontend, `NUM_PROXIES`, PostgreSQL, un límite de tamaño de petición en el servidor web y servir `media/`. Las auditorías heredadas ([inicial](docs/historial-patholab/auditoria-inicial.md) y [OWASP Top 10:2025](docs/historial-patholab/auditoria-owasp.md)) listan lo protegido y lo pendiente.
 
 ---

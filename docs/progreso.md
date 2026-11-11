@@ -13,7 +13,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** GyS Control. Desde el 2026-11-11 (decisión G-4), el alcance académico es el **"Sistema de información para la gestión y seguimiento de visitas técnicas en una microempresa de control de plagas de Santiago de Cali"**, trabajo de grado de Juan Salamanca en coautoría con María José Pozo. El inventario de plaguicidas, un calendario completo con recordatorios y los demás módulos de un ERP quedan como trabajo futuro. Carpeta `C:\Users\salam\Desktop\GyS Control`, repositorio `github.com/juansalamanca01-glitch/GyS_Control`.
 - **Origen:** nace de la base de PathoLab (decisión G-1). **La interfaz ya es la de GyS Control** (G-3): barra lateral, Inicio y páginas "Próximamente" para los módulos. El backend heredado (informes de patología, pacientes, PDF, firma y adendas) sigue en el código, inactivo en la interfaz. El dominio de visitas técnicas aún no existe. La barra lateral todavía muestra "Inventario", que se quitará en una tarea de código aparte (G-4).
-- **Rama de trabajo:** `cors` (tarea 1 de Programación Web II: CORS con lista blanca, G-5), con commit y push; **falta que el usuario autorice unirla a `main`**. Después viene la tarea 2 (OpenAPI y Swagger UI) en otra rama desde `main`. `docs-recorte-alcance` (solo documentación: G-4 y el alcance recortado) se unió a `main` por fast-forward el 2026-11-11, con autorización del usuario. Antes, `rediseno-visual` (G-2, plan de la interfaz y etapa 1, G-3) se unió a `main` por fast-forward el 2026-10-15. Las ramas siguen en GitHub.
+- **Rama de trabajo:** ninguna abierta. `cors` (tarea 1 de Programación Web II: CORS con lista blanca, G-5) se unió a `main` por fast-forward el 2026-11-11, con autorización del usuario, después de verificar el servidor real con curl. Después viene la tarea 2 (OpenAPI y Swagger UI) en otra rama desde `main`. `docs-recorte-alcance` (solo documentación: G-4 y el alcance recortado) se unió a `main` por fast-forward el 2026-11-11, con autorización del usuario. Antes, `rediseno-visual` (G-2, plan de la interfaz y etapa 1, G-3) se unió a `main` por fast-forward el 2026-10-15. Las ramas siguen en GitHub.
 - **Plan vigente:** [`plan-interfaz.md`](plan-interfaz.md) (2026-10-15, ajustado al alcance de G-4 el 2026-11-11). Etapas: 1) estructura nueva de la interfaz y ocultar lo heredado (G-3), hecha; 2) Cypress solo de GyS Control, **en pausa** hasta que existan las pantallas de visitas técnicas; 3) dominio de visitas técnicas; 4) indicadores del seguimiento de las visitas; 5) IA y ciencia de datos; además, los grupos 4, 6, 7 y 8 de OWASP.
 - **Rama anterior:** la limpieza (`limpieza-patholab`: quitar el foro, nombre GyS Control y documentación) se unió a `main` por fast-forward el 2026-10-15, después de que el usuario confirmara que Cypress pasaba en la rama. La rama sigue en GitHub.
 - **Entorno local** (preparado el 2026-10-15 en este clon): venv del backend con `requirements-dev.txt`, `npm install` en la raíz y en `frontend/`, `backend/.env` con una `SECRET_KEY` nueva y propia de GyS Control (no la de PathoLab), `migrate` y `seed_data`. `npm run dev` arranca y responde.
@@ -31,7 +31,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 | Fecha | Qué se hizo | Commit |
 |---|---|---|
-| 2026-11-11 | CORS con lista blanca (G-5), tarea 1 de Programación Web II: `CORS_ALLOWED_ORIGINS` de `backend/.env` también en desarrollo, sin `CORS_ALLOW_ALL_ORIGINS`, sin credenciales, solo `/api/` y preflight de 600 s. Rama `cors` | commit "feat: CORS con lista blanca (G-5)" |
+| 2026-11-11 | CORS con lista blanca (G-5), tarea 1 de Programación Web II: `CORS_ALLOWED_ORIGINS` de `backend/.env` también en desarrollo, sin `CORS_ALLOW_ALL_ORIGINS`, sin credenciales, solo `/api/` y preflight de 600 s. Verificado con curl contra `runserver` (permitido, no permitido, preflight y `/admin/`); guía de la demostración en el README. Rama `cors`, unida a `main` (fast-forward) | commits "feat: CORS con lista blanca (G-5)" y "docs: guía de la demostración de CORS" |
 | 2026-11-11 | Recorte del alcance académico (G-4): gestión y seguimiento de visitas técnicas; inventario y calendario completo como trabajo futuro; etapa 2 en pausa. `decisiones.md`, `plan-interfaz.md`, `README.md`, `CLAUDE.md` y este archivo. Rama `docs-recorte-alcance`, unida a `main` (fast-forward) | commit "docs: recorte del alcance (G-4)" |
 | 2026-10-16 | Presentación de las pruebas automáticas y Cypress: se hizo y salió bien | — |
 | 2026-10-15 | Entorno del clon preparado y línea base de pruebas en verde (ver "Pruebas") | — |
@@ -47,7 +47,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 ## Siguiente paso
 
-1. **Programación Web II:** unir `cors` a `main` (con permiso del usuario) y, en una rama nueva desde `main`, la tarea 2: OpenAPI con drf-spectacular y Swagger UI (`/api/schema/`, `/api/docs/`), pública con `DEBUG=True` y solo para administradores con `DEBUG=False`. Antes de programarla se muestra el plan detallado y se espera la aprobación.
+1. **Programación Web II:** en una rama nueva desde `main`, la tarea 2: OpenAPI con drf-spectacular y Swagger UI (`/api/schema/`, `/api/docs/`), pública con `DEBUG=True` y solo para administradores con `DEBUG=False`. Antes de programarla se muestra el plan detallado y se espera la aprobación.
 2. **Plan del dominio de visitas técnicas**, basado en el resumen del trabajo de grado (`docs/trabajo-de-grado/resumen.md`: título, objetivos, alcance y requisitos), que agregará el usuario. Se planea con el usuario y no se programa nada sin su aprobación.
 3. **Quitar "Inventario" de la interfaz** (o marcarlo como trabajo futuro) y ajustar los textos que lo mencionan: `frontend/src/modulos.js` (módulo, indicador "Productos por vencer" y descripción de Métricas) y `LoginPage.jsx`. Es código: va en su propia rama y cambia las pruebas que cuentan los módulos (`EstructuraApp.test.jsx`, `InicioPage.test.jsx` y `login-y-roles.cy.js`).
 4. **Retomar la etapa 2 (Cypress)** cuando existan las pantallas de visitas técnicas.
@@ -87,6 +87,10 @@ Las fases 5 a 8 del plan de PathoLab (guía de diseño y rediseño) se replantea
 ### 3. Si alguien trae estos cambios a una base que tenía el foro
 
 Antes de traerlos, ejecutar `python manage.py migrate foro zero` (después ya no se puede, porque la app no existe) y borrar `backend/media/foro/`.
+
+## Pendiente de hacer
+
+- Ensayar la demostración de CORS en el navegador (guía en el README) antes de la presentación en Programación Web II.
 
 ## Pendiente de respuesta del usuario
 

@@ -16,7 +16,8 @@ Todos los cambios de código de GyS Control se documentan aquí, del más recien
   - `CabecerasCorsTests` (6): un origen permitido recibe `Access-Control-Allow-Origin` con su origen; uno no permitido no recibe cabeceras `Access-Control-*`; el preflight con `authorization, content-type` responde 200, permite `POST` y esas cabeceras y no envía `Access-Control-Allow-Credentials`; `Access-Control-Max-Age: 600`; `Vary: Origin`; `/admin/` sin CORS;
   - `test_sin_debug_no_se_permite_cors_desde_cualquier_origen` usa `getattr`, porque `CORS_ALLOW_ALL_ORIGINS` ya no se define.
   - Totales: 23 de la raíz, 306 del backend y 35 del frontend, todas en verde. `npm run check` sin errores ni avisos.
-- **Documentación:** `docs/decisiones.md` (G-5), `README.md` (instalación del backend, "Seguridad" y producción), `CLAUDE.md` ("Configuración") y `docs/progreso.md`.
+- **Documentación:** `docs/decisiones.md` (G-5), `README.md` (instalación del backend, "Seguridad", producción y la guía "Demostración de CORS en el navegador", con la advertencia de que `npx vite --host` expone el frontend a la red local), `CLAUDE.md` ("Configuración") y `docs/progreso.md` (con el ensayo de la demostración en "Pendiente de hacer").
+- **Verificación con el servidor real** (`runserver` con el `backend/.env` del usuario y `curl`): `GET /api/opciones/` desde `http://localhost:5173` trae `Access-Control-Allow-Origin` con ese origen y `Vary: origin`; desde `http://localhost:5175`, ninguna cabecera `Access-Control-*`; el preflight a `/api/auth/login/` trae `Allow-Methods`, `Allow-Headers` (con `authorization` y `content-type`) y `Max-Age: 600`, sin `Allow-Credentials`; `/admin/login/` no trae cabeceras CORS.
 
 **Por qué:** lo pidió Programación Web II (equivalente al paquete `cors` de Express con lista blanca) y GyS Control va a pasar a producción. Permitir cualquier origen en desarrollo ocultaba los problemas de CORS hasta el despliegue.
 
