@@ -4,6 +4,19 @@ Todos los cambios de código de GyS Control se documentan aquí, del más recien
 
 **Origen:** GyS Control nace de la base de PathoLab (sistema de informes de anatomía patológica del mismo autor). El registro de cambios de PathoLab, hasta el 2026-10-14, está en [`docs/historial-patholab/CHANGELOG.md`](docs/historial-patholab/CHANGELOG.md). Los códigos como "D-7" remiten a [`docs/decisiones.md`](docs/decisiones.md), y los de hallazgos ("C-1", "O-16") a las auditorías de [`docs/historial-patholab/`](docs/historial-patholab/).
 
+## 2026-11-11
+
+### Recorte del alcance académico (decisión G-4)
+
+**Qué se cambió (solo documentación, sin cambios de código):**
+- `docs/decisiones.md`: decisión nueva **G-4**. El proyecto académico es el "Sistema de información para la gestión y seguimiento de visitas técnicas en una microempresa de control de plagas de Santiago de Cali": clientes y sedes, programación de visitas (fecha, cliente, sede y técnico asignado), registro y seguimiento de cada visita, informe o certificado en PDF e indicadores del seguimiento. El inventario de plaguicidas, un calendario completo con recordatorios y los demás módulos de un ERP pasan a trabajo futuro. G-1 lleva una nota que remite a G-4.
+- `docs/plan-interfaz.md`: nota del recorte; etapa 2 (Cypress) **en pausa** hasta que existan las pantallas de visitas; etapa 3 pasa a "Dominio de visitas técnicas", basada en el resumen del trabajo de grado; etapa 4 pasa a "Indicadores del seguimiento de las visitas".
+- `docs/progreso.md`: se cierra lo pendiente de octubre (presentación del 2026-10-16 hecha, videos de respaldo retirados, fin de la excepción de `npm run e2e` antes de cada commit), nuevo siguiente paso (plan del dominio de visitas técnicas, quitar "Inventario" de la interfaz, retomar la etapa 2) y preguntas abiertas (resumen del trabajo de grado e indicadores).
+- `README.md`: título, descripción, estado actual, hoja de ruta con la sección "Trabajo futuro" y el trabajo de grado en "Autor y Contacto".
+- `CLAUDE.md`: el primer párrafo describe el alcance de G-4.
+
+**Por qué:** el profesor aprobó GyS Control, pero pidió recortar el alcance porque un ERP completo era demasiado grande para un trabajo de grado.
+
 ## 2026-10-15
 
 ### Ajustes antes de unir `rediseno-visual`: "Especialidad" y mensaje del login

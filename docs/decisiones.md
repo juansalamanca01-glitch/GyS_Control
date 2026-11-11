@@ -38,7 +38,7 @@ Los códigos de hallazgos (`C-x`, `I-x`, `M-x` y `O-x`) que aparecen en el códi
 
 - **Fecha:** 2026-10-15
 - **Decisión:**
-  - El proyecto se llama **GyS Control**: un sistema de gestión para empresas de control de plagas (servicios, informes y certificados en PDF, inventario de plaguicidas y agenda).
+  - El proyecto se llama **GyS Control**: un sistema de gestión para empresas de control de plagas (servicios, informes y certificados en PDF, inventario de plaguicidas y agenda). *El alcance lo reemplazó G-4 (2026-11-11).*
   - La primera limpieza (2026-10-15) quita el foro, el nombre PathoLab y los textos legales de PathoLab. Conserva usuarios, roles, login, seguridad, informes, pacientes, PDF, firma, adendas y toda la infraestructura de pruebas, incluido Cypress.
   - La documentación propia de PathoLab se mueve a `docs/historial-patholab/` y no se borra.
   - Las variables `LABORATORIO_*` y la clave `laboratorio` de `datos_finalizacion` conservan su nombre hasta la transformación del dominio, porque renombrarlas exige una migración de datos sobre los informes finalizados (D-15). Las migraciones existentes no se modifican.
@@ -70,4 +70,22 @@ Los códigos de hallazgos (`C-x`, `I-x`, `M-x` y `O-x`) que aparecen en el códi
   - Los usuarios de prueba `patologo1` y `patologo2` se reemplazan en `seed_data` por `tecnico1` y `tecnico2` (rol interno `patologo`), con nombres ficticios sin títulos médicos ni especialidades de patología, y los correos de todos pasan a `@gyscontrol.local`.
   - El perfil ya no muestra el registro médico ni su aviso.
 - **Motivo:** en la presentación del 2026-10-16 no debe verse nada de PathoLab, ni en las pantallas ni en las pruebas. Borrar el backend antes de entrevistar al técnico obligaría a rehacer partes que quizá se reutilicen (firma, PDF, documentos inmutables).
+
+### G-4. Alcance académico: gestión y seguimiento de visitas técnicas
+
+- **Fecha:** 2026-11-11
+- **Decisión:**
+  - El proyecto académico (trabajo de grado de Juan Salamanca y María José Pozo) es el **"Sistema de información para la gestión y seguimiento de visitas técnicas en una microempresa de control de plagas de Santiago de Cali"**. GyS Control sigue siendo el nombre del sistema.
+  - **Dentro del alcance:**
+    - clientes y sus sedes;
+    - **programación de visitas**: fecha, cliente, sede y técnico asignado;
+    - registro de cada visita técnica y su seguimiento;
+    - informe o certificado en PDF de la visita;
+    - **indicadores del seguimiento de las visitas** (por confirmar contra los objetivos específicos del trabajo de grado).
+  - **Fuera del alcance (trabajo futuro):** el inventario de plaguicidas, un calendario completo con recordatorios o notificaciones, y los demás módulos de gestión general (un ERP completo).
+  - Reemplaza la descripción del alcance de G-1 ("servicios, informes y certificados en PDF, inventario de plaguicidas y agenda") y la lista de módulos de la etapa 3 de `docs/plan-interfaz.md`. El resto de G-1 sigue vigente.
+  - La empresa de referencia es una microempresa familiar de control de plagas de Cali. Un controlador de plagas de esa empresa es fuente de información y usuario real del sistema.
+  - La etapa 2 del plan (Cypress de GyS Control) queda en pausa hasta que existan las pantallas de visitas técnicas. Las 5 pruebas actuales de login y roles siguen vigentes.
+  - El módulo "Inventario" de la interfaz (G-3) y los textos que lo mencionan se quitarán o se marcarán como trabajo futuro en una tarea de código aparte; esta decisión no cambia el código.
+- **Motivo:** el profesor aprobó GyS Control, pero pidió recortar el alcance porque un ERP completo era demasiado grande para un trabajo de grado.
 

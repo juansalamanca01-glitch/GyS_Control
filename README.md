@@ -1,4 +1,4 @@
-# GyS Control — Gestión de Servicios de Control de Plagas
+# GyS Control — Gestión y Seguimiento de Visitas Técnicas de Control de Plagas
 
 [![Django](https://img.shields.io/badge/Django-4.2-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Django REST Framework](https://img.shields.io/badge/DRF-3.14+-red?style=for-the-badge&logo=django&logoColor=white)](https://www.django-rest-framework.org/)
@@ -6,9 +6,9 @@
 [![Vite](https://img.shields.io/badge/Vite-6.4-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Cypress](https://img.shields.io/badge/Cypress-15-69D3A7?style=for-the-badge&logo=cypress&logoColor=white)](https://www.cypress.io/)
 
-**GyS Control** es un sistema web de gestión para empresas de control de plagas: servicios, informes y certificados en PDF, inventario de plaguicidas y agenda.
+**GyS Control** es un sistema web para la gestión y el seguimiento de las visitas técnicas de una microempresa de control de plagas de Santiago de Cali: clientes y sedes, programación de visitas, registro y seguimiento de cada visita, informe o certificado en PDF e indicadores del seguimiento. Es el trabajo de grado **"Sistema de información para la gestión y seguimiento de visitas técnicas en una microempresa de control de plagas de Santiago de Cali"** (decisión G-4). El inventario de plaguicidas y un calendario completo con recordatorios quedan como trabajo futuro.
 
-> **Estado actual (2026-10-15).** GyS Control nace de la base de **PathoLab**, un sistema de informes de anatomía patológica del mismo autor. De PathoLab conserva la plataforma: usuarios, roles, login, seguridad e infraestructura de pruebas (Django, Vitest y Cypress). **La interfaz ya es la de GyS Control** (decisión G-3): barra lateral con los módulos Inicio, Clientes, Servicios, Agenda, Inventario, Informes y Métricas, que por ahora muestran "Próximamente". Las pantallas de patología se quitaron del frontend; su backend (modelos, API y pruebas) sigue en el código, **inactivo**, hasta la transformación del dominio. El plan está en [`docs/plan-interfaz.md`](docs/plan-interfaz.md). La historia de PathoLab está en [`docs/historial-patholab/`](docs/historial-patholab/).
+> **Estado actual (2026-11-11).** El alcance se recortó a las visitas técnicas (decisión G-4); la barra lateral todavía muestra "Inventario", que se quitará en una tarea aparte. GyS Control nace de la base de **PathoLab**, un sistema de informes de anatomía patológica del mismo autor. De PathoLab conserva la plataforma: usuarios, roles, login, seguridad e infraestructura de pruebas (Django, Vitest y Cypress). **La interfaz ya es la de GyS Control** (decisión G-3): barra lateral con los módulos Inicio, Clientes, Servicios, Agenda, Inventario, Informes y Métricas, que por ahora muestran "Próximamente". Las pantallas de patología se quitaron del frontend; su backend (modelos, API y pruebas) sigue en el código, **inactivo**, hasta la transformación del dominio. El plan está en [`docs/plan-interfaz.md`](docs/plan-interfaz.md). La historia de PathoLab está en [`docs/historial-patholab/`](docs/historial-patholab/).
 
 ---
 
@@ -38,7 +38,7 @@
 - **Barra lateral** en carbón con la marca y los módulos; el activo, en carmín. En el celular se abre con un botón de menú.
 - **Barra superior** con el título de la sección, el usuario, su rol y "Salir".
 - **Inicio**: saludo, indicadores de control de plagas marcados "Próximamente" (sin cifras) y accesos rápidos.
-- **Módulos** Clientes, Servicios, Agenda, Inventario, Informes y Métricas: por ahora, una página "Próximamente" que explica qué hará cada uno.
+- **Módulos** Clientes, Servicios, Agenda, Inventario, Informes y Métricas: por ahora, una página "Próximamente" que explica qué hará cada uno. (Inventario: fuera del alcance académico, G-4; se quitará de la interfaz.)
 - **Identidad visual provisional** (G-2): rojo carmín, carbón y blanco, IBM Plex Sans, bordes rectos y sin sombras.
 
 ### Plataforma (se mantiene en GyS Control)
@@ -400,18 +400,23 @@ Para publicar la app en un servidor: `SECRET_KEY` propia, `DEBUG=False`, `ALLOWE
 El plan por etapas está en [`docs/plan-interfaz.md`](docs/plan-interfaz.md):
 
 - [x] **Etapa 1. Interfaz de GyS Control** (2026-10-15): estructura nueva y pantallas de patología ocultas (G-3).
-- [ ] **Etapa 2. Pruebas de Cypress** solo de GyS Control (2026-10-16).
-- [ ] **Etapa 3. Dominio**, después de entrevistar al técnico. Incluye los módulos de abajo:
+- [ ] **Etapa 2. Pruebas de Cypress** solo de GyS Control: **en pausa** hasta que existan las pantallas de visitas técnicas (G-4).
+- [ ] **Etapa 3. Dominio de visitas técnicas** (G-4), basado en el resumen del trabajo de grado y en las entrevistas con el controlador de plagas. Incluye los módulos de abajo:
 
 - [ ] **Clientes**: empresas y personas que contratan el servicio, con sus sedes.
-- [ ] **Servicios de control de plagas**: programación, ejecución, informe del servicio y **certificado en PDF**, sobre la base de firma, adendas y documentos inmutables que ya existe.
-- [ ] **Inventario de plaguicidas**: productos, lotes, existencias y consumo por servicio.
-- [ ] **Agenda**: calendario de servicios por técnico.
+- [ ] **Programación de visitas**: fecha, cliente, sede y técnico asignado.
+- [ ] **Registro y seguimiento de cada visita técnica**, con su informe o **certificado en PDF**, sobre la base de firma, adendas y documentos inmutables que ya existe.
 - [ ] **Adaptar lo heredado**: roles, catálogos, encabezado del PDF (`LABORATORIO_*` → datos de la empresa) y textos legales definitivos (Ley 1581 de 2012), y retirar lo propio de la patología cuando ya no se use.
-- [ ] **Etapa 4. Panel de métricas y KPI** con datos reales.
+- [ ] **Etapa 4. Indicadores del seguimiento de las visitas** con datos reales.
 - [ ] **Etapa 5. Inteligencia artificial y ciencia de datos.**
 - [ ] **Pendientes de seguridad heredados**: grupos 4, 6 (D-16), 7 y 8 de la auditoría OWASP.
 - [ ] **Contenedores Docker**: `Dockerfile` y `docker-compose.yml` para desplegar en un solo paso.
+
+### Trabajo futuro (fuera del alcance académico, G-4)
+
+- **Inventario de plaguicidas**: productos, lotes, existencias y consumo por visita.
+- **Calendario completo** con recordatorios y notificaciones.
+- Los demás módulos de gestión general de la empresa.
 
 ---
 
@@ -419,4 +424,5 @@ El plan por etapas está en [`docs/plan-interfaz.md`](docs/plan-interfaz.md):
 
 - **Proyecto**: GyS Control (a partir de PathoLab)
 - **Desarrollado por**: Juan Salamanca ([@juansalamanca01-glitch](https://github.com/juansalamanca01-glitch))
+- **Trabajo de grado**: "Sistema de información para la gestión y seguimiento de visitas técnicas en una microempresa de control de plagas de Santiago de Cali", en coautoría con María José Pozo
 - **Institución**: Unicatólica

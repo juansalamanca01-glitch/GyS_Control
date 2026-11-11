@@ -2,6 +2,8 @@
 
 Plan acordado con el usuario el 2026-10-15. El estado de cada etapa se lleva en [`progreso.md`](progreso.md), y las decisiones que salgan de él, en [`decisiones.md`](decisiones.md).
 
+**Alcance recortado el 2026-11-11 (decisión G-4):** el proyecto académico es la gestión y el seguimiento de visitas técnicas. El inventario de plaguicidas, un calendario completo con recordatorios y los demás módulos de un ERP quedan como trabajo futuro. Las etapas 2 a 4 se ajustaron a ese alcance.
+
 **Base visual:** la identidad provisional de la decisión G-2 (rama `rediseno-visual`): rojo carmín como acento, carbón y blanco, IBM Plex Sans, bordes rectos y sin sombras.
 
 ---
@@ -25,20 +27,23 @@ Hecha el 2026-10-15 en la rama `rediseno-visual` (decisión G-3). El frontend bo
   - el backend (modelos, API y sus pruebas) no se toca: queda inactivo hasta la etapa 3.
 - **Pruebas:** se eliminan las de Cypress y Vitest que dependen de las pantallas ocultas (quedan en el historial de git). Las de login y cierre de sesión se conservan o se ajustan, y todo lo demás sigue pasando.
 
-## Etapa 2. Pruebas de Cypress de GyS Control (2026-10-16, en la mañana)
+## Etapa 2. Pruebas de Cypress de GyS Control — en pausa
+
+En pausa desde el 2026-11-11 (G-4): se retoma cuando existan las pantallas de visitas técnicas. Las 5 pruebas actuales de login y roles (`login-y-roles.cy.js`) siguen vigentes.
 
 - Nuevas pruebas de punta a punta, solo de GyS Control: login, navegación por la barra lateral, páginas "Próximamente", cierre de sesión y páginas legales.
 - Se siguen las reglas de D-17 y los selectores accesibles de `CLAUDE.md` (`findByRole`, `findByLabelText`, `findByText`).
 
-## Etapa 3. Transformación del dominio
+## Etapa 3. Dominio de visitas técnicas
 
-- **Antes de empezar:** entrevistar al técnico usuario para conocer el trabajo real (tipos de servicio, plagas, productos, frecuencia de visitas, informes y certificados que exigen los clientes y la autoridad sanitaria).
-- **Módulos:** clientes (y sus sedes), servicios, tipos de servicio, inventario de plaguicidas y agenda, por fases.
+- **Base:** el resumen del trabajo de grado (`docs/trabajo-de-grado/resumen.md`, que agregará el usuario: título, objetivos, alcance y requisitos) y las entrevistas con el controlador de plagas de la empresa de referencia (tipos de servicio, plagas, productos aplicados, frecuencia de visitas, informes y certificados que exigen los clientes y la autoridad sanitaria).
+- **Módulos (G-4):** clientes y sus sedes; programación de visitas (fecha, cliente, sede y técnico asignado); registro y seguimiento de cada visita; informe o certificado en PDF de la visita. Se planean por fases con el usuario.
+- **Fuera del alcance (trabajo futuro):** inventario de plaguicidas y calendario completo con recordatorios o notificaciones.
 - **Código heredado de patología:** en esta etapa se transforma o se elimina (informes, pacientes, patologías, plantillas, EPS, CIE-10, firma y PDF). Hay que decidir qué se reutiliza, renombrar `LABORATORIO_*` y la clave `laboratorio` de `datos_finalizacion` con una migración de datos (G-1, D-15), y redactar los textos legales definitivos con revisión legal (Ley 1581 de 2012).
 
-## Etapa 4. Panel de métricas y KPI
+## Etapa 4. Indicadores del seguimiento de las visitas
 
-- Indicadores con datos reales de los módulos de la etapa 3, en el módulo Métricas y en las tarjetas del Inicio, que hoy dicen "Próximamente".
+- Indicadores con datos reales de las visitas de la etapa 3, en el módulo Métricas y en las tarjetas del Inicio, que hoy dicen "Próximamente". Se confirman contra los objetivos específicos del trabajo de grado.
 
 ## Etapa 5. Inteligencia artificial y ciencia de datos
 
