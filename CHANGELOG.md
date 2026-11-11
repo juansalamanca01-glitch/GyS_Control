@@ -6,6 +6,20 @@ Todos los cambios de código de GyS Control se documentan aquí, del más recien
 
 ## 2026-11-11
 
+### CORS con lista blanca en todos los entornos (decisión G-5)
+
+**Qué se cambió:**
+- `backend/config/settings.py`: `CORS_ALLOWED_ORIGINS` se lee siempre de `backend/.env` (separado por comas; vacío si no se define), también con `DEBUG=True`. Se quita `CORS_ALLOW_ALL_ORIGINS = DEBUG`, que en desarrollo aceptaba cualquier origen. Se fijan `CORS_ALLOW_CREDENTIALS = False` (el JWT va en la cabecera `Authorization`), `CORS_URLS_REGEX = r'^/api/.*$'` (`/admin/` ya no recibe cabeceras CORS) y `CORS_PREFLIGHT_MAX_AGE = 600` (antes, 86400 por defecto).
+- `backend/.env.example`: `CORS_ALLOWED_ORIGINS=http://localhost:5173` (se quita `127.0.0.1:5173`, que para el navegador es otro origen), con la explicación de la lista blanca.
+- **Pruebas** (`backend/config/tests.py`), escritas primero y mostradas en rojo (6 fallos y 2 errores) antes del cambio:
+  - `ConfiguracionCorsTests` (4): sin `CORS_ALLOW_ALL_ORIGINS` aun con `DEBUG=True`, lista vacía sin variable, lectura separada por comas, sin credenciales, solo `/api/` y preflight de 600 s;
+  - `CabecerasCorsTests` (6): un origen permitido recibe `Access-Control-Allow-Origin` con su origen; uno no permitido no recibe cabeceras `Access-Control-*`; el preflight con `authorization, content-type` responde 200, permite `POST` y esas cabeceras y no envía `Access-Control-Allow-Credentials`; `Access-Control-Max-Age: 600`; `Vary: Origin`; `/admin/` sin CORS;
+  - `test_sin_debug_no_se_permite_cors_desde_cualquier_origen` usa `getattr`, porque `CORS_ALLOW_ALL_ORIGINS` ya no se define.
+  - Totales: 23 de la raíz, 306 del backend y 35 del frontend, todas en verde. `npm run check` sin errores ni avisos.
+- **Documentación:** `docs/decisiones.md` (G-5), `README.md` (instalación del backend, "Seguridad" y producción), `CLAUDE.md` ("Configuración") y `docs/progreso.md`.
+
+**Por qué:** lo pidió Programación Web II (equivalente al paquete `cors` de Express con lista blanca) y GyS Control va a pasar a producción. Permitir cualquier origen en desarrollo ocultaba los problemas de CORS hasta el despliegue.
+
 ### Recorte del alcance académico (decisión G-4)
 
 **Qué se cambió (solo documentación, sin cambios de código):**

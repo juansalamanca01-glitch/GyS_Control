@@ -158,12 +158,17 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# ---------- CORS ----------
-# En desarrollo (DEBUG=True) se permite todo para no trabar al equipo.
-# En producción SOLO se permiten los orígenes listados explícitamente en el .env.
-CORS_ALLOW_ALL_ORIGINS = DEBUG
-if not DEBUG:
-    CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='', cast=Csv())
+# ---------- CORS (decisión G-5) ----------
+# Lista blanca de orígenes, en desarrollo y en producción: nunca CORS_ALLOW_ALL_ORIGINS.
+# Sin la variable, la lista queda vacía (ningún origen externo). Con npm run dev y npm run e2e
+# no hace falta, porque el proxy de Vite hace que el navegador vea un solo origen.
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='', cast=Csv())
+# El JWT va en la cabecera Authorization, no en cookies: sin credenciales.
+CORS_ALLOW_CREDENTIALS = False
+# Solo la API; /admin/ no se llama desde otro origen.
+CORS_URLS_REGEX = r'^/api/.*$'
+# El navegador recuerda el preflight 10 minutos: los cambios de la lista blanca se notan pronto.
+CORS_PREFLIGHT_MAX_AGE = 600
 
 # ---------- Seguridad general adicional ----------
 SECURE_CONTENT_TYPE_NOSNIFF = True

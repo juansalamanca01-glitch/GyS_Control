@@ -204,6 +204,8 @@ Desde `backend/`:
    ```
    > Sin `SECRET_KEY` el backend no arranca. Si no se define `DEBUG`, queda en `False`. El `.env.example` trae `DEBUG=True` para desarrollo.
 
+   **CORS (decisión G-5):** `CORS_ALLOWED_ORIGINS` es la lista blanca de orígenes que pueden llamar a la API desde el navegador, separados por coma, con esquema y puerto y sin barra final. El `.env.example` trae `http://localhost:5173`. Sin la variable, ningún origen externo puede llamarla. Con `npm run dev` y `npm run e2e` no hace falta, porque el proxy de Vite hace que el navegador vea un solo origen; solo se nota cuando el frontend llama directo al backend (`VITE_API_URL=http://localhost:8000`) o en producción.
+
    **Encabezado del PDF (opcional):**
 
    | Variable | Qué imprime | Si no se define |
@@ -374,12 +376,13 @@ La colección [`GyS_Control_API.postman_collection.json`](GyS_Control_API.postma
 - **Permisos por rol y por autor** en el backend; el frontend solo oculta botones.
 - **Límites de peticiones:** anónimas 30/min, usuarios 120/min, login 10/min y registro 5/min. Por IP cuenta la de la conexión, no `X-Forwarded-For` (`NUM_PROXIES` en `backend/.env`).
 - **Contraseñas** con los validadores de Django.
-- **Configuración segura por defecto:** sin `SECRET_KEY` no arranca y `DEBUG` es `False` si no se define. Con `DEBUG=False` se activan HTTPS, cookies seguras, HSTS y CORS restringido.
+- **CORS con lista blanca** (decisión G-5), en desarrollo y en producción: solo los orígenes de `CORS_ALLOWED_ORIGINS` (`backend/.env`), nunca "todos". Sin credenciales (el JWT va en la cabecera `Authorization`, no en cookies), solo en `/api/` y con un preflight que el navegador recuerda 10 minutos.
+- **Configuración segura por defecto:** sin `SECRET_KEY` no arranca y `DEBUG` es `False` si no se define. Con `DEBUG=False` se activan HTTPS, cookies seguras y HSTS.
 - **PDF:** el texto del usuario se escapa, y el nombre del archivo solo lleva el número de petición.
 - **Integridad:** un documento finalizado no se modifica por ninguna vía y conserva los datos congelados (D-10, D-14, D-15).
 - **Errores y registros:** un filtro no válido responde 400, no 500. Los errores 500 y los inicios de sesión (usuario e IP) se registran en la consola, nunca contraseñas, tokens ni datos personales (`LOG_LEVEL`).
 
-Para publicar la app en un servidor: `SECRET_KEY` propia, `DEBUG=False`, `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`, `NUM_PROXIES`, PostgreSQL, un límite de tamaño de petición en el servidor web y servir `media/`. Las auditorías heredadas ([inicial](docs/historial-patholab/auditoria-inicial.md) y [OWASP Top 10:2025](docs/historial-patholab/auditoria-owasp.md)) listan lo protegido y lo pendiente.
+Para publicar la app en un servidor: `SECRET_KEY` propia, `DEBUG=False`, `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS` con la URL HTTPS real del frontend, `NUM_PROXIES`, PostgreSQL, un límite de tamaño de petición en el servidor web y servir `media/`. Las auditorías heredadas ([inicial](docs/historial-patholab/auditoria-inicial.md) y [OWASP Top 10:2025](docs/historial-patholab/auditoria-owasp.md)) listan lo protegido y lo pendiente.
 
 ---
 

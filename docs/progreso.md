@@ -13,7 +13,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 - **Proyecto:** GyS Control. Desde el 2026-11-11 (decisión G-4), el alcance académico es el **"Sistema de información para la gestión y seguimiento de visitas técnicas en una microempresa de control de plagas de Santiago de Cali"**, trabajo de grado de Juan Salamanca en coautoría con María José Pozo. El inventario de plaguicidas, un calendario completo con recordatorios y los demás módulos de un ERP quedan como trabajo futuro. Carpeta `C:\Users\salam\Desktop\GyS Control`, repositorio `github.com/juansalamanca01-glitch/GyS_Control`.
 - **Origen:** nace de la base de PathoLab (decisión G-1). **La interfaz ya es la de GyS Control** (G-3): barra lateral, Inicio y páginas "Próximamente" para los módulos. El backend heredado (informes de patología, pacientes, PDF, firma y adendas) sigue en el código, inactivo en la interfaz. El dominio de visitas técnicas aún no existe. La barra lateral todavía muestra "Inventario", que se quitará en una tarea de código aparte (G-4).
-- **Rama de trabajo:** ninguna abierta. `docs-recorte-alcance` (solo documentación: G-4 y el alcance recortado) se unió a `main` por fast-forward el 2026-11-11, con autorización del usuario. Antes, `rediseno-visual` (G-2, plan de la interfaz y etapa 1, G-3) se unió a `main` por fast-forward el 2026-10-15. Las ramas siguen en GitHub.
+- **Rama de trabajo:** `cors` (tarea 1 de Programación Web II: CORS con lista blanca, G-5), con commit y push; **falta que el usuario autorice unirla a `main`**. Después viene la tarea 2 (OpenAPI y Swagger UI) en otra rama desde `main`. `docs-recorte-alcance` (solo documentación: G-4 y el alcance recortado) se unió a `main` por fast-forward el 2026-11-11, con autorización del usuario. Antes, `rediseno-visual` (G-2, plan de la interfaz y etapa 1, G-3) se unió a `main` por fast-forward el 2026-10-15. Las ramas siguen en GitHub.
 - **Plan vigente:** [`plan-interfaz.md`](plan-interfaz.md) (2026-10-15, ajustado al alcance de G-4 el 2026-11-11). Etapas: 1) estructura nueva de la interfaz y ocultar lo heredado (G-3), hecha; 2) Cypress solo de GyS Control, **en pausa** hasta que existan las pantallas de visitas técnicas; 3) dominio de visitas técnicas; 4) indicadores del seguimiento de las visitas; 5) IA y ciencia de datos; además, los grupos 4, 6, 7 y 8 de OWASP.
 - **Rama anterior:** la limpieza (`limpieza-patholab`: quitar el foro, nombre GyS Control y documentación) se unió a `main` por fast-forward el 2026-10-15, después de que el usuario confirmara que Cypress pasaba en la rama. La rama sigue en GitHub.
 - **Entorno local** (preparado el 2026-10-15 en este clon): venv del backend con `requirements-dev.txt`, `npm install` en la raíz y en `frontend/`, `backend/.env` con una `SECRET_KEY` nueva y propia de GyS Control (no la de PathoLab), `migrate` y `seed_data`. `npm run dev` arranca y responde.
@@ -24,12 +24,14 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
   - **Después de la etapa 1 (G-3):** 23 de la raíz, 293 del backend, 34 del frontend y 5 de Cypress, todas en verde, y `npm run check` sin errores ni avisos. Las pruebas de las pantallas borradas están en el historial de git.
   - **Con los ajustes, al unir a `main`:** 23 de la raíz, 296 del backend, 35 del frontend y 5 de Cypress, todas en verde.
   - Las 29 del backend y las 13 del frontend que faltan eran del foro.
+  - **En `cors` (G-5):** 23 de la raíz, 306 del backend (10 nuevas de CORS, escritas primero y mostradas en rojo) y 35 del frontend, todas en verde, y `npm run check` sin errores ni avisos. Cypress no se corrió (regla 7; el proxy de Vite no pasa por CORS).
 - **Forma de trabajar:** la de las reglas 1 a 8 de `CLAUDE.md`. La regla 8 (rama por tarea, prueba que demuestre el fallo, push después de cada commit y preguntar antes de unir a `main`) se pasó a `CLAUDE.md` el 2026-10-15: en PathoLab estaba en este archivo. La excepción de correr `npm run e2e` antes de cada commit de código terminó con la presentación del 2026-10-16.
 
 ## Hecho
 
 | Fecha | Qué se hizo | Commit |
 |---|---|---|
+| 2026-11-11 | CORS con lista blanca (G-5), tarea 1 de Programación Web II: `CORS_ALLOWED_ORIGINS` de `backend/.env` también en desarrollo, sin `CORS_ALLOW_ALL_ORIGINS`, sin credenciales, solo `/api/` y preflight de 600 s. Rama `cors` | commit "feat: CORS con lista blanca (G-5)" |
 | 2026-11-11 | Recorte del alcance académico (G-4): gestión y seguimiento de visitas técnicas; inventario y calendario completo como trabajo futuro; etapa 2 en pausa. `decisiones.md`, `plan-interfaz.md`, `README.md`, `CLAUDE.md` y este archivo. Rama `docs-recorte-alcance`, unida a `main` (fast-forward) | commit "docs: recorte del alcance (G-4)" |
 | 2026-10-16 | Presentación de las pruebas automáticas y Cypress: se hizo y salió bien | — |
 | 2026-10-15 | Entorno del clon preparado y línea base de pruebas en verde (ver "Pruebas") | — |
@@ -45,9 +47,10 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 
 ## Siguiente paso
 
-1. **Plan del dominio de visitas técnicas**, basado en el resumen del trabajo de grado (`docs/trabajo-de-grado/resumen.md`: título, objetivos, alcance y requisitos), que agregará el usuario. Se planea con el usuario y no se programa nada sin su aprobación.
-2. **Quitar "Inventario" de la interfaz** (o marcarlo como trabajo futuro) y ajustar los textos que lo mencionan: `frontend/src/modulos.js` (módulo, indicador "Productos por vencer" y descripción de Métricas) y `LoginPage.jsx`. Es código: va en su propia rama y cambia las pruebas que cuentan los módulos (`EstructuraApp.test.jsx`, `InicioPage.test.jsx` y `login-y-roles.cy.js`).
-3. **Retomar la etapa 2 (Cypress)** cuando existan las pantallas de visitas técnicas.
+1. **Programación Web II:** unir `cors` a `main` (con permiso del usuario) y, en una rama nueva desde `main`, la tarea 2: OpenAPI con drf-spectacular y Swagger UI (`/api/schema/`, `/api/docs/`), pública con `DEBUG=True` y solo para administradores con `DEBUG=False`. Antes de programarla se muestra el plan detallado y se espera la aprobación.
+2. **Plan del dominio de visitas técnicas**, basado en el resumen del trabajo de grado (`docs/trabajo-de-grado/resumen.md`: título, objetivos, alcance y requisitos), que agregará el usuario. Se planea con el usuario y no se programa nada sin su aprobación.
+3. **Quitar "Inventario" de la interfaz** (o marcarlo como trabajo futuro) y ajustar los textos que lo mencionan: `frontend/src/modulos.js` (módulo, indicador "Productos por vencer" y descripción de Métricas) y `LoginPage.jsx`. Es código: va en su propia rama y cambia las pruebas que cuentan los módulos (`EstructuraApp.test.jsx`, `InicioPage.test.jsx` y `login-y-roles.cy.js`).
+4. **Retomar la etapa 2 (Cypress)** cuando existan las pantallas de visitas técnicas.
 
 Para unir una rama a `main` (fast-forward desde la terminal, sin pull request, porque `gh` no está instalado):
 1. Comprobar que todas las pruebas pasan.
@@ -77,7 +80,7 @@ Al hacerlo, habrá que decidir qué pasa con lo heredado de PathoLab: patología
 Siguen siendo válidos para el código conservado. El detalle está en `docs/historial-patholab/progreso.md` ("Pendientes") y en `docs/historial-patholab/auditoria-owasp.md`:
 - fase 4 de la auditoría OWASP: grupos 4 (Django 5.2), 6 (cuentas y sesiones, D-16) y 7 (concurrencia), y las mejoras para producción del grupo 8;
 - I-9c (avisos moderados de `react-router`);
-- todo lo de "Para producción": `SECRET_KEY`, `DEBUG=False`, PostgreSQL, límite de tamaño de petición, servir `media/`, registros del servidor web.
+- todo lo de "Para producción": `SECRET_KEY`, `DEBUG=False`, `CORS_ALLOWED_ORIGINS` con la URL HTTPS real del frontend (G-5), PostgreSQL, límite de tamaño de petición, servir `media/`, registros del servidor web.
 
 Las fases 5 a 8 del plan de PathoLab (guía de diseño y rediseño) se replantean con el dominio nuevo.
 

@@ -89,3 +89,15 @@ Los códigos de hallazgos (`C-x`, `I-x`, `M-x` y `O-x`) que aparecen en el códi
   - El módulo "Inventario" de la interfaz (G-3) y los textos que lo mencionan se quitarán o se marcarán como trabajo futuro en una tarea de código aparte; esta decisión no cambia el código.
 - **Motivo:** el profesor aprobó GyS Control, pero pidió recortar el alcance porque un ERP completo era demasiado grande para un trabajo de grado.
 
+### G-5. CORS con lista blanca en todos los entornos
+
+- **Fecha:** 2026-11-11
+- **Decisión:**
+  - Solo pueden llamar a la API desde el navegador los orígenes de `CORS_ALLOWED_ORIGINS` (`backend/.env`, separados por comas, con esquema y puerto y sin barra final), **también en desarrollo**. Si la variable no se define, la lista queda vacía. El valor de desarrollo, `http://localhost:5173`, va en `.env.example`.
+  - Nunca `CORS_ALLOW_ALL_ORIGINS` ni `*`. Reemplaza la regla anterior, que permitía cualquier origen con `DEBUG=True`.
+  - Sin credenciales (`CORS_ALLOW_CREDENTIALS = False`): el JWT va en la cabecera `Authorization`, no en cookies. Se permiten las cabeceras por defecto de `django-cors-headers`, que incluyen `authorization` y `content-type`.
+  - CORS solo en `/api/` (`CORS_URLS_REGEX`); `/admin/` no recibe cabeceras CORS.
+  - El preflight se recuerda 10 minutos (`CORS_PREFLIGHT_MAX_AGE = 600`), para que los cambios de la lista blanca se noten pronto.
+  - Lo vigilan `ConfiguracionCorsTests` y `CabecerasCorsTests` en `backend/config/tests.py`.
+- **Motivo:** lo pidió Programación Web II (equivalente al paquete `cors` de Express con lista blanca) y GyS Control va a pasar a producción: permitir todo en desarrollo ocultaba los problemas de CORS hasta el despliegue.
+

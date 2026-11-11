@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest import mock
 
 import decouple
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 
 RUTA_SETTINGS = Path(__file__).resolve().parent / 'settings.py'
 
@@ -42,7 +42,7 @@ class ValoresPorDefectoSegurosTests(SimpleTestCase):
 
     def test_sin_debug_no_se_permite_cors_desde_cualquier_origen(self):
         settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests'})
-        self.assertFalse(settings.CORS_ALLOW_ALL_ORIGINS)
+        self.assertFalse(getattr(settings, 'CORS_ALLOW_ALL_ORIGINS', False))
 
     def test_usa_la_secret_key_del_entorno(self):
         # Control: si la variable existe, se usa tal cual.
@@ -182,3 +182,96 @@ class RegistrosTests(SimpleTestCase):
     def test_el_nivel_se_lee_del_entorno(self):
         settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests', 'LOG_LEVEL': 'WARNING'})
         self.assertEqual(settings.LOGGING['loggers']['seguridad']['level'], 'WARNING')
+
+
+class ConfiguracionCorsTests(SimpleTestCase):
+    """
+    Decisión G-5: CORS con lista blanca leída de backend/.env, también en desarrollo.
+    Nunca CORS_ALLOW_ALL_ORIGINS, sin credenciales (el JWT va en la cabecera) y solo en /api/.
+    """
+
+    def test_con_debug_tampoco_se_permite_cualquier_origen(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests', 'DEBUG': 'True'})
+        self.assertFalse(getattr(settings, 'CORS_ALLOW_ALL_ORIGINS', False))
+
+    def test_sin_variable_la_lista_blanca_queda_vacia(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests', 'DEBUG': 'True'})
+        self.assertEqual(settings.CORS_ALLOWED_ORIGINS, [])
+
+    def test_la_lista_blanca_se_lee_del_entorno_separada_por_comas(self):
+        settings = cargar_settings(
+            {
+                'SECRET_KEY': 'clave-de-prueba-solo-para-tests',
+                'CORS_ALLOWED_ORIGINS': 'http://localhost:5173, https://app.ejemplo.test',
+            }
+        )
+        self.assertEqual(settings.CORS_ALLOWED_ORIGINS, ['http://localhost:5173', 'https://app.ejemplo.test'])
+
+    def test_sin_credenciales_solo_api_y_preflight_de_10_minutos(self):
+        settings = cargar_settings({'SECRET_KEY': 'clave-de-prueba-solo-para-tests', 'DEBUG': 'True'})
+        self.assertFalse(getattr(settings, 'CORS_ALLOW_CREDENTIALS', False))
+        self.assertEqual(settings.CORS_URLS_REGEX, r'^/api/.*$')
+        self.assertEqual(settings.CORS_PREFLIGHT_MAX_AGE, 600)
+
+
+@override_settings(CORS_ALLOWED_ORIGINS=['http://localhost:5173'])
+class CabecerasCorsTests(TestCase):
+    """
+    Decisión G-5: lo que recibe el navegador. La lista blanca se fija aquí para no depender
+    del backend/.env de quien corre las pruebas.
+    """
+
+    PERMITIDO = 'http://localhost:5173'
+    NO_PERMITIDO = 'http://sitio-no-permitido.example'
+
+    @staticmethod
+    def cabeceras_cors(respuesta):
+        return {
+            nombre.lower(): valor
+            for nombre, valor in respuesta.headers.items()
+            if nombre.lower().startswith('access-control-')
+        }
+
+    def preflight(self, origen):
+        return self.client.options(
+            '/api/auth/login/',
+            headers={
+                'Origin': origen,
+                'Access-Control-Request-Method': 'POST',
+                'Access-Control-Request-Headers': 'authorization, content-type',
+            },
+        )
+
+    def test_un_origen_permitido_recibe_su_propio_origen(self):
+        respuesta = self.client.get('/api/opciones/', headers={'Origin': self.PERMITIDO})
+        self.assertEqual(respuesta.headers.get('Access-Control-Allow-Origin'), self.PERMITIDO)
+
+    def test_un_origen_no_permitido_no_recibe_cabeceras_cors(self):
+        respuesta = self.client.get('/api/opciones/', headers={'Origin': self.NO_PERMITIDO})
+        self.assertEqual(self.cabeceras_cors(respuesta), {})
+
+    def test_el_preflight_permite_authorization_y_content_type_sin_credenciales(self):
+        respuesta = self.preflight(self.PERMITIDO)
+        self.assertEqual(respuesta.status_code, 200)
+        cabeceras = self.cabeceras_cors(respuesta)
+        self.assertEqual(cabeceras.get('access-control-allow-origin'), self.PERMITIDO)
+        metodos = [m.strip().upper() for m in cabeceras.get('access-control-allow-methods', '').split(',')]
+        self.assertIn('POST', metodos)
+        permitidas = [c.strip().lower() for c in cabeceras.get('access-control-allow-headers', '').split(',')]
+        self.assertIn('authorization', permitidas)
+        self.assertIn('content-type', permitidas)
+        self.assertNotIn('access-control-allow-credentials', cabeceras)
+
+    def test_el_navegador_recuerda_el_preflight_10_minutos(self):
+        respuesta = self.preflight(self.PERMITIDO)
+        self.assertEqual(respuesta.headers.get('Access-Control-Max-Age'), '600')
+
+    def test_la_respuesta_varia_segun_el_origen(self):
+        # Sin Vary: Origin, una caché intermedia podría servir a un origen la respuesta de otro.
+        respuesta = self.client.get('/api/opciones/', headers={'Origin': self.PERMITIDO})
+        variantes = [v.strip().lower() for v in respuesta.headers.get('Vary', '').split(',')]
+        self.assertIn('origin', variantes)
+
+    def test_fuera_de_la_api_no_hay_cors(self):
+        respuesta = self.client.get('/admin/login/', headers={'Origin': self.PERMITIDO})
+        self.assertEqual(self.cabeceras_cors(respuesta), {})
