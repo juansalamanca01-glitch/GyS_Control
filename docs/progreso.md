@@ -5,7 +5,7 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
 - **Decisiones tomadas:** `docs/decisiones.md`.
 - **Historia de PathoLab** (base de este proyecto): `docs/historial-patholab/`.
 
-**Última actualización:** 2026-11-11
+**Última actualización:** 2026-11-20
 
 ---
 
@@ -25,12 +25,14 @@ Este archivo dice **en qué quedamos**. Se actualiza al terminar cada tarea para
   - **Con los ajustes, al unir a `main`:** 23 de la raíz, 296 del backend, 35 del frontend y 5 de Cypress, todas en verde.
   - Las 29 del backend y las 13 del frontend que faltan eran del foro.
   - **En `cors` (G-5):** 23 de la raíz, 306 del backend (10 nuevas de CORS, escritas primero y mostradas en rojo) y 35 del frontend, todas en verde, y `npm run check` sin errores ni avisos. Cypress no se corrió (regla 7; el proxy de Vite no pasa por CORS).
+  - **En `main`, antes del video de CORS (2026-11-20):** las mismas 23, 306 y 35, todas en verde, y `npm run check` sin errores ni avisos.
 - **Forma de trabajar:** la de las reglas 1 a 8 de `CLAUDE.md`. La regla 8 (rama por tarea, prueba que demuestre el fallo, push después de cada commit y preguntar antes de unir a `main`) se pasó a `CLAUDE.md` el 2026-10-15: en PathoLab estaba en este archivo. La excepción de correr `npm run e2e` antes de cada commit de código terminó con la presentación del 2026-10-16.
 
 ## Hecho
 
 | Fecha | Qué se hizo | Commit |
 |---|---|---|
+| 2026-11-20 | Video de clase de Programación Web II (máx. 5 min): CORS y la API. Antes de grabar, todas las pruebas en verde en `main`. Para la demostración se cambiaron solo los `.env` locales (`backend/.env` con `CORS_ALLOWED_ORIGINS=http://localhost:5173` y un `frontend/.env` temporal con `VITE_API_URL=http://localhost:8000`, para que el navegador llamara al backend directamente y se viera el bloqueo desde `127.0.0.1:5173`). Se comprobó con curl.exe (`/api/opciones/` con los dos orígenes) y el flujo login → token → perfil → perfil sin token. Después de grabar se restauraron los `.env` y se detuvieron los servidores. Sin cambios de código | — |
 | 2026-11-11 | CORS con lista blanca (G-5), tarea 1 de Programación Web II: `CORS_ALLOWED_ORIGINS` de `backend/.env` también en desarrollo, sin `CORS_ALLOW_ALL_ORIGINS`, sin credenciales, solo `/api/` y preflight de 600 s. Verificado con curl contra `runserver` (permitido, no permitido, preflight y `/admin/`); guía de la demostración en el README. Rama `cors`, unida a `main` (fast-forward) | commits "feat: CORS con lista blanca (G-5)" y "docs: guía de la demostración de CORS" |
 | 2026-11-11 | Recorte del alcance académico (G-4): gestión y seguimiento de visitas técnicas; inventario y calendario completo como trabajo futuro; etapa 2 en pausa. `decisiones.md`, `plan-interfaz.md`, `README.md`, `CLAUDE.md` y este archivo. Rama `docs-recorte-alcance`, unida a `main` (fast-forward) | commit "docs: recorte del alcance (G-4)" |
 | 2026-10-16 | Presentación de las pruebas automáticas y Cypress: se hizo y salió bien | — |
@@ -90,7 +92,7 @@ Antes de traerlos, ejecutar `python manage.py migrate foro zero` (después ya no
 
 ## Pendiente de hacer
 
-- Ensayar la demostración de CORS en el navegador (guía en el README) antes de la presentación en Programación Web II.
+- Poner al día la colección de Postman (`GyS_Control_API.postman_collection.json`) con los endpoints de la base: faltan `POST /api/auth/registro/`, `POST /api/auth/cambiar-password/`, `GET /api/auth/usuarios/` y `PATCH /api/auth/perfil/`. Además, el login se llama "Login (patólogo)" y las carpetas "Catálogo", "Pacientes" e "Informes" son de PathoLab. Revisado el 2026-11-20; no se ha cambiado.
 
 ## Pendiente de respuesta del usuario
 
